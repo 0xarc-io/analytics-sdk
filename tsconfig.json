@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "allowJs": false,
+    "esModuleInterop": true,
+    "noUnusedLocals": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "module": "commonjs",
+    "target": "es6",
+    "moduleResolution": "node",
+    "declaration": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "noUnusedParameters": true,
+    "declarationMap": true,
+    "composite": true,
+    "incremental": true,
+    "sourceMap": true,
+    "outDir": "dist",
+  },
+  "include": ["src"],
+  "exclude": ["*/node_modules/*"]
+}
