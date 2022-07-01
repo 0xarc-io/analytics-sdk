@@ -4,7 +4,15 @@ type Attributes = Record<string, string | number | Record<string, string | numbe
 
 type SdkConfig = {
 	trackPages: boolean,
+	cacheIdentity: boolean,
 }
+
+const defaultSdkConfig: SdkConfig = {
+	trackPages: true,
+	cacheIdentity: true 
+}
+
+const identity_key = 'identity'
 
 export class ArcxAttributionSdk {
 	private constructor(
@@ -25,8 +33,13 @@ export class ArcxAttributionSdk {
 		}
 	}
 
-	static async identify(apiKey: string, sdkConfig: SdkConfig = { trackPages: true }, arcxUrl: string = 'https://api.arcx.money/v1') : Promise<ArcxAttributionSdk> {
-		const identityId =  await this.postAnalytics(arcxUrl, apiKey, '/identify') 
+	static async identify(apiKey: string, config?: SdkConfig, arcxUrl: string = 'https://api.arcx.money/v1') : Promise<ArcxAttributionSdk> {
+		const sdkConfig = { ...defaultSdkConfig, ...config }
+
+		const identityId =  (sdkConfig?.cacheIdentity && localStorage.getItem(identity_key)) || await this.postAnalytics(arcxUrl, apiKey, '/identify')
+
+		sdkConfig?.cacheIdentity && localStorage.setItem(identity_key, identityId)
+
 		return new ArcxAttributionSdk(apiKey, identityId, arcxUrl, sdkConfig)
 	}
 
