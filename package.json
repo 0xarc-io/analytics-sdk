@@ -1,9 +1,9 @@
 {
   "name": "arcx-attribution-sdk",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "index.ts",
   "repository": "https://github.com/arcxmoney/arcx-attribution-sdk.git",
-  "author": "Yaraslau Stsetskevich <yaraslau.s@gmail.com>",
+  "author": "Yaraslau Stsetskevich <j@arcx.money>",
   "license": "MIT",
   "dependencies": {
     "@restless/sanitizers": "^0.2.5"
