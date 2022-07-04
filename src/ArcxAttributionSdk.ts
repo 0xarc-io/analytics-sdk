@@ -1,12 +1,6 @@
 import { cast, asString } from '@restless/sanitizers'
 import { CONNECT_EVENT, DEFAULT_SDK_CONFIG, IDENTITY_KEY, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from './constants'
-
-type Attributes = Record<string, string | number | Record<string, string | number>>
-
-type SdkConfig = {
-  trackPages: boolean,
-  cacheIdentity: boolean,
-}
+import { Attributes, SdkConfig } from './types'
 
 export class ArcxAttributionSdk {
   private constructor(
