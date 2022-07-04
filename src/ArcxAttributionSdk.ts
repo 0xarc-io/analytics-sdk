@@ -1,5 +1,5 @@
 import { cast, asString } from '@restless/sanitizers'
-import { CONNECT_EVENT, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from './constants'
+import { CONNECT_EVENT, DEFAULT_SDK_CONFIG, IDENTITY_KEY, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from './constants'
 
 type Attributes = Record<string, string | number | Record<string, string | number>>
 
@@ -7,13 +7,6 @@ type SdkConfig = {
   trackPages: boolean,
   cacheIdentity: boolean,
 }
-
-const defaultSdkConfig: SdkConfig = {
-  trackPages: true,
-  cacheIdentity: true,
-}
-
-const identity_key = 'identity'
 
 export class ArcxAttributionSdk {
   private constructor(
@@ -41,11 +34,11 @@ export class ArcxAttributionSdk {
   }
 
   static async identify(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAttributionSdk> {
-    const sdkConfig = { ...defaultSdkConfig, ...config }
+    const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(identity_key)) || await this.postAnalytics(arcxUrl, apiKey, '/identify')
+    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAnalytics(arcxUrl, apiKey, '/identify')
 
-    sdkConfig?.cacheIdentity && localStorage.setItem(identity_key, identityId)
+    sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
 
     return new ArcxAttributionSdk(apiKey, identityId, arcxUrl, sdkConfig)
   }
