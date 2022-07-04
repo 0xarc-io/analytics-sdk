@@ -50,7 +50,7 @@ export class ArcxAttributionSdk {
     return new ArcxAttributionSdk(apiKey, identityId, arcxUrl, sdkConfig)
   }
 
-  async event(event: string, attributes?: Attributes): Promise<string> {
+  event(event: string, attributes?: Attributes): Promise<string> {
     return ArcxAttributionSdk.postAnalytics(this.arcxUrl, this.apiKey, '/submit-event', {
       identityId: this.identityId,
       event,
