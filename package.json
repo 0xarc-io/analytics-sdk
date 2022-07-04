@@ -9,9 +9,13 @@
     "@restless/sanitizers": "^0.2.5"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.30.4",
+    "@typescript-eslint/parser": "^5.30.4",
+    "eslint": "^8.19.0",
     "typescript": "^4.7.4"
   },
   "scripts": {
-    "build": "yarn tsc"
+    "build": "yarn tsc",
+    "lint": "eslint '{src,test}/**/*.ts'"
   }
 }

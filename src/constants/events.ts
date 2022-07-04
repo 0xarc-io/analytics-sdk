@@ -1,0 +1,3 @@
+export const PAGE_EVENT = 'PAGE'
+export const CONNECT_EVENT = 'CONNECT'
+export const TRANSACTION_EVENT = 'TRANSACTION_SUBMITTED'
