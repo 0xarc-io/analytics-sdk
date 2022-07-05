@@ -9,10 +9,12 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16.x'
-          cache: 'yarn --frozen-lockfile'
-          - name: Run linter
-            run: yarn lint
-          - name: Build
-            run: yarn build
-          - name: Test codebase
-          - run: yarn test
+          cache: 'yarn'
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Run linter
+        run: yarn lint
+      - name: Run build
+        run: yarn build
+      - name: Test codebase
+        run: yarn test
