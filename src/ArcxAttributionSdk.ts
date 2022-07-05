@@ -30,7 +30,7 @@ export class ArcxAttributionSdk {
   static async identify(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAttributionSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAnalytics(arcxUrl, apiKey, '/identify')
+    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAttribution(arcxUrl, apiKey, '/identify')
 
     sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
 
@@ -38,7 +38,7 @@ export class ArcxAttributionSdk {
   }
 
   event(event: string, attributes?: Attributes): Promise<string> {
-    return ArcxAttributionSdk.postAnalytics(this.arcxUrl, this.apiKey, '/submit-event', {
+    return ArcxAttributionSdk.postAttribution(this.arcxUrl, this.apiKey, '/submit-event', {
       identityId: this.identityId,
       event,
       attributes: { ...attributes },
@@ -65,7 +65,7 @@ export class ArcxAttributionSdk {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static async postAnalytics(arcxUrl: string, apiKey: string, path: string, data?: any): Promise<string> {
+  static async postAttribution(arcxUrl: string, apiKey: string, path: string, data?: any): Promise<string> {
     const response = await fetch(`${arcxUrl}${path}`, {
       method: 'POST',
       headers: {

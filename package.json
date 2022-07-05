@@ -9,13 +9,23 @@
     "@restless/sanitizers": "^0.2.5"
   },
   "devDependencies": {
+    "@types/chai": "^4.3.1",
+    "@types/mocha": "^9.1.1",
+    "@types/sinon": "^10.0.12",
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
+    "chai": "^4.3.6",
     "eslint": "^8.19.0",
+    "mocha": "^10.0.0",
+    "sinon": "^14.0.0",
+    "ts-node": "^10.8.2",
     "typescript": "^4.7.4"
   },
   "scripts": {
+    "publish-patch": "yarn lint && yarn build && npm version patch && npm publish",
+    "publish-minor": "yarn lint && yarn build && npm version minor && npm publish",
     "build": "yarn tsc",
-    "lint": "eslint '{src,test}/**/*.ts'"
+    "lint": "eslint '{src,test}/**/*.ts'",
+    "test": "mocha -r ts-node/register 'test/**/*.test.ts'"
   }
 }
