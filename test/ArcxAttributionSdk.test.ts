@@ -21,13 +21,13 @@ describe('(unit) ArcxAttributionSdk', () => {
 
   beforeEach(async () => {
     postAttributionStub = sinon.stub(ArcxAttributionSdk, 'postAttribution').resolves(TEST_IDENTITY)
-    attributionSdk = await ArcxAttributionSdk.identify(TEST_API_KEY, TEST_CONFIG)
+    attributionSdk = await ArcxAttributionSdk.init(TEST_API_KEY, TEST_CONFIG)
 
     postAttributionStub.resetHistory()
   })
 
-  it('#identify', async () => {
-    await ArcxAttributionSdk.identify('', TEST_CONFIG)
+  it('#init', async () => {
+    await ArcxAttributionSdk.init('', TEST_CONFIG)
     expect(postAttributionStub.calledOnce).to.be.true
   })
 

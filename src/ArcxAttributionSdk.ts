@@ -27,10 +27,10 @@ export class ArcxAttributionSdk {
     }, true)
   }
 
-  static async identify(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAttributionSdk> {
+  static async init(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAttributionSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAttribution(arcxUrl, apiKey, '/identify')
+    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAttribution(arcxUrl, apiKey, '/init')
 
     sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
 
