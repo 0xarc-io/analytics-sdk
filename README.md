@@ -1,10 +1,10 @@
-# ArcxAttributionSdk
+# ArcxAnalyticsSdk
 
-`ArcxAttributionSdk` is a wrapper for [Arcx Attribution Api](https://docs.arcx.money/#tag--analytics), which is created for increasing usability and simplicity for our api.
+`ArcxAnalyticsSdk` is a wrapper for [Arcx Analytics Api](https://docs.arcx.money/#tag--analytics), which is created for increasing usability and simplicity for our api.
 
 ```js
-const arcxAttributionSdk = await ArcxAttributionSdk.init(YOUR_API_KEY)
-await arcxAttributionSdk.event('EXAMPLE_EVENT', {
+const arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+await arcxAnalyticsSdk.event('EXAMPLE_EVENT', {
   attribute: 'random',
   anotherAttribute: 'value',
 })
@@ -14,7 +14,7 @@ await arcxAttributionSdk.event('EXAMPLE_EVENT', {
 
 ```cli
 npm install @arcx-attribuition-sdk
-yarn add @arcx-attribution-sdk
+yarn add @arcx-analytics-sdk
 ```
 
 # Api
@@ -27,7 +27,7 @@ yarn add @arcx-attribution-sdk
 
 ### `init`
 
-This function is used to initializate the `ArcxAttributionSdk` instance. An `api key` is required to initializing the instance. In order to get your key please [contact us](https://discord.gg/hfrbGzPyK8) to initiate the collaboration process.
+This function is used to initializate the `ArcxAnalyticsSdk` instance. An `api key` is required to initializing the instance. In order to get your key please [contact us](https://discord.gg/hfrbGzPyK8) to initiate the collaboration process.
 
 `init` takes two arguments:
 
@@ -37,10 +37,10 @@ This function is used to initializate the `ArcxAttributionSdk` instance. An `api
 Example:
 
 ```javascript
-import { ArcxAttributionSdk } from 'arcx-attribution-sdk'
+import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
 
 ...
-await arcxAttributionSdk = await ArcxAttributionSdk.init(
+await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(
   YOUR_API_KEY,
   {
     trackPages: true, // default - automatically trigger PAGE event if url changed after click
@@ -56,11 +56,11 @@ Save a custom `event` in order to be analysed by Arcx Team.
 Example:
 
 ```javascript
-import { ArcxAttributionSdk } from 'arcx-attribution-sdk'
+import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
 
 ...
-await arcxAttributionSdk = await ArcxAttributionSdk.init(YOUR_API_KEY)
-await arcxAttributionSdk.event(
+await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+await arcxAnalyticsSdk.event(
   'EXAMPLE_EVENT',
   {
     attribute: 'random',
@@ -76,11 +76,11 @@ Used to save a standardized `event` in order to standardize and simplify trackin
 Example:
 
 ```javascript
-import { ArcxAttributionSdk } from 'arcx-attribution-sdk'
+import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
 
 ...
-await arcxAttributionSdk = await ArcxAttributionSdk.init(YOUR_API_KEY)
-await arcxAttributionSdk.page(
+await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+await arcxAnalyticsSdk.page(
   'EXAMPLE_EVENT',
   {
     url: 'https://target.url',
@@ -95,12 +95,12 @@ Used to save a standardized `event` in order to standardize and simplify trackin
 Example:
 
 ```javascript
-import { ArcxAttributionSdk } from 'arcx-attribution-sdk'
+import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
 
 ...
-await arcxAttributionSdk = await ArcxAttributionSdk.init(YOUR_API_KEY)
+await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
 
-await attributionSdk.transaction(
+await analyticsSdk.transaction(
   transactionType, // required(string) - type of trasaction e.g. 'SWAP', 'STAKE'...
   transactionHash, // optional(string) - hash of the transaction
   attributes, // optional(object) - additional information about transaction
@@ -114,12 +114,12 @@ Used to save a standardized `event` in order to standardize and simplify trackin
 Example:
 
 ```javascript
-import { ArcxAttributionSdk } from 'arcx-attribution-sdk'
+import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
 
 ...
-await arcxAttributionSdk = await ArcxAttributionSdk.init(YOUR_API_KEY)
+await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
 
-await attributionSdk.connectWallet({
+await analyticsSdk.connectWallet({
   account: '0x1234',
   chain: '1',
 })

@@ -1,4 +1,4 @@
-import { ArcxAttributionSdk } from '../src'
+import { ArcxAnalyticsSdk } from '../src'
 import { SdkConfig } from '../src/types'
 import sinon from 'sinon'
 import { expect } from 'chai'
@@ -15,48 +15,48 @@ const TEST_ATTRIBUTES = {
 }
 const TEST_IDENTITY = 'ef9a0cb5f45edf8d0a9ce7f7'
 
-describe('(unit) ArcxAttributionSdk', () => {
-  let postAttributionStub: sinon.SinonStub
-  let attributionSdk: ArcxAttributionSdk
+describe('(unit) ArcxAnalyticsSdk', () => {
+  let postAnalyticsStub: sinon.SinonStub
+  let analyticsSdk: ArcxAnalyticsSdk
 
   beforeEach(async () => {
-    postAttributionStub = sinon.stub(ArcxAttributionSdk, 'postAttribution').resolves(TEST_IDENTITY)
-    attributionSdk = await ArcxAttributionSdk.init(TEST_API_KEY, TEST_CONFIG)
+    postAnalyticsStub = sinon.stub(ArcxAnalyticsSdk, 'postAnalytics').resolves(TEST_IDENTITY)
+    analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, TEST_CONFIG)
 
-    postAttributionStub.resetHistory()
+    postAnalyticsStub.resetHistory()
   })
 
   it('#init', async () => {
-    await ArcxAttributionSdk.init('', TEST_CONFIG)
-    expect(postAttributionStub.calledOnce).to.be.true
+    await ArcxAnalyticsSdk.init('', TEST_CONFIG)
+    expect(postAnalyticsStub.calledOnce).to.be.true
   })
 
   it('#event', async () => {
-    await attributionSdk.event('TEST_EVENT', TEST_ATTRIBUTES)
+    await analyticsSdk.event('TEST_EVENT', TEST_ATTRIBUTES)
     expect(
-      postAttributionStub.calledOnceWith(
+      postAnalyticsStub.calledOnceWith(
         PROD_URL_BACKEND,
         TEST_API_KEY,
         '/submit-event',
-        getAttributionData('TEST_EVENT', TEST_ATTRIBUTES),
+        getAnalyticsData('TEST_EVENT', TEST_ATTRIBUTES),
       ),
     ).to.be.true
   })
 
   it('#page', async () => {
     const pageAttributes = { url: 'page.test' }
-    const eventStub = sinon.stub(attributionSdk, 'event')
+    const eventStub = sinon.stub(analyticsSdk, 'event')
 
-    await attributionSdk.page(pageAttributes)
+    await analyticsSdk.page(pageAttributes)
 
     expect(eventStub.calledOnceWith(PAGE_EVENT, pageAttributes)).to.be.true
   })
 
   it('#connectWallet', async () => {
     const attributes = { account: '0x12354', chain: '1' }
-    const eventStub = sinon.stub(attributionSdk, 'event')
+    const eventStub = sinon.stub(analyticsSdk, 'event')
 
-    await attributionSdk.connectWallet(attributes)
+    await analyticsSdk.connectWallet(attributes)
 
     expect(eventStub.calledOnceWith(CONNECT_EVENT, attributes)).to.be.true
   })
@@ -68,11 +68,11 @@ describe('(unit) ArcxAttributionSdk', () => {
     let eventStub: sinon.SinonStub
 
     beforeEach(() => {
-      eventStub = sinon.stub(attributionSdk, 'event')
+      eventStub = sinon.stub(analyticsSdk, 'event')
     })
 
     it('all parameters are passed', async () => {
-      await attributionSdk.transaction(transactionType, transactionHash, attributes)
+      await analyticsSdk.transaction(transactionType, transactionHash, attributes)
 
       expect(
         eventStub.calledOnceWith(TRANSACTION_EVENT, {
@@ -84,7 +84,7 @@ describe('(unit) ArcxAttributionSdk', () => {
     })
 
     it('none optional parameters are passed', async () => {
-      await attributionSdk.transaction(transactionType)
+      await analyticsSdk.transaction(transactionType)
 
       expect(
         eventStub.calledOnceWith(TRANSACTION_EVENT, {
@@ -94,7 +94,7 @@ describe('(unit) ArcxAttributionSdk', () => {
     })
 
     it('only transaction hash is passed', async () => {
-      await attributionSdk.transaction(transactionType, transactionHash)
+      await analyticsSdk.transaction(transactionType, transactionHash)
 
       expect(
         eventStub.calledOnceWith(TRANSACTION_EVENT, {
@@ -105,7 +105,7 @@ describe('(unit) ArcxAttributionSdk', () => {
     })
 
     it('only attributes is passed', async () => {
-      await attributionSdk.transaction(transactionType, undefined, attributes)
+      await analyticsSdk.transaction(transactionType, undefined, attributes)
 
       expect(
         eventStub.calledOnceWith(TRANSACTION_EVENT, {
@@ -121,7 +121,7 @@ describe('(unit) ArcxAttributionSdk', () => {
   })
 })
 
-function getAttributionData(event: string, attributes: any) {
+function getAnalyticsData(event: string, attributes: any) {
   return {
     identityId: TEST_IDENTITY,
     event,

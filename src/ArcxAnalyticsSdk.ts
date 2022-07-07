@@ -2,7 +2,7 @@ import { cast, asString } from '@restless/sanitizers'
 import { CONNECT_EVENT, DEFAULT_SDK_CONFIG, IDENTITY_KEY, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from './constants'
 import { Attributes, SdkConfig } from './types'
 
-export class ArcxAttributionSdk {
+export class ArcxAnalyticsSdk {
   private constructor(
     public readonly apiKey: string,
     public readonly identityId: string,
@@ -27,18 +27,18 @@ export class ArcxAttributionSdk {
     }, true)
   }
 
-  static async init(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAttributionSdk> {
+  static async init(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAttribution(arcxUrl, apiKey, '/init')
+    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAnalytics(arcxUrl, apiKey, '/init')
 
     sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
 
-    return new ArcxAttributionSdk(apiKey, identityId, arcxUrl, sdkConfig)
+    return new ArcxAnalyticsSdk(apiKey, identityId, arcxUrl, sdkConfig)
   }
 
   event(event: string, attributes?: Attributes): Promise<string> {
-    return ArcxAttributionSdk.postAttribution(this.arcxUrl, this.apiKey, '/submit-event', {
+    return ArcxAnalyticsSdk.postAnalytics(this.arcxUrl, this.apiKey, '/submit-event', {
       identityId: this.identityId,
       event,
       attributes: { ...attributes },
@@ -65,7 +65,7 @@ export class ArcxAttributionSdk {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static async postAttribution(arcxUrl: string, apiKey: string, path: string, data?: any): Promise<string> {
+  static async postAnalytics(arcxUrl: string, apiKey: string, path: string, data?: any): Promise<string> {
     const response = await fetch(`${arcxUrl}${path}`, {
       method: 'POST',
       headers: {

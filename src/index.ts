@@ -1,2 +1,2 @@
-export * from './ArcxAttributionSdk'
+export * from './ArcxAnalyticsSdk'
 export * from './types'

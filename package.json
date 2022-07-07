@@ -1,8 +1,8 @@
 {
-  "name": "arcx-attribution-sdk",
+  "name": "arcx-analytics",
   "version": "0.0.1",
   "main": "index.ts",
-  "repository": "https://github.com/arcxmoney/arcx-attribution-sdk.git",
+  "repository": "https://github.com/arcxmoney/arcx-analytics.git",
   "author": "Yaraslau Stsetskevich <j@arcx.money>",
   "license": "MIT",
   "dependencies": {
