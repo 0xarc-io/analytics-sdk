@@ -1,5 +1,5 @@
 {
-  "name": "arcx-analytics",
+  "name": "@arcxmoney/analytics",
   "version": "0.0.1",
   "main": "index.ts",
   "repository": "https://github.com/arcxmoney/arcx-analytics.git",
