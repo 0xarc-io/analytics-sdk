@@ -13,8 +13,8 @@ await arcxAnalyticsSdk.event('EXAMPLE_EVENT', {
 # Installation
 
 ```cli
-npm install @arcx-attribuition-sdk
-yarn add @arcx-analytics-sdk
+npm install @arcxmoney/analytics
+yarn add @arcxmoney/analytics
 ```
 
 # Api
@@ -37,7 +37,7 @@ This function is used to initialize the `ArcxAnalyticsSdk` instance. An `api key
 Example:
 
 ```javascript
-import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
+import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
 await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(
@@ -56,7 +56,7 @@ Save a custom `event` in order to be analysed by the ARCx Team.
 Example:
 
 ```javascript
-import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
+import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
 await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
@@ -76,7 +76,7 @@ Save a standardized `event` to track changes on a given page.
 Example:
 
 ```javascript
-import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
+import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
 await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
@@ -95,7 +95,7 @@ Save a standardized `event` to track executed Web3 transactions.
 Example:
 
 ```javascript
-import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
+import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
 await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
@@ -114,7 +114,7 @@ Save a standardized `event` to track connections to wallets.
 Example:
 
 ```javascript
-import { ArcxAnalyticsSdk } from 'arcx-analytics-sdk'
+import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
 await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
