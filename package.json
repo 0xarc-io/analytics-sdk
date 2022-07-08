@@ -6,8 +6,8 @@
     "url": "https://github.com/arcxmoney/arcx-analytics.git"
   },
   "author": "Yaraslau Stsetskevich <j@arcx.money>",
-  "main": "./dist/src/index.js",
-  "types": "./dist/src/index.d.ts",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "private": false,
   "license": "MIT",
   "dependencies": {
