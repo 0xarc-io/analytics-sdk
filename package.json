@@ -1,9 +1,14 @@
 {
   "name": "@arcxmoney/analytics",
-  "version": "0.0.1",
-  "main": "index.ts",
-  "repository": "https://github.com/arcxmoney/arcx-analytics.git",
+  "version": "0.0.2",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/arcxmoney/arcx-analytics.git"
+  },
   "author": "Yaraslau Stsetskevich <j@arcx.money>",
+  "main": "./dist/src/index.js",
+  "types": "./dist/src/index.d.ts",
+  "private": false,
   "license": "MIT",
   "dependencies": {
     "@restless/sanitizers": "^0.2.5"
