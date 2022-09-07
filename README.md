@@ -81,7 +81,6 @@ import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 ...
 await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
 await arcxAnalyticsSdk.page(
-  'EXAMPLE_EVENT',
   {
     url: 'https://target.url',
   },
