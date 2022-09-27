@@ -1,13 +1,14 @@
 {
   "name": "@arcxmoney/analytics",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "repository": {
     "type": "git",
     "url": "https://github.com/arcxmoney/arcx-analytics.git"
   },
   "author": "Yaraslau Stsetskevich <j@arcx.money>",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/cjs/src/index.js",
+  "types": "dist/esm/src/index.d.ts",
+  "module": "dist/esm/src/index.ts",
   "unpkg": "dist/index.umd.min.js",
   "private": false,
   "license": "MIT",
