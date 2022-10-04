@@ -1,12 +1,18 @@
 import { cast, asString } from '@restless/sanitizers'
-import { ATTRIBUTION_EVENT, CONNECT_EVENT, DEFAULT_SDK_CONFIG, IDENTITY_KEY, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from './constants'
-import { Attributes, SdkConfig } from './types'
+import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types'
+import {
+  ATTRIBUTION_EVENT,
+  CONNECT_EVENT,
+  DEFAULT_SDK_CONFIG,
+  IDENTITY_KEY,
+  PAGE_EVENT,
+  TRANSACTION_EVENT
+} from './constants'
 
 export class ArcxAnalyticsSdk {
   private constructor(
     public readonly apiKey: string,
     public readonly identityId: string,
-    private readonly arcxUrl: string,
     private readonly sdkConfig: SdkConfig,
   ) {
     if (this.sdkConfig.trackPages) {
@@ -24,7 +30,7 @@ export class ArcxAnalyticsSdk {
         /* eslint-disable @typescript-eslint/no-explicit-any */
         if ((window as any).url !== location.href) {
           (window as any).url = location.href
-          this.page({ url: (window as any).url })
+          this.page((window as any).url)
         }
         /* eslint-enable @typescript-eslint/no-explicit-any */
       })
@@ -50,27 +56,35 @@ export class ArcxAnalyticsSdk {
   /********************/
 
   /** Initialises the Analytics SDK with desired configuration. */
-  static async init(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAnalyticsSdk> {
+  static async init(apiKey: string, config?: SdkConfig): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) || await this.postAnalytics(arcxUrl, apiKey, '/identify')
-
+    const identityId = (
+      (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY))
+      ||
+      await this.postAnalytics(sdkConfig.url, apiKey, '/identify')
+    )
     sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
 
-    return new ArcxAnalyticsSdk(apiKey, identityId, arcxUrl, sdkConfig)
+    return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig)
   }
 
   /** Generic event logging method. Allows arbitrary events to be logged. */
   event(event: string, attributes?: Attributes): Promise<string> {
-    return ArcxAnalyticsSdk.postAnalytics(this.arcxUrl, this.apiKey, '/submit-event', {
-      identityId: this.identityId,
-      event,
-      attributes: { ...attributes },
-    })
+    return ArcxAnalyticsSdk.postAnalytics(
+      this.sdkConfig.url,
+      this.apiKey,
+      '/submit-event',
+      {
+        identityId: this.identityId,
+        event,
+        attributes: { ...attributes },
+      }
+    )
   }
 
   /**
-   * Logs attribution information. In particular, channel and campaign origination.
+   * Logs attribution information.
    *
    * @remark
    * You can optionally attribute either the `channel` that the traffic originated
@@ -87,19 +101,16 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Logs a wallet connect event. */
-  connectWallet(attributes: { account: string, chain: string | number }): Promise<string> {
+  connectWallet(attributes: { chain: ChainID, account: Account }): Promise<string> {
     return this.event(CONNECT_EVENT, attributes)
   }
 
   /** Logs an on-chain transaction made by an account. */
-  transaction(transactionType: string, transactionHash?: string, attributes?: Attributes): Promise<string> {
-    const _attributes: Attributes = {
-      type: transactionType,
-      ...attributes,
-    }
-    if (transactionHash) {
-      _attributes.transaction_hash = transactionHash
-    }
-    return this.event(TRANSACTION_EVENT, _attributes)
+  transaction(attributes: { chain: ChainID, transactionHash: TransactionHash, metadata?: Record<string, string | number> }) {
+    return this.event(TRANSACTION_EVENT, {
+      chain: attributes.chain,
+      transaction_hash: attributes.transactionHash,
+      metadata: attributes.metadata || {},
+    })
   }
 }
