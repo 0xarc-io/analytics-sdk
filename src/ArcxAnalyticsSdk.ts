@@ -1,5 +1,5 @@
 import { cast, asString } from '@restless/sanitizers'
-import { CONNECT_EVENT, DEFAULT_SDK_CONFIG, IDENTITY_KEY, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from './constants'
+import { ATTRIBUTION_EVENT, CONNECT_EVENT, DEFAULT_SDK_CONFIG, IDENTITY_KEY, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from './constants'
 import { Attributes, SdkConfig } from './types'
 
 export class ArcxAnalyticsSdk {
@@ -14,9 +14,9 @@ export class ArcxAnalyticsSdk {
     }
   }
 
-  //////////////////////
-  // Internal Methods //
-  //////////////////////
+  /**********************/
+  /** INTERNAL METHODS **/
+  /**********************/
 
   private trackPagesChanges() {
     document.body.addEventListener('click', () => {
@@ -45,9 +45,9 @@ export class ArcxAnalyticsSdk {
     return cast(body, asString)
   }
 
-  ////////////////////
-  // Public Methods //
-  ////////////////////
+  /********************/
+  /** PUBLIC METHODS **/
+  /********************/
 
   /** Initialises the Analytics SDK with desired configuration. */
   static async init(apiKey: string, config?: SdkConfig, arcxUrl = PROD_URL_BACKEND): Promise<ArcxAnalyticsSdk> {
@@ -67,6 +67,18 @@ export class ArcxAnalyticsSdk {
       event,
       attributes: { ...attributes },
     })
+  }
+
+  /**
+   * Logs attribution information. In particular, channel and campaign origination.
+   *
+   * @remark
+   * You can optionally attribute either the `channel` that the traffic originated
+   * from (e.g. `discord`, `twitter`) or a `campaignId` if you wish to track a
+   * specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`).
+   */
+  attribute(attributes: { channel?: string, campaignId?: string }): Promise<string> {
+    return this.event(ATTRIBUTION_EVENT, attributes)
   }
 
   /** Logs page visit events. Only use this method is `trackPages` is set to `false`. */
