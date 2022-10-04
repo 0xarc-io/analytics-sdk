@@ -40,7 +40,7 @@ Example:
 import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
-await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(
+await analytics = await ArcxAnalyticsSdk.init(
   YOUR_API_KEY,
   {
     trackPages: true, // default - automatically trigger PAGE event if the url changes after click
@@ -59,8 +59,8 @@ Example:
 import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
-await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
-await arcxAnalyticsSdk.event(
+await analytics = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+await analytics.event(
   'EXAMPLE_EVENT',
   {
     attribute: 'random',
@@ -79,8 +79,8 @@ Example:
 import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
-await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
-await arcxAnalyticsSdk.page(
+await analytics = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+await analytics.page(
   {
     url: 'https://target.url',
   },
@@ -97,9 +97,8 @@ Example:
 import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
-await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
-
-await analyticsSdk.transaction(
+await analytics = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+await analytics.transaction(
   transactionType, // required(string) - type of trasaction e.g. 'SWAP', 'STAKE'...
   transactionHash, // optional(string) - hash of the transaction
   attributes, // optional(object) - additional information about the transaction
@@ -116,9 +115,9 @@ Example:
 import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
 
 ...
-await arcxAnalyticsSdk = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+await analytics = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
 
-await analyticsSdk.connectWallet({
+await analytics.connectWallet({
   account: '0x1234',
   chain: '1',
 })
