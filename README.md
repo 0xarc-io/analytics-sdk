@@ -1,4 +1,4 @@
-# ArcxAnalyticsSdk
+# ARCx Analytics SDK
 
 The ARCx Analytics SDK is a utility that wraps around the 
 [ARCx Analytics API](https://docs.arcx.money/#tag--analytics). It provides a
