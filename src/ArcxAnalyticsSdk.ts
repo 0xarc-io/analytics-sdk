@@ -6,6 +6,7 @@ import {
   DEFAULT_SDK_CONFIG,
   IDENTITY_KEY,
   PAGE_EVENT,
+  REFERRER_EVENT,
   TRANSACTION_EVENT,
 } from './constants'
 
@@ -17,6 +18,9 @@ export class ArcxAnalyticsSdk {
   ) {
     if (this.sdkConfig.trackPages) {
       this.trackPagesChanges()
+    }
+    if (this.sdkConfig.trackReferrer) {
+      this.referrer()
     }
   }
 
@@ -111,5 +115,10 @@ export class ArcxAnalyticsSdk {
       transaction_hash: attributes.transactionHash,
       metadata: attributes.metadata || {},
     })
+  }
+
+  /** Logs an refferer of html page. */
+  async referrer(referrer?: string) {
+    return this.event(REFERRER_EVENT, { referrer: referrer || document.referrer })
   }
 }

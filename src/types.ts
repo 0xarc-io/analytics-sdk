@@ -4,7 +4,8 @@ export type Account = string
 export type TransactionHash = string
 
 export type SdkConfig = {
-  url: string,
-  trackPages: boolean,
   cacheIdentity: boolean,
+  trackPages: boolean,
+  trackReferrer: boolean,
+  url: string,
 }
