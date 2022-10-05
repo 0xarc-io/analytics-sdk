@@ -6,7 +6,7 @@ import {
   DEFAULT_SDK_CONFIG,
   IDENTITY_KEY,
   PAGE_EVENT,
-  TRANSACTION_EVENT
+  TRANSACTION_EVENT,
 } from './constants'
 
 export class ArcxAnalyticsSdk {
@@ -60,8 +60,7 @@ export class ArcxAnalyticsSdk {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
     const identityId = (
-      (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY))
-      ||
+      (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) ||
       await this.postAnalytics(sdkConfig.url, apiKey, '/identify')
     )
     sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
@@ -79,7 +78,7 @@ export class ArcxAnalyticsSdk {
         identityId: this.identityId,
         event,
         attributes: { ...attributes },
-      }
+      },
     )
   }
 

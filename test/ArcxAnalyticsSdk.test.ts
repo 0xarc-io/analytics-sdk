@@ -1,6 +1,6 @@
 /**
  * NOTE: I don't get the point of these tests. They are kinda pointless IMO.
- * It would be better to check the _information_ and _structure_ of the 
+ * It would be better to check the _information_ and _structure_ of the
  * submitted events, not that they returned true.
  */
 
