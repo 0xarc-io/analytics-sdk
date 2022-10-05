@@ -13,9 +13,10 @@ import { CONNECT_EVENT, PAGE_EVENT, TRANSACTION_EVENT, DEFAULT_SDK_CONFIG } from
 const PROD_URL_BACKEND = DEFAULT_SDK_CONFIG.url // Backwards compatability
 
 const TEST_CONFIG: SdkConfig = {
-  url: PROD_URL_BACKEND,
-  trackPages: false,
   cacheIdentity: false,
+  trackPages: false,
+  trackReferrer: false,
+  url: PROD_URL_BACKEND,
 }
 const TEST_API_KEY = '01234'
 const TEST_ATTRIBUTES = {
