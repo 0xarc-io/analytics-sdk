@@ -90,11 +90,11 @@ export class ArcxAnalyticsSdk {
    * Logs attribution information.
    *
    * @remark
-   * You can optionally attribute either the `channel` that the traffic originated
+   * You can optionally attribute either the `source` that the traffic originated
    * from (e.g. `discord`, `twitter`) or a `campaignId` if you wish to track a
    * specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`).
    */
-  attribute(attributes: { channel?: string, campaignId?: string }): Promise<string> {
+  attribute(attributes: { source?: string, campaignId?: string }): Promise<string> {
     return this.event(ATTRIBUTION_EVENT, attributes)
   }
 
