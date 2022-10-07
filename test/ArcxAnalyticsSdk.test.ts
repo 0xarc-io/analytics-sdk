@@ -1,12 +1,22 @@
+/**
+ * NOTE: I don't get the point of these tests. They are kinda pointless IMO.
+ * It would be better to check the _information_ and _structure_ of the
+ * submitted events, not that they returned true.
+ */
+
 import { ArcxAnalyticsSdk } from '../src'
 import { SdkConfig } from '../src/types'
 import sinon from 'sinon'
 import { expect } from 'chai'
-import { CONNECT_EVENT, PAGE_EVENT, PROD_URL_BACKEND, TRANSACTION_EVENT } from '../src/constants'
+import { CONNECT_EVENT, PAGE_EVENT, TRANSACTION_EVENT, DEFAULT_SDK_CONFIG } from '../src/constants'
+
+const PROD_URL_BACKEND = DEFAULT_SDK_CONFIG.url // Backwards compatability
 
 const TEST_CONFIG: SdkConfig = {
-  trackPages: false,
   cacheIdentity: false,
+  trackPages: false,
+  trackReferrer: false,
+  url: PROD_URL_BACKEND,
 }
 const TEST_API_KEY = '01234'
 const TEST_ATTRIBUTES = {
@@ -62,9 +72,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
   })
 
   describe('#transaction', async () => {
-    const attributes = { timestamp: '123456', chain: '1' }
-    const transactionHash = '0x123456789'
-    const transactionType = 'SWAP'
+    const attributes = {
+      chain: '1',
+      transactionHash: '0x123456789',
+      metadata: { timestamp: '123456' },
+    }
+
     let eventStub: sinon.SinonStub
 
     beforeEach(() => {
@@ -72,45 +85,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('all parameters are passed', async () => {
-      await analyticsSdk.transaction(transactionType, transactionHash, attributes)
+      await analyticsSdk.transaction(attributes)
 
       expect(
         eventStub.calledOnceWith(TRANSACTION_EVENT, {
-          type: transactionType,
-          transaction_hash: transactionHash,
-          ...attributes,
-        }),
-      ).to.be.true
-    })
-
-    it('none optional parameters are passed', async () => {
-      await analyticsSdk.transaction(transactionType)
-
-      expect(
-        eventStub.calledOnceWith(TRANSACTION_EVENT, {
-          type: transactionType,
-        }),
-      ).to.be.true
-    })
-
-    it('only transaction hash is passed', async () => {
-      await analyticsSdk.transaction(transactionType, transactionHash)
-
-      expect(
-        eventStub.calledOnceWith(TRANSACTION_EVENT, {
-          type: transactionType,
-          transaction_hash: transactionHash,
-        }),
-      ).to.be.true
-    })
-
-    it('only attributes is passed', async () => {
-      await analyticsSdk.transaction(transactionType, undefined, attributes)
-
-      expect(
-        eventStub.calledOnceWith(TRANSACTION_EVENT, {
-          type: transactionType,
-          ...attributes,
+          chain: attributes.chain,
+          transaction_hash: attributes.transactionHash,
+          metadata: attributes.metadata,
         }),
       ).to.be.true
     })
