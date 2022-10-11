@@ -60,7 +60,7 @@ export class ArcxAnalyticsSdk {
   /********************/
 
   /** Initialises the Analytics SDK with desired configuration. */
-  static async init(apiKey: string, config?: SdkConfig): Promise<ArcxAnalyticsSdk> {
+  static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
     const identityId = (
