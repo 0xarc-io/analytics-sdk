@@ -135,3 +135,22 @@ await analytics.transaction({
   transactionHash: '0xABCabc123',
 })
 ```
+
+### `attribute`
+Attaches metadata about a session indicating the origination of the traffic. 
+Used for more advanced analytics.
+
+**Parameters:**
+
+- `attributes` **(object)**
+  - `source` **optional(string)** - the ID used to indicate the traffic source.
+  - `campaignId` **optional(string)** - the ID used to indicate the marketing campaign.
+
+**Example:**
+
+```js
+await analytics.attribute({
+  source: "discord",
+  campaignId: "ama--2022-10-10",
+})
+```
