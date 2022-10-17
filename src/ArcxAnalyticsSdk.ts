@@ -109,7 +109,7 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Logs an on-chain transaction made by an account. */
-  transaction(attributes: { chain: ChainID, transactionHash: TransactionHash, metadata?: Record<string, string | number> }) {
+  transaction(attributes: { chain: ChainID, transactionHash: TransactionHash, metadata?: Record<string, any> }) {
     return this.event(TRANSACTION_EVENT, {
       chain: attributes.chain,
       transaction_hash: attributes.transactionHash,
