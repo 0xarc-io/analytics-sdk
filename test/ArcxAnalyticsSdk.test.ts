@@ -97,6 +97,15 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
   })
 
+  it('super nested attributes are supported', async () => {
+    const pageAttributes = { layer1: { layer2: { layer3: { layer4: 'hello!' } } } }
+    const eventStub = sinon.stub(analyticsSdk, 'event')
+
+    await analyticsSdk.event('TEST_EVENT', pageAttributes)
+
+    expect(eventStub.calledOnceWith('TEST_EVENT', pageAttributes)).to.be.true
+  })
+
   afterEach(() => {
     sinon.restore()
   })
