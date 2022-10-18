@@ -94,7 +94,8 @@ export class ArcxAnalyticsSdk {
    * from (e.g. `discord`, `twitter`) or a `campaignId` if you wish to track a
    * specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`).
    */
-  attribute(attributes: { source?: string, campaignId?: string }): Promise<string> {
+  // eslinit-disable-next-line @typescript-eslint/no-explicit-any
+  attribute(attributes: { source?: string, campaignId?: string, [key: string]: any }): Promise<string> {
     return this.event(ATTRIBUTION_EVENT, attributes)
   }
 
@@ -109,7 +110,7 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Logs an on-chain transaction made by an account. */
-  transaction(attributes: { chain: ChainID, transactionHash: TransactionHash, metadata?: Record<string, string | number> }) {
+  transaction(attributes: { chain: ChainID, transactionHash: TransactionHash, metadata?: Record<string, any> }) {
     return this.event(TRANSACTION_EVENT, {
       chain: attributes.chain,
       transaction_hash: attributes.transactionHash,
