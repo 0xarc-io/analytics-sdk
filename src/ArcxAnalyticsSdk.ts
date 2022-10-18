@@ -94,6 +94,7 @@ export class ArcxAnalyticsSdk {
    * from (e.g. `discord`, `twitter`) or a `campaignId` if you wish to track a
    * specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`).
    */
+  // eslinit-disable-next-line @typescript-eslint/no-explicit-any
   attribute(attributes: { source?: string, campaignId?: string, [key: string]: any }): Promise<string> {
     return this.event(ATTRIBUTION_EVENT, attributes)
   }
