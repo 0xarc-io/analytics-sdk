@@ -20,11 +20,12 @@ yarn add @arcxmoney/analytics
 ```js
 const analytics = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
 
-await analytics.connectWallet({account: '0x123', chain: 1})
+await analytics.attribute({ channel: 'twitter' })
+await analytics.connectWallet({ account: '0x123', chain: 1 })
 await analytics.transaction({
-  transactionType: 'SWAP', 
+  chain: 1, 
   transactionHash: '0xABC123', 
-  attributes: {
+  metadata: {
     usedSuggestedExchange: true
   }
 })
