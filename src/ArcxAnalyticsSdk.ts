@@ -34,7 +34,7 @@ export class ArcxAnalyticsSdk {
         /* eslint-disable @typescript-eslint/no-explicit-any */
         if ((window as any).url !== location.href) {
           (window as any).url = location.href
-          this.page((window as any).url)
+          this.page({ url: (window as any).url })
         }
         /* eslint-enable @typescript-eslint/no-explicit-any */
       })
