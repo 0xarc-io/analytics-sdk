@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "@types/chai": "^4.3.1",
+    "@types/jsdom": "^20.0.1",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.11.9",
     "@types/sinon": "^10.0.12",
@@ -24,6 +25,8 @@
     "@typescript-eslint/parser": "^5.30.4",
     "chai": "^4.3.6",
     "eslint": "^8.19.0",
+    "global-jsdom": "^8.6.0",
+    "jsdom": "^20.0.2",
     "mocha": "^10.0.0",
     "sinon": "^14.0.0",
     "ts-loader": "^9.3.1",
@@ -42,6 +45,6 @@
     "build:esm": "yarn tsc -m es6 --outdir dist/esm",
     "clean": "rm -rf dist",
     "lint": "eslint '{src,test}/**/*.ts'",
-    "test": "mocha -r ts-node/register 'test/**/*.test.ts'"
+    "test": "mocha -r ts-node/register -r global-jsdom/register 'test/**/*.test.ts'"
   }
 }

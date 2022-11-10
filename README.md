@@ -144,8 +144,10 @@ Used for more advanced analytics.
 **Parameters:**
 
 - `attributes` **(object)**
-  - `source` **optional(string)** - the ID used to indicate the traffic source.
-  - `campaignId` **optional(string)** - the ID used to indicate the marketing campaign.
+  - `source` **optional(string)** - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
+  - `medium` **optional(string)** - the `medium`, defining the medium your visitors arrived at your site
+   * (e.g. `social`, `email`)
+  - `campaign` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
 
 **Example:**
 

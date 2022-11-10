@@ -2,6 +2,7 @@ import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './type
 import {
   ATTRIBUTION_EVENT,
   CONNECT_EVENT,
+  CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
   IDENTITY_KEY,
   PAGE_EVENT,
@@ -28,14 +29,33 @@ export class ArcxAnalyticsSdk {
   /** INTERNAL METHODS **/
   /**********************/
 
+  /**
+   * Saves the current url in the session storage. This is used to make sure that the same page
+   * event is not emitted multiple times at the initial load of the site.
+   * @returns Wether a page call should be fired or not
+   */
+  private shouldFirePageEvent(): boolean {
+    const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+
+    if (!currentUrl || currentUrl !== location.href) {
+      sessionStorage.setItem(CURRENT_URL_KEY, location.href)
+      return true
+    }
+
+    return false
+  }
+
   private trackPagesChanges() {
+    if (this.shouldFirePageEvent()) {
+      this.page({ url: location.href })
+    }
+
     document.body.addEventListener(
       'click',
       () => {
         requestAnimationFrame(() => {
-          if (window.url !== location.href) {
-            window.url = location.href
-            this.page({ url: window.url })
+          if (this.shouldFirePageEvent()) {
+            this.page({ url: location.href })
           }
         })
       },
@@ -72,12 +92,16 @@ export class ArcxAnalyticsSdk {
    * Logs attribution information.
    *
    * @remark
-   * You can optionally attribute either the `source` that the traffic originated
-   * from (e.g. `discord`, `twitter`) or a `campaignId` if you wish to track a
-   * specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`).
+   * You can optionally attribute either:
+   * - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
+   * - the `medium`, defining the medium your visitors arrived at your site
+   * (e.g. `social`, `email`)
+   * - the `campaignId` if you wish to track a specific marketing campaign
+   * (e.g. `bankless-podcast-1`, `discord-15`)
    */
   attribute(attributes: {
     source?: string
+    medium?: string
     campaignId?: string
     [key: string]: unknown
   }): Promise<string> {
