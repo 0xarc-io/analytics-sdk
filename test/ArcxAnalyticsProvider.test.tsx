@@ -8,8 +8,9 @@ import {
 import { expect } from 'chai'
 import sinon from 'sinon'
 import * as postRequestModule from '../src/helpers/postRequest'
-import { ATTRIBUTION_EVENT, DEFAULT_SDK_CONFIG } from '../src/constants'
+import { ATTRIBUTION_EVENT, DEFAULT_SDK_CONFIG, PAGE_EVENT, REFERRER_EVENT } from '../src/constants'
 import React from 'react'
+import { reconfigureJsdom } from './helpers'
 
 const IDENTITY_ID = 'test-dentity-id'
 const TEST_API_KEY = 'test-api-key'
@@ -93,9 +94,53 @@ describe('ArcxAnalyticxProvider', () => {
       rerender(<TestProvider providerOverrides={{ apiKey: 'new-api-key' }} />)
       expect(postRequestStub.called).to.be.false
     })
+    it('makes a REFERRER call with the UTM parameters', async () => {
+      sessionStorage.clear()
+      localStorage.clear()
+      const url = 'https://example.com/?utm_source=facebook&utm_medium=social&utm_campaign=ad-camp'
+      reconfigureJsdom({
+        url,
+      })
+      expect(window.location.href).to.eq(url)
+
+      render(<TestProvider />)
+      expect(await screen.findByText(IDENTITY_ID)).to.exist
+
+      expect(postRequestStub.calledThrice).to.be.true
+      expect(
+        postRequestStub
+          .getCall(0)
+          .calledWithExactly(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/identify'),
+      ).to.be.true
+      expect(
+        postRequestStub
+          .getCall(1)
+          .calledWithExactly(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
+            identityId: IDENTITY_ID,
+            event: PAGE_EVENT,
+            attributes: {
+              url: url,
+            },
+          }),
+      ).to.be.true
+      expect(
+        postRequestStub
+          .getCall(2)
+          .calledWithExactly(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
+            identityId: IDENTITY_ID,
+            event: REFERRER_EVENT,
+            attributes: {
+              referrer: '',
+              source: 'facebook',
+              medium: 'social',
+              campaign: 'ad-camp',
+            },
+          }),
+      ).to.be.true
+    })
   })
 
-  describe('Subbmitting events', () => {
+  describe('#useArcxAnalytics', () => {
     it('posts a custom event', async () => {
       screen.getByText('fire custom event').click()
 

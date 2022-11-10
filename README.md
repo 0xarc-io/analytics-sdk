@@ -207,6 +207,6 @@ Used for more advanced analytics.
 ```js
 await analytics.attribute({
   source: "discord",
-  campaignId: "ama--2022-10-10",
+  campaign: "ama--2022-10-10",
 })
 ```

@@ -12,6 +12,7 @@ import {
   REFERRER_EVENT,
 } from '../src/constants'
 import * as postRequestModule from '../src/helpers/postRequest'
+import { reconfigureJsdom } from './helpers'
 
 const PROD_URL_BACKEND = DEFAULT_SDK_CONFIG.url // Backwards compatability
 
@@ -50,19 +51,21 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     it('sets the current URL in the session storage when tracking pages', async () => {
       expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
-      expect(location.href).to.eq('http://localhost:3000/')
+      reconfigureJsdom({
+        url: 'https://arcx.money',
+      })
+      expect(location.href).to.eq('https://arcx.money/')
 
       await ArcxAnalyticsSdk.init('', { trackPages: true })
 
-      expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq('http://localhost:3000/')
+      expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq('https://arcx.money/')
     })
 
-    it('makes an initial REFERRER call', async () => {
+    it('makes an initial REFERRER call with UTM parameters', async () => {
       globalJsdom('', {
+        url: 'https://example.com/?utm_source=google&utm_medium=cpc&utm_campaign=brand',
         referrer: 'https://arcx.money',
       })
-
-      expect(document.referrer).to.eq('https://arcx.money/')
 
       await ArcxAnalyticsSdk.init('', {
         trackReferrer: true,
@@ -76,6 +79,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           event: REFERRER_EVENT,
           attributes: {
             referrer: 'https://arcx.money/',
+            source: 'google',
+            medium: 'cpc',
+            campaign: 'brand',
           },
         }),
       ).to.be.true

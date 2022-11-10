@@ -21,7 +21,16 @@ export class ArcxAnalyticsSdk {
       this.trackPagesChanges()
     }
     if (this.sdkConfig.trackReferrer) {
-      this.referrer()
+      const searchParams = new URLSearchParams(window.location.search)
+      const source = searchParams.get('utm_source')
+      const medium = searchParams.get('utm_medium')
+      const campaign = searchParams.get('utm_campaign')
+      const utms = {
+        ...(source && { source }),
+        ...(medium && { medium }),
+        ...(campaign && { campaign }),
+      }
+      this.referrer(document.referrer, utms)
     }
   }
 
@@ -32,17 +41,17 @@ export class ArcxAnalyticsSdk {
   private trackPagesChanges() {
     const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
     if (!currentUrl) {
-      sessionStorage.setItem(CURRENT_URL_KEY, location.href)
-      this.page({ url: location.href })
+      sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+      this.page({ url: window.location.href })
     }
 
     document.body.addEventListener(
       'click',
       () => {
         requestAnimationFrame(() => {
-          if (currentUrl !== location.href) {
-            sessionStorage.setItem(CURRENT_URL_KEY, location.href)
-            this.page({ url: location.href })
+          if (currentUrl !== window.location.href) {
+            sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+            this.page({ url: window.location.href })
           }
         })
       },
@@ -83,13 +92,13 @@ export class ArcxAnalyticsSdk {
    * - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
    * - the `medium`, defining the medium your visitors arrived at your site
    * (e.g. `social`, `email`)
-   * - the `campaignId` if you wish to track a specific marketing campaign
+   * - the `campaign` if you wish to track a specific marketing campaign
    * (e.g. `bankless-podcast-1`, `discord-15`)
    */
   attribute(attributes: {
     source?: string
     medium?: string
-    campaignId?: string
+    campaign?: string
     [key: string]: unknown
   }): Promise<string> {
     return this.event(ATTRIBUTION_EVENT, attributes)
@@ -119,7 +128,13 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Logs an refferer of html page. */
-  async referrer(referrer?: string) {
-    return this.event(REFERRER_EVENT, { referrer: referrer || document.referrer })
+  async referrer(
+    referrer?: string,
+    utms?: { source?: string; medium?: string; campaign?: string },
+  ) {
+    return this.event(REFERRER_EVENT, {
+      referrer: referrer,
+      ...utms,
+    })
   }
 }
