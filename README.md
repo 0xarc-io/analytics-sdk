@@ -11,7 +11,7 @@ API key.
 ## Installation
 
 ```cli
-npm install @arcxmoney/analytics
+npm install @arcxmoney/analytics --save
 yarn add @arcxmoney/analytics
 ```
 
