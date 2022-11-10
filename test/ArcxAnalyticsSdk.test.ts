@@ -9,6 +9,7 @@ import { SdkConfig } from '../src/types'
 import sinon from 'sinon'
 import { expect } from 'chai'
 import { CONNECT_EVENT, PAGE_EVENT, TRANSACTION_EVENT, DEFAULT_SDK_CONFIG } from '../src/constants'
+import * as postRequestModule from '../src/helpers/postRequest'
 
 const PROD_URL_BACKEND = DEFAULT_SDK_CONFIG.url // Backwards compatability
 
@@ -26,25 +27,27 @@ const TEST_ATTRIBUTES = {
 const TEST_IDENTITY = 'ef9a0cb5f45edf8d0a9ce7f7'
 
 describe('(unit) ArcxAnalyticsSdk', () => {
-  let postAnalyticsStub: sinon.SinonStub
+  let postRequestStub: sinon.SinonStub
   let analyticsSdk: ArcxAnalyticsSdk
 
   beforeEach(async () => {
-    postAnalyticsStub = sinon.stub(ArcxAnalyticsSdk, 'postAnalytics').resolves(TEST_IDENTITY)
+    postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
     analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, TEST_CONFIG)
-
-    postAnalyticsStub.resetHistory()
   })
+
+  beforeEach(() => postRequestStub.resetHistory())
+
+  afterEach(() => sinon.restore())
 
   it('#init', async () => {
     await ArcxAnalyticsSdk.init('', TEST_CONFIG)
-    expect(postAnalyticsStub.calledOnce).to.be.true
+    expect(postRequestStub.calledOnce).to.be.true
   })
 
   it('#event', async () => {
     await analyticsSdk.event('TEST_EVENT', TEST_ATTRIBUTES)
     expect(
-      postAnalyticsStub.calledOnceWith(
+      postRequestStub.calledOnceWith(
         PROD_URL_BACKEND,
         TEST_API_KEY,
         '/submit-event',
@@ -104,10 +107,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     await analyticsSdk.event('TEST_EVENT', pageAttributes)
 
     expect(eventStub.calledOnceWith('TEST_EVENT', pageAttributes)).to.be.true
-  })
-
-  afterEach(() => {
-    sinon.restore()
   })
 })
 
