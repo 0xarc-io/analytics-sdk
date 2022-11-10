@@ -13,7 +13,7 @@ export type SdkConfig = {
 }
 
 export type ArcxAnalyticsProviderProps = {
-  children: ReactNode
   apiKey: string
+  children?: ReactNode
   config?: Partial<SdkConfig>
 }
