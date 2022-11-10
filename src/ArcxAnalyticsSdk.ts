@@ -33,12 +33,10 @@ export class ArcxAnalyticsSdk {
       'click',
       () => {
         requestAnimationFrame(() => {
-          /* eslint-disable @typescript-eslint/no-explicit-any */
           if (window.url !== location.href) {
             window.url = location.href
-            this.page({ url: (window as any).url })
+            this.page({ url: window.url })
           }
-          /* eslint-enable @typescript-eslint/no-explicit-any */
         })
       },
       true,
@@ -53,7 +51,6 @@ export class ArcxAnalyticsSdk {
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    console.log('found in cache:', sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY))
     const identityId =
       (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) ||
       (await postRequest(sdkConfig.url, apiKey, '/identify'))
