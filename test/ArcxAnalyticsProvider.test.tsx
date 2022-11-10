@@ -16,13 +16,13 @@ import {
   PAGE_EVENT,
   REFERRER_EVENT,
 } from '../src/constants'
-import React from 'react'
 import {
   TEST_JSDOM_URL,
   TEST_UTM_CAMPAIGN,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
 } from './jsdom.setup.test'
+import React from 'react'
 
 const IDENTITY_ID = 'test-dentity-id'
 const TEST_API_KEY = 'test-api-key'

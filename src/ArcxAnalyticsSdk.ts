@@ -144,8 +144,14 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Logs an refferer of html page. */
-  async referrer(referrer?: string) {
-    return this.event(REFERRER_EVENT, { referrer: referrer || document.referrer })
+  async referrer(
+    referrer?: string,
+    utms?: { source?: string; medium?: string; campaign?: string },
+  ) {
+    return this.event(REFERRER_EVENT, {
+      referrer: referrer,
+      ...utms,
+    })
   }
 }
 
