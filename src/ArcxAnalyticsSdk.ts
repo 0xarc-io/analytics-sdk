@@ -12,6 +12,8 @@ import {
 import { postRequest } from './helpers'
 
 export class ArcxAnalyticsSdk {
+  private currentUrl?: string
+
   private constructor(
     public readonly apiKey: string,
     public readonly identityId: string,
