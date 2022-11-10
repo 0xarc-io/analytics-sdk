@@ -34,8 +34,8 @@ export class ArcxAnalyticsSdk {
       () => {
         requestAnimationFrame(() => {
           /* eslint-disable @typescript-eslint/no-explicit-any */
-          if ((window as any).url !== location.href) {
-            Object.defineProperty(window, 'url', location.href)
+          if (window.url !== location.href) {
+            window.url = location.href
             this.page({ url: (window as any).url })
           }
           /* eslint-enable @typescript-eslint/no-explicit-any */
@@ -53,6 +53,7 @@ export class ArcxAnalyticsSdk {
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
+    console.log('found in cache:', sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY))
     const identityId =
       (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) ||
       (await postRequest(sdkConfig.url, apiKey, '/identify'))
