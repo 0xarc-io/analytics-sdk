@@ -1,4 +1,3 @@
-import { cast, asString } from '@restless/sanitizers'
 import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types'
 import {
   ATTRIBUTION_EVENT,
@@ -9,6 +8,7 @@ import {
   REFERRER_EVENT,
   TRANSACTION_EVENT,
 } from './constants'
+import { postRequest } from './helpers'
 
 export class ArcxAnalyticsSdk {
   private constructor(
@@ -29,30 +29,18 @@ export class ArcxAnalyticsSdk {
   /**********************/
 
   private trackPagesChanges() {
-    document.body.addEventListener('click', () => {
-      requestAnimationFrame(() => {
-        /* eslint-disable @typescript-eslint/no-explicit-any */
-        if ((window as any).url !== location.href) {
-          (window as any).url = location.href
-          this.page({ url: (window as any).url })
-        }
-        /* eslint-enable @typescript-eslint/no-explicit-any */
-      })
-    }, true)
-  }
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  static async postAnalytics(arcxUrl: string, apiKey: string, path: string, data?: any): Promise<string> {
-    const response = await fetch(`${arcxUrl}${path}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-        'x-api-key': apiKey,
+    document.body.addEventListener(
+      'click',
+      () => {
+        requestAnimationFrame(() => {
+          if (window.url !== location.href) {
+            window.url = location.href
+            this.page({ url: window.url })
+          }
+        })
       },
-      body: JSON.stringify(data),
-    })
-    const body = await response.json()
-    return cast(body, asString)
+      true,
+    )
   }
 
   /********************/
@@ -63,10 +51,9 @@ export class ArcxAnalyticsSdk {
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = (
+    const identityId =
       (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) ||
-      await this.postAnalytics(sdkConfig.url, apiKey, '/identify')
-    )
+      (await postRequest(sdkConfig.url, apiKey, '/identify'))
     sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
 
     return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig)
@@ -74,16 +61,11 @@ export class ArcxAnalyticsSdk {
 
   /** Generic event logging method. Allows arbitrary events to be logged. */
   event(event: string, attributes?: Attributes): Promise<string> {
-    return ArcxAnalyticsSdk.postAnalytics(
-      this.sdkConfig.url,
-      this.apiKey,
-      '/submit-event',
-      {
-        identityId: this.identityId,
-        event,
-        attributes: { ...attributes },
-      },
-    )
+    return postRequest(this.sdkConfig.url, this.apiKey, '/submit-event', {
+      identityId: this.identityId,
+      event,
+      attributes: { ...attributes },
+    })
   }
 
   /**
@@ -94,8 +76,11 @@ export class ArcxAnalyticsSdk {
    * from (e.g. `discord`, `twitter`) or a `campaignId` if you wish to track a
    * specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`).
    */
-  // eslinit-disable-next-line @typescript-eslint/no-explicit-any
-  attribute(attributes: { source?: string, campaignId?: string, [key: string]: any }): Promise<string> {
+  attribute(attributes: {
+    source?: string
+    campaignId?: string
+    [key: string]: unknown
+  }): Promise<string> {
     return this.event(ATTRIBUTION_EVENT, attributes)
   }
 
@@ -105,12 +90,16 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Logs a wallet connect event. */
-  connectWallet(attributes: { chain: ChainID, account: Account }): Promise<string> {
+  connectWallet(attributes: { chain: ChainID; account: Account }): Promise<string> {
     return this.event(CONNECT_EVENT, attributes)
   }
 
   /** Logs an on-chain transaction made by an account. */
-  transaction(attributes: { chain: ChainID, transactionHash: TransactionHash, metadata?: Record<string, any> }) {
+  transaction(attributes: {
+    chain: ChainID
+    transactionHash: TransactionHash
+    metadata?: Record<string, unknown>
+  }) {
     return this.event(TRANSACTION_EVENT, {
       chain: attributes.chain,
       transaction_hash: attributes.transactionHash,
