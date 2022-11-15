@@ -1,9 +1,3 @@
-declare global {
-  interface Window {
-    url?: string
-  }
-}
-
 export type Attributes = Record<string, unknown>
 export type ChainID = string | number
 export type Account = string
