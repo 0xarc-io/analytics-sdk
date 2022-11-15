@@ -1,27 +1,20 @@
-import { useEffect, useState } from 'react'
 import { Attributes, useArcxAnalytics } from '@arcxmoney/analytics'
+import { CustomRequest } from './types'
 
-export const ConsoleView = () => {
-  const [output, setOutput] = useState<string[]>([])
+export const ConsoleView = ({ capturedRequests }: { capturedRequests: CustomRequest[] }) => {
   const sdk = useArcxAnalytics()
 
-  useEffect(() => {
-    if (!sdk) return
-
-    setOutput((output) => [...output, '> SDK initialized with ID: ' + sdk.identityId])
-
-    // Hijack the event call to output the events to the console
-
-    const originalEventCall = sdk.event.bind(sdk)
-    sdk.event = (event: string, attributes?: Attributes) => {
-      setOutput((output) => [
-        ...output,
-        '> Event: ' + event + '\nAttributes: ' + JSON.stringify(attributes, null, 2),
-      ])
-
-      return originalEventCall(event, attributes)
+  const lineToString = (url: string, method: string, event?: string, attributes?: Attributes) => {
+    if (event) {
+      return `> ${method} ${url}: event ${event} ${
+        attributes && `, attributes: ${JSON.stringify(attributes)}`
+      }`
     }
-  }, [sdk])
+
+    return `> ${method} ${url} ${
+      attributes && `with attributes: ${JSON.stringify(attributes, null, 2)}`
+    }`
+  }
 
   return (
     <div className="mt-8 h-[30rem] overflow-auto scroll-smooth w-full bg-slate-900 p-4 font-mono flex flex-col gap-4 text-yellow-500">
@@ -29,8 +22,16 @@ export const ConsoleView = () => {
         Requests are being sent to {process.env.REACT_APP_ARCX_API_URL ?? 'api.arcx.money'}...
       </div>
       <div>
-        {output.map((line, i) => (
-          <div key={i}>{line}</div>
+        {sdk && '> SDK initialized with ID: ' + sdk.identityId}
+        {capturedRequests.map((line, i) => (
+          <div key={i}>
+            {line.url.includes('http') && (
+              <>
+                <br />
+                {lineToString(line.url, line.method, line.event, line.attributes)}
+              </>
+            )}
+          </div>
         ))}
       </div>
     </div>
