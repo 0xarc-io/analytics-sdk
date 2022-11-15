@@ -10,7 +10,6 @@ import {
   DEFAULT_SDK_CONFIG,
   CURRENT_URL_KEY,
   REFERRER_EVENT,
-  // REFERRER_EVENT,
 } from '../src/constants'
 import * as postRequestModule from '../src/helpers/postRequest'
 
