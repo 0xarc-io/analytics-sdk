@@ -29,24 +29,10 @@ export class ArcxAnalyticsSdk {
   /** INTERNAL METHODS **/
   /**********************/
 
-  /**
-   * Saves the current url in the session storage. This is used to make sure that the same page
-   * event is not emitted multiple times at the initial load of the site.
-   * @returns Wether a page call should be fired or not
-   */
-  private shouldFirePageEvent(): boolean {
-    const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
-
-    if (!currentUrl || currentUrl !== location.href) {
-      sessionStorage.setItem(CURRENT_URL_KEY, location.href)
-      return true
-    }
-
-    return false
-  }
-
   private trackPagesChanges() {
-    if (this.shouldFirePageEvent()) {
+    const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+    if (!currentUrl) {
+      sessionStorage.setItem(CURRENT_URL_KEY, location.href)
       this.page({ url: location.href })
     }
 
@@ -54,7 +40,8 @@ export class ArcxAnalyticsSdk {
       'click',
       () => {
         requestAnimationFrame(() => {
-          if (this.shouldFirePageEvent()) {
+          if (currentUrl !== location.href) {
+            sessionStorage.setItem(CURRENT_URL_KEY, location.href)
             this.page({ url: location.href })
           }
         })
