@@ -9,9 +9,7 @@ You must pass an `API_KEY` as specified in the [SDK's documentation](https://git
 ```jsx
 return (
     <ArcxAnalyticsProvider apiKey={API_KEY} config={config}>
-        <div>
-            ...the rest of your app here
-        </div>
+        ...the rest of your app here
     </ArcxAnalyticsProvider>
 )
 ```
