@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import {
   ArcxAnalyticsProvider,
   ArcxAnalyticsProviderProps,
@@ -67,80 +67,81 @@ describe('ArcxAnalyticxProvider', () => {
 
   afterEach(sinon.restore)
 
-  it('initializes the SDK', async () => {
-    cleanup()
-    render(<TestProvider />)
+  describe('Initialization', () => {
+    it('initializes the SDK', async () => {
+      render(<TestProvider />)
 
-    expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/identify'))
-    expect(await screen.findByText(IDENTITY_ID)).to.exist
+      expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/identify'))
+      expect(await screen.findByText(IDENTITY_ID)).to.exist
+    })
+
+    it('fails to initialize sdk if api key was not provided', () => {
+      // Hide the error message in the console
+      sinon.stub(console, 'error')
+      expect(() => render(<TestProvider providerOverrides={{ apiKey: '' }} />)).to.throw(
+        'ArcxAnalyticxProvider: No API key provided',
+      )
+    })
+
+    it('does not initialize twice', async () => {
+      const { rerender } = render(<TestProvider />)
+      expect(postRequestStub.calledOnce).to.be.true
+      postRequestStub.resetHistory()
+
+      rerender(<TestProvider providerOverrides={{ apiKey: 'new-api-key' }} />)
+      expect(postRequestStub.called).to.be.false
+    })
   })
 
-  it('fails to initialize sdk if api key was not provided', () => {
-    cleanup()
-    // Hide the error message in the console
-    sinon.stub(console, 'error')
-    expect(() => render(<TestProvider providerOverrides={{ apiKey: '' }} />)).to.throw(
-      'ArcxAnalyticxProvider: No API key provided',
-    )
-  })
+  describe('Subbmitting events', () => {
+    it('posts a custom event', async () => {
+      screen.getByText('fire custom event').click()
 
-  it('does not initialize twice', async () => {
-    cleanup()
-    const { rerender } = render(<TestProvider />)
-    expect(postRequestStub.calledOnce).to.be.true
-    postRequestStub.resetHistory()
+      expect(
+        postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
+          identityId: IDENTITY_ID,
+          event: 'test-event',
+          attributes: { gm: 'gm' },
+        }),
+      ).to.be.true
+    })
 
-    rerender(<TestProvider providerOverrides={{ apiKey: 'new-api-key' }} />)
-    expect(postRequestStub.called).to.be.false
-  })
+    it('posts a page event', async () => {
+      screen.getByText('fire page event').click()
 
-  it('posts a custom event', async () => {
-    screen.getByText('fire custom event').click()
+      expect(
+        postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
+          identityId: IDENTITY_ID,
+          event: 'PAGE',
+          attributes: {
+            url: '/test',
+          },
+        }),
+      ).to.be.true
+    })
 
-    expect(
-      postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-        identityId: IDENTITY_ID,
-        event: 'test-event',
-        attributes: { gm: 'gm' },
-      }),
-    ).to.be.true
-  })
+    it('posts a transaction event', async () => {
+      screen.getByText('fire transaction event').click()
 
-  it('posts a page event', async () => {
-    screen.getByText('fire page event').click()
+      expect(
+        postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
+          identityId: IDENTITY_ID,
+          event: 'TRANSACTION_SUBMITTED',
+          attributes: { chain: 1, transaction_hash: '0x123', metadata: {} },
+        }),
+      ).to.be.true
+    })
 
-    expect(
-      postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-        identityId: IDENTITY_ID,
-        event: 'PAGE',
-        attributes: {
-          url: '/test',
-        },
-      }),
-    ).to.be.true
-  })
+    it('posts an attribute event', async () => {
+      screen.getByText('fire attribute event').click()
 
-  it('posts a transaction event', async () => {
-    screen.getByText('fire transaction event').click()
-
-    expect(
-      postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-        identityId: IDENTITY_ID,
-        event: 'TRANSACTION_SUBMITTED',
-        attributes: { chain: 1, transaction_hash: '0x123', metadata: {} },
-      }),
-    ).to.be.true
-  })
-
-  it('posts an attribute event', async () => {
-    screen.getByText('fire attribute event').click()
-
-    expect(
-      postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-        identityId: IDENTITY_ID,
-        event: ATTRIBUTION_EVENT,
-        attributes: { source: 'facebook', medium: 'social', campaign: 'ad-camp' },
-      }),
-    ).to.be.true
+      expect(
+        postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
+          identityId: IDENTITY_ID,
+          event: ATTRIBUTION_EVENT,
+          attributes: { source: 'facebook', medium: 'social', campaign: 'ad-camp' },
+        }),
+      ).to.be.true
+    })
   })
 })
