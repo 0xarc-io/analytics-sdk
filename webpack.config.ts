@@ -18,6 +18,6 @@ module.exports = {
   },
   devtool: 'source-map',
   module: {
-    rules: [{ test: /\.ts$/, loader: 'ts-loader' }],
+    rules: [{ test: /\.tsx?$/, loader: 'ts-loader' }],
   },
 }

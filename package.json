@@ -20,6 +20,7 @@
     "@types/jsdom": "^20.0.1",
     "@types/mocha": "^9.1.1",
     "@types/node": "^18.11.9",
+    "@types/react": "^18.0.25",
     "@types/sinon": "^10.0.12",
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
@@ -28,6 +29,7 @@
     "global-jsdom": "^8.6.0",
     "jsdom": "^20.0.2",
     "mocha": "^10.0.0",
+    "react": "^18.2.0",
     "sinon": "^14.0.0",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.8.2",
@@ -46,5 +48,9 @@
     "clean": "rm -rf dist",
     "lint": "eslint '{src,test}/**/*.ts'",
     "test": "mocha -r ts-node/register -r global-jsdom/register 'test/**/*.test.ts'"
+  },
+  "peerDependencies": {
+    "@types/react": ">=16.14.34",
+    "react": ">=16.14.0"
   }
 }

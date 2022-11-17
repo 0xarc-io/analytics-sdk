@@ -1,3 +1,5 @@
+import { ReactNode } from 'react'
+
 export type Attributes = Record<string, unknown>
 export type ChainID = string | number
 export type Account = string
@@ -8,4 +10,10 @@ export type SdkConfig = {
   trackPages: boolean
   trackReferrer: boolean
   url: string
+}
+
+export type ArcxAnalyticsProviderProps = {
+  children: ReactNode
+  apiKey: string
+  config?: Partial<SdkConfig>
 }

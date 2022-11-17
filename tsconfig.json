@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "jsx": "react-jsx",
     "outDir": "dist/cjs",
     "allowJs": false,
     "esModuleInterop": true,
@@ -24,5 +25,6 @@
   "ts-node": {
     "files": true
   },
-  "include": ["src", "test"]
+  "include": ["src", "test"],
+  "exclude": ["example"]
 }
