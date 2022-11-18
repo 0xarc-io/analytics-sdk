@@ -1,0 +1,4 @@
+require:
+  - ts-node/register 
+  - global-jsdom/register 
+  - ./test/mocha-watch-cleanup-after-each.ts

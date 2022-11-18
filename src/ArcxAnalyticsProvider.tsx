@@ -15,9 +15,7 @@ export const ArcxAnalyticsProvider = ({ apiKey, config, children }: ArcxAnalytic
     if (initializedStartedRef.current) return
     initializedStartedRef.current = true
 
-    ArcxAnalyticsSdk.init(apiKey, config)
-      .then((sdk) => setSdk(sdk))
-      .catch((err) => console.error(`Error initializing the SDK: ${err}`))
+    ArcxAnalyticsSdk.init(apiKey, config).then((sdk) => setSdk(sdk))
   }, [apiKey])
 
   return <ArcxAnalyticxContext.Provider value={sdk}>{children}</ArcxAnalyticxContext.Provider>
