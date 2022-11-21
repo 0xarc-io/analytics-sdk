@@ -10,8 +10,6 @@ on:
           - patch
           - minor
           - major
-  # main:
-  #   types: [created]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
-          ref: feat/publishing
+          ref: main
 
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
@@ -33,7 +31,7 @@ jobs:
         run: yarn version --${{ github.event.inputs.version }}
 
       - name: Push latest vestion
-        run: git push origin feat/publishing --follow-tags
+        run: git push origin main --follow-tags
 
       - name: Release package
         run: |
