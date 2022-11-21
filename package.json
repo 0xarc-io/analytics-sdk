@@ -31,6 +31,8 @@
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
     "chai": "^4.3.6",
+    "commitizen": "^4.2.5",
+    "cz-conventional-changelog": "3.3.0",
     "eslint": "^8.19.0",
     "eslint-config-react-app": "^7.0.1",
     "global-jsdom": "^8.6.0",
@@ -57,10 +59,16 @@
     "clean": "rm -rf dist",
     "lint": "eslint '{src,test}/**/*.ts'",
     "test": "nyc mocha 'test/**/*.test.{ts,tsx}'",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "commit": "git add . && cz"
   },
   "peerDependencies": {
     "@types/react": ">=16.14.34",
     "react": ">=16.14.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }
