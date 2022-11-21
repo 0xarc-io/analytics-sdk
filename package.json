@@ -42,6 +42,7 @@
     "nyc": "^15.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.0.0",
+    "semantic-release": "^19.0.5",
     "sinon": "^14.0.0",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.8.2",
@@ -60,7 +61,8 @@
     "lint": "eslint '{src,test}/**/*.ts'",
     "test": "nyc mocha 'test/**/*.test.{ts,tsx}'",
     "prepare": "husky install",
-    "commit": "git add . && cz"
+    "commit": "git add . && cz",
+    "semantic-release": "semantic-release"
   },
   "peerDependencies": {
     "@types/react": ">=16.14.34",
