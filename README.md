@@ -10,12 +10,23 @@ API key.
 
 ## Installation
 
-```cli
+To install with `npm`:
+
+```
 npm install @arcxmoney/analytics --save
+```
+
+To install with `yarn`:
+
+```
 yarn add @arcxmoney/analytics
 ```
 
 ## Quickstart
+
+There are two way of using the `ArcxAnalyticsSdk`: directly and with a React `ArcxAnalyticsProvider`.
+
+### Directly
 
 ```js
 const analytics = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
@@ -31,7 +42,44 @@ await analytics.transaction({
 })
 ```
 
+### With the React Provider
+
+Put the `ArcxAnalyticsProvider` anywhere at top of your component tree.
+
+```jsx
+// App.jsx
+import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
+
+export default App = () => (
+	<ArcxAnalyticsProvider apiKey={YOUR_APY_KEY}>
+  	{/* Your other components here, such as <ChildComponent /> */}
+  </ArcxAnalyticsProvider>
+)
+```
+
+Then you can use the `useArcxAnalytics()` hook in all of its child components.
+
+```jsx
+// ChildComponent.jsx
+import { useArcxAnalytics } from '@arcxmoney/analytics'
+
+export const ChildComponent = () => {
+  const sdk = useArcxAnalytics()
+  
+  if (!sdk) return (
+  	<div>loading...</div>
+  )
+  
+  return (
+  	<button onClick={() => sdk.event('BUTTON_CLICKED')}>Emit event</button>
+  )
+}
+```
+
+An example how this is used can be found in the [example folder](https://github.com/arcxmoney/analytics-sdk/tree/main/example).
+
 ## SDK Configuration
+
 When the SDK is initialised via the `init` method, it can be optionally passed 
 in a collection of configuration options.  The defaults the SDK picks are sensible for most use cases.
 
@@ -39,6 +87,7 @@ The configuration options are:
 
 - `trackPages` **(boolean)** - tracks whenever there is a URL change during the session and logs it automatically. Defaults to `true`
 - `cacheIdentity` **(boolean)** - caches the identity of users in the browser's local storage to capture cross-session behaviours. Defaults to `true`
+- `trackReferrer` **(boolean)** - wether or not to emit an initial `REFERRER` event containing the referrer attribute. Defaults to `true`
 
 ## API
 
@@ -46,6 +95,8 @@ The configuration options are:
 To initialise the Analytics SDK one should invoke the `init` method on the 
 class. This configures the SDK with your API key and, optionally, configuration
 options.
+
+**Note**: you do not need to call this function if using the React provider.
 
 **Parameters:**
 
@@ -147,7 +198,7 @@ Used for more advanced analytics.
   - `source` **optional(string)** - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
   - `medium` **optional(string)** - the `medium`, defining the medium your visitors arrived at your site
    * (e.g. `social`, `email`)
-  - `campaign` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
+  - `campaignId` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
 
 **Example:**
 
