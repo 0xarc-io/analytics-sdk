@@ -18,6 +18,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           ref: main
+          token: ${{ secrets.GH_TOKEN }}
 
       # Setup .npmrc file to publish to npm
       - uses: actions/setup-node@v3
