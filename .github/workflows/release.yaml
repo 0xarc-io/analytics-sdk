@@ -32,7 +32,7 @@ jobs:
         run: |
           git config --global user.email "j@arcx.money"
           git config --global user.name "ARCx"
-          yarn version --${{ github.event.inputs.version }}
+          npm version ${{ github.event.inputs.version }}
 
       - name: Push latest vestion
         run: git push origin main --follow-tags
@@ -40,6 +40,6 @@ jobs:
       - name: Release package
         run: |
           yarn build
-          yarn publish
+          npm publish
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
