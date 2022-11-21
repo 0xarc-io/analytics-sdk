@@ -1,6 +1,6 @@
 {
   "name": "@arcxmoney/analytics",
-  "version": "1.2.0",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/arcxmoney/arcx-analytics.git"
@@ -45,7 +45,6 @@
     "webpack-cli": "^4.10.0"
   },
   "scripts": {
-    "prepare": "yarn lint && yarn build",
     "prebuild": "yarn clean",
     "publish-patch": "npm version patch && npm publish",
     "publish-minor": "npm version minor && npm publish",
