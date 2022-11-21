@@ -28,7 +28,10 @@ jobs:
       - run: yarn install --frozen-lockfile
 
       - name: Bump version
-        run: yarn version --${{ github.event.inputs.version }}
+        run: |
+          git config --global user.email "j@arcx.money"
+          git config --global user.name "ARCx"
+          yarn version --${{ github.event.inputs.version }}
 
       - name: Push latest vestion
         run: git push origin main --follow-tags
