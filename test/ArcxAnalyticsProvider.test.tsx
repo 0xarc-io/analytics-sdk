@@ -22,7 +22,11 @@ const TestProvider = ({
   children?: React.ReactNode
   providerOverrides?: ArcxAnalyticsProviderProps
 }) => (
-  <ArcxAnalyticsProvider apiKey={TEST_API_KEY} config={CONFIG} {...providerOverrides}>
+  <ArcxAnalyticsProvider
+    apiKey={TEST_API_KEY}
+    config={{ ...CONFIG, trackPages: false }}
+    {...providerOverrides}
+  >
     <ArcxAnalyticxContext.Consumer>
       {(sdk) => (
         <div>
