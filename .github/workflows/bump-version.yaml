@@ -1,0 +1,36 @@
+name: Bump version
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Semver type of new version (major / minor / patch)'
+        required: true
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+  # main:
+  #   types: [created]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: feat/publishing
+
+      # Setup .npmrc file to publish to npm
+      - uses: actions/setup-node@v3
+
+        with:
+          node-version: '16.x'
+          registry-url: 'https://registry.npmjs.org'
+      - run: yarn install --frozen-lockfile
+
+      - name: bump version
+        run: yarn version --${{ github.event.inputs.version }}
+
+      - name: Push latest vestion
+        run: git push origin feat/publishing --follow-tags
