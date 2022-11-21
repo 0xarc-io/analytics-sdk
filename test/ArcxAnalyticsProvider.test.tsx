@@ -13,7 +13,9 @@ import React from 'react'
 
 const IDENTITY_ID = 'test-dentity-id'
 const TEST_API_KEY = 'test-api-key'
-const CONFIG = {}
+const CONFIG = {
+  trackPages: false,
+}
 
 const TestProvider = ({
   children,
