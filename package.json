@@ -19,6 +19,8 @@
     "@babel/core": "^7.0.0-0",
     "@babel/plugin-syntax-flow": "^7.14.5",
     "@babel/plugin-transform-react-jsx": "^7.14.9",
+    "@commitlint/cli": "^17.3.0",
+    "@commitlint/config-conventional": "^17.3.0",
     "@testing-library/react": "^13.4.0",
     "@types/chai": "^4.3.1",
     "@types/jsdom": "^20.0.1",
@@ -29,9 +31,12 @@
     "@typescript-eslint/eslint-plugin": "^5.30.4",
     "@typescript-eslint/parser": "^5.30.4",
     "chai": "^4.3.6",
+    "commitizen": "^4.2.5",
+    "cz-conventional-changelog": "3.3.0",
     "eslint": "^8.19.0",
     "eslint-config-react-app": "^7.0.1",
     "global-jsdom": "^8.6.0",
+    "husky": "^8.0.0",
     "jsdom": "^20.0.2",
     "mocha": "^10.0.0",
     "nyc": "^15.1.0",
@@ -53,10 +58,17 @@
     "build:esm": "yarn tsc -m es6 --outdir dist/esm",
     "clean": "rm -rf dist",
     "lint": "eslint '{src,test}/**/*.ts'",
-    "test": "nyc mocha 'test/**/*.test.{ts,tsx}'"
+    "test": "nyc mocha 'test/**/*.test.{ts,tsx}'",
+    "prepare": "husky install",
+    "commit": "git add . && cz"
   },
   "peerDependencies": {
     "@types/react": ">=16.14.34",
     "react": ">=16.14.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
   }
 }

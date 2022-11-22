@@ -1,3 +1,5 @@
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 # ARCx Analytics SDK
 
 The ARCx Analytics SDK is a utility that wraps around the 
