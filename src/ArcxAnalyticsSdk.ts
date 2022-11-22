@@ -47,16 +47,11 @@ export class ArcxAnalyticsSdk {
 
     if (this.sdkConfig.trackUTM) {
       const searchParams = new URLSearchParams(window.location.search)
-      const source = searchParams.get('utm_source')
-      const medium = searchParams.get('utm_medium')
-      const campaign = searchParams.get('utm_campaign')
 
-      if (source || medium || campaign) {
-        attributes.utm = {
-          ...(source && { source }),
-          ...(medium && { medium }),
-          ...(campaign && { campaign }),
-        }
+      attributes.utm = {
+        source: searchParams.get('utm_source'),
+        medium: searchParams.get('utm_medium'),
+        campaign: searchParams.get('utm_campaign'),
       }
     }
 
@@ -164,8 +159,8 @@ type FirstVisitPageType = {
   url?: string
   referrer?: string
   utm?: {
-    source?: string
-    medium?: string
-    campaign?: string
+    source: string | null
+    medium: string | null
+    campaign: string | null
   }
 }
