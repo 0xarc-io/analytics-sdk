@@ -1,15 +1,7 @@
 name: Bump and release version
 on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Semver type of new version (major / minor / patch)'
-        required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+  workflow_dispatch
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,19 +20,12 @@ jobs:
 
       - run: yarn install --frozen-lockfile
 
-      - name: Bump version
-        run: |
-          git config --global user.email "j@arcx.money"
-          git config --global user.name "ARCx"
-          npm version ${{ github.event.inputs.version }}
-
       - name: Push latest vestion
         run: git push origin main --follow-tags
 
-      - name: Release package
+      - name: Semantic Release
         run: |
           yarn build
-          npm config set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
-          npm publish
+          yarn semantic-release
         env:
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
