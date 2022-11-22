@@ -13,7 +13,6 @@ import {
   FIRST_PAGE_VISIT,
 } from '../src/constants'
 import * as postRequestModule from '../src/helpers/postRequest'
-import { reconfigureJsdom } from './helpers'
 
 const PROD_URL_BACKEND = DEFAULT_SDK_CONFIG.url // Backwards compatability
 
@@ -53,7 +52,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     it('sets the current URL in the session storage when tracking pages', async () => {
       expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
-      reconfigureJsdom({
+      globalJsdom('', {
         url: 'https://arcx.money',
       })
       expect(window.location.href).to.eq('https://arcx.money/')
@@ -61,6 +60,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       await ArcxAnalyticsSdk.init('', { trackPages: true })
 
       expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq('https://arcx.money/')
+      globalJsdom()
     })
 
     it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
