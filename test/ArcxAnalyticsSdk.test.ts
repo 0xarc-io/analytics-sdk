@@ -10,16 +10,18 @@ import {
   DEFAULT_SDK_CONFIG,
   CURRENT_URL_KEY,
   REFERRER_EVENT,
+  FIRST_PAGE_VISIT,
 } from '../src/constants'
 import * as postRequestModule from '../src/helpers/postRequest'
 import { reconfigureJsdom } from './helpers'
 
 const PROD_URL_BACKEND = DEFAULT_SDK_CONFIG.url // Backwards compatability
 
-const TEST_CONFIG: SdkConfig = {
+const ALL_FALSE_CONFIG: SdkConfig = {
   cacheIdentity: false,
   trackPages: false,
   trackReferrer: false,
+  trackUTM: false,
   url: PROD_URL_BACKEND,
 }
 const TEST_API_KEY = '01234'
@@ -27,7 +29,7 @@ const TEST_ATTRIBUTES = {
   a: 'value',
   b: 'second value',
 }
-const TEST_IDENTITY = 'ef9a0cb5f45edf8d0a9ce7f7'
+const TEST_IDENTITY = 'test-identity'
 
 describe('(unit) ArcxAnalyticsSdk', () => {
   let postRequestStub: sinon.SinonStub
@@ -35,7 +37,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
   beforeEach(async () => {
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
-    analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, TEST_CONFIG)
+    analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
     sessionStorage.clear()
   })
 
@@ -45,7 +47,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
   describe('#init', () => {
     it('posts identify', async () => {
-      await ArcxAnalyticsSdk.init('', TEST_CONFIG)
+      await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
       expect(postRequestStub.calledOnceWith(PROD_URL_BACKEND, '', '/identify')).to.be.true
     })
 
@@ -54,34 +56,35 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       reconfigureJsdom({
         url: 'https://arcx.money',
       })
-      expect(location.href).to.eq('https://arcx.money/')
+      expect(window.location.href).to.eq('https://arcx.money/')
 
       await ArcxAnalyticsSdk.init('', { trackPages: true })
 
       expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq('https://arcx.money/')
     })
 
-    it('makes an initial REFERRER call with UTM parameters', async () => {
+    it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
+      const url = 'https://example.com/?utm_source=google&utm_medium=cpc&utm_campaign=brand'
+
       globalJsdom('', {
-        url: 'https://example.com/?utm_source=google&utm_medium=cpc&utm_campaign=brand',
+        url,
         referrer: 'https://arcx.money',
       })
 
-      await ArcxAnalyticsSdk.init('', {
-        trackReferrer: true,
-        trackPages: false,
-        cacheIdentity: false,
-      })
+      await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
       expect(postRequestStub.getCall(0).calledWith(PROD_URL_BACKEND, '', '/identify')).to.be.true
       expect(
         postRequestStub.getCall(1).calledWith(PROD_URL_BACKEND, '', '/submit-event', {
           identityId: TEST_IDENTITY,
-          event: REFERRER_EVENT,
+          event: FIRST_PAGE_VISIT,
           attributes: {
+            url,
             referrer: 'https://arcx.money/',
-            source: 'google',
-            medium: 'cpc',
-            campaign: 'brand',
+            utm: {
+              source: 'google',
+              medium: 'cpc',
+              campaign: 'brand',
+            },
           },
         }),
       ).to.be.true
@@ -89,33 +92,36 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       globalJsdom()
     })
 
-    it('makes a PAGE call if trackPages is true', async () => {
-      await ArcxAnalyticsSdk.init('', {
-        trackReferrer: false,
-        trackPages: true,
-        cacheIdentity: false,
+    it('does not make a FIRST_PAGE_VISIT call if trackPages, referrer and UTM configs are set to false', async () => {
+      await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
+
+      expect(postRequestStub.callCount).to.eq(1)
+      expect(postRequestStub.getCall(0).calledWith(PROD_URL_BACKEND, '', '/identify')).to.be.true
+    })
+
+    it('does not include the UTM object if trackUTM is set to false', async () => {
+      const url = 'https://example.com/?utm_source=google&utm_medium=cpc&utm_campaign=brand'
+      globalJsdom('', {
+        url,
+        referrer: 'https://arcx.money',
       })
 
+      await ArcxAnalyticsSdk.init('', {
+        ...ALL_FALSE_CONFIG,
+        trackPages: true,
+      })
       expect(postRequestStub.getCall(0).calledWith(PROD_URL_BACKEND, '', '/identify')).to.be.true
       expect(
         postRequestStub.getCall(1).calledWith(PROD_URL_BACKEND, '', '/submit-event', {
           identityId: TEST_IDENTITY,
-          event: PAGE_EVENT,
+          event: FIRST_PAGE_VISIT,
           attributes: {
-            url: 'http://localhost:3000/',
+            url,
           },
         }),
       ).to.be.true
-    })
 
-    it('does not make a PAGE call if trackPages is false', async () => {
-      await ArcxAnalyticsSdk.init('', {
-        trackReferrer: false,
-        trackPages: false,
-        cacheIdentity: false,
-      })
-      expect(postRequestStub.calledOnce).to.be.true
-      expect(postRequestStub.getCall(0).calledWith(PROD_URL_BACKEND, '', '/identify')).to.be.true
+      globalJsdom()
     })
   })
 
@@ -147,6 +153,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     await analyticsSdk.connectWallet(attributes)
 
     expect(eventStub.calledOnceWith(CONNECT_EVENT, attributes)).to.be.true
+  })
+
+  it('#referrer', async () => {
+    const eventStub = sinon.stub(analyticsSdk, 'event')
+
+    await analyticsSdk.referrer('https://arcx.money')
+    expect(eventStub.calledOnceWith(REFERRER_EVENT, { referrer: 'https://arcx.money' })).to.be.true
   })
 
   describe('#transaction', async () => {
