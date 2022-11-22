@@ -4,6 +4,7 @@ import {
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
+  FIRST_PAGE_VISIT,
   IDENTITY_KEY,
   PAGE_EVENT,
   REFERRER_EVENT,
@@ -17,20 +18,12 @@ export class ArcxAnalyticsSdk {
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
   ) {
+    if (sdkConfig.trackPages || sdkConfig.trackReferrer || sdkConfig.trackUTM) {
+      this._trackFirstPageVisit()
+    }
+
     if (this.sdkConfig.trackPages) {
       this.trackPagesChanges()
-    }
-    if (this.sdkConfig.trackReferrer) {
-      const searchParams = new URLSearchParams(window.location.search)
-      const source = searchParams.get('utm_source')
-      const medium = searchParams.get('utm_medium')
-      const campaign = searchParams.get('utm_campaign')
-      const utms = {
-        ...(source && { source }),
-        ...(medium && { medium }),
-        ...(campaign && { campaign }),
-      }
-      this.referrer(document.referrer, utms)
     }
   }
 
@@ -38,17 +31,58 @@ export class ArcxAnalyticsSdk {
   /** INTERNAL METHODS **/
   /**********************/
 
-  private trackPagesChanges() {
-    const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
-    if (!currentUrl) {
-      sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
-      this.page({ url: window.location.href })
+  private _trackFirstPageVisit() {
+    // If no tracking is set, this function shouldn't have been called
+    if (!this.sdkConfig.trackPages && !this.sdkConfig.trackReferrer && !this.sdkConfig.trackUTM) {
+      throw new Error('ArcxAnalyticsSdk::_trackFirstPageVisit: No tracking is set')
     }
 
+    const attributes: {
+      url?: string
+      referrer?: string
+      utm?: {
+        source?: string
+        medium?: string
+        campaign?: string
+      }
+    } = {}
+
+    if (this.sdkConfig.trackPages) {
+      attributes.url = window.location.href
+      if (sessionStorage.getItem(CURRENT_URL_KEY) === null) {
+        sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+      }
+    }
+
+    if (this.sdkConfig.trackReferrer) {
+      attributes.referrer = document.referrer
+    }
+
+    if (this.sdkConfig.trackUTM) {
+      const searchParams = new URLSearchParams(window.location.search)
+      const source = searchParams.get('utm_source')
+      const medium = searchParams.get('utm_medium')
+      const campaign = searchParams.get('utm_campaign')
+
+      if (source || medium || campaign) {
+        attributes.utm = {
+          ...(source && { source }),
+          ...(medium && { medium }),
+          ...(campaign && { campaign }),
+        }
+      }
+    }
+
+    return this.event(FIRST_PAGE_VISIT, attributes)
+  }
+
+  private trackPagesChanges() {
     document.body.addEventListener(
       'click',
       () => {
         requestAnimationFrame(() => {
+          const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+
           if (currentUrl !== window.location.href) {
             sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
             this.page({ url: window.location.href })
