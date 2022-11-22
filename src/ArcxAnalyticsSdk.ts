@@ -32,11 +32,6 @@ export class ArcxAnalyticsSdk {
   /**********************/
 
   private _trackFirstPageVisit() {
-    // If no tracking is set, this function shouldn't have been called
-    if (!this.sdkConfig.trackPages && !this.sdkConfig.trackReferrer && !this.sdkConfig.trackUTM) {
-      throw new Error('ArcxAnalyticsSdk::_trackFirstPageVisit: No tracking is set')
-    }
-
     const attributes: {
       url?: string
       referrer?: string
