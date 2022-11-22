@@ -32,15 +32,7 @@ export class ArcxAnalyticsSdk {
   /**********************/
 
   private _trackFirstPageVisit() {
-    const attributes: {
-      url?: string
-      referrer?: string
-      utm?: {
-        source?: string
-        medium?: string
-        campaign?: string
-      }
-    } = {}
+    const attributes: FirstVisitPageType = {}
 
     if (this.sdkConfig.trackPages) {
       attributes.url = window.location.href
@@ -165,5 +157,15 @@ export class ArcxAnalyticsSdk {
       referrer: referrer,
       ...utms,
     })
+  }
+}
+
+type FirstVisitPageType = {
+  url?: string
+  referrer?: string
+  utm?: {
+    source?: string
+    medium?: string
+    campaign?: string
   }
 }
