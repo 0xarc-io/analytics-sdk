@@ -1,4 +1,4 @@
-import { render } from '@testing-library/react'
+import { render, RenderResult } from '@testing-library/react'
 import {
   ArcxAnalyticsProvider,
   ArcxAnalyticsProviderProps,
@@ -17,7 +17,12 @@ import {
   REFERRER_EVENT,
 } from '../src/constants'
 import React from 'react'
-import { TEST_JSDOM_URL, TEST_UTM_CAMPAIGN, TEST_UTM_MEDIUM, TEST_UTM_SOURCE } from './jsdom.setup.test'
+import {
+  TEST_JSDOM_URL,
+  TEST_UTM_CAMPAIGN,
+  TEST_UTM_MEDIUM,
+  TEST_UTM_SOURCE,
+} from './jsdom.setup.test'
 
 const IDENTITY_ID = 'test-dentity-id'
 const TEST_API_KEY = 'test-api-key'
@@ -72,7 +77,7 @@ const ChildTest = () => {
 
 describe('ArcxAnalyticxProvider', () => {
   let postRequestStub: sinon.SinonStub
-  let screen: any
+  let screen: RenderResult
 
   beforeEach(async () => {
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(IDENTITY_ID)
