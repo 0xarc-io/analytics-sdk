@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import {
   ArcxAnalyticsProvider,
   ArcxAnalyticsProviderProps,
@@ -17,7 +17,7 @@ import {
   REFERRER_EVENT,
 } from '../src/constants'
 import React from 'react'
-import { reconfigureJsdom } from './helpers'
+import { TEST_JSDOM_URL, TEST_UTM_CAMPAIGN, TEST_UTM_MEDIUM, TEST_UTM_SOURCE } from './jsdom.setup.test'
 
 const IDENTITY_ID = 'test-dentity-id'
 const TEST_API_KEY = 'test-api-key'
@@ -72,10 +72,11 @@ const ChildTest = () => {
 
 describe('ArcxAnalyticxProvider', () => {
   let postRequestStub: sinon.SinonStub
+  let screen: any
 
   beforeEach(async () => {
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(IDENTITY_ID)
-    render(<ChildTest />, { wrapper: TestProvider })
+    screen = render(<ChildTest />, { wrapper: TestProvider })
     expect(await screen.findByText(IDENTITY_ID)).to.exist
     postRequestStub.resetHistory()
   })
@@ -110,11 +111,8 @@ describe('ArcxAnalyticxProvider', () => {
     it('makes a FIRST_PAGE_VISIT call with the UTM parameters', async () => {
       sessionStorage.clear()
       localStorage.clear()
-      const url = 'https://example.com/?utm_source=facebook&utm_medium=social&utm_campaign=ad-camp'
-      reconfigureJsdom({
-        url,
-      })
-      expect(window.location.href).to.eq(url)
+
+      expect(window.location.href).to.eq(TEST_JSDOM_URL)
 
       render(
         <TestProvider
@@ -139,9 +137,9 @@ describe('ArcxAnalyticxProvider', () => {
             event: FIRST_PAGE_VISIT,
             attributes: {
               utm: {
-                source: 'facebook',
-                medium: 'social',
-                campaign: 'ad-camp',
+                source: TEST_UTM_SOURCE,
+                medium: TEST_UTM_MEDIUM,
+                campaign: TEST_UTM_CAMPAIGN,
               },
             },
           }),
