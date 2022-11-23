@@ -9,6 +9,7 @@ export type SdkConfig = {
   cacheIdentity: boolean
   trackPages: boolean
   trackReferrer: boolean
+  trackUTM: boolean
   url: string
 }
 

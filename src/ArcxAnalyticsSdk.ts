@@ -4,6 +4,7 @@ import {
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
+  FIRST_PAGE_VISIT,
   IDENTITY_KEY,
   PAGE_EVENT,
   REFERRER_EVENT,
@@ -17,11 +18,12 @@ export class ArcxAnalyticsSdk {
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
   ) {
+    if (sdkConfig.trackPages || sdkConfig.trackReferrer || sdkConfig.trackUTM) {
+      this._trackFirstPageVisit()
+    }
+
     if (this.sdkConfig.trackPages) {
       this.trackPagesChanges()
-    }
-    if (this.sdkConfig.trackReferrer) {
-      this.referrer()
     }
   }
 
@@ -29,20 +31,43 @@ export class ArcxAnalyticsSdk {
   /** INTERNAL METHODS **/
   /**********************/
 
-  private trackPagesChanges() {
-    const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
-    if (!currentUrl) {
-      sessionStorage.setItem(CURRENT_URL_KEY, location.href)
-      this.page({ url: location.href })
+  private _trackFirstPageVisit() {
+    const attributes: FirstVisitPageType = {}
+
+    if (this.sdkConfig.trackPages) {
+      attributes.url = window.location.href
+      if (sessionStorage.getItem(CURRENT_URL_KEY) === null) {
+        sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+      }
     }
 
+    if (this.sdkConfig.trackReferrer) {
+      attributes.referrer = document.referrer
+    }
+
+    if (this.sdkConfig.trackUTM) {
+      const searchParams = new URLSearchParams(window.location.search)
+
+      attributes.utm = {
+        source: searchParams.get('utm_source'),
+        medium: searchParams.get('utm_medium'),
+        campaign: searchParams.get('utm_campaign'),
+      }
+    }
+
+    return this.event(FIRST_PAGE_VISIT, attributes)
+  }
+
+  private trackPagesChanges() {
     document.body.addEventListener(
       'click',
       () => {
         requestAnimationFrame(() => {
-          if (currentUrl !== location.href) {
-            sessionStorage.setItem(CURRENT_URL_KEY, location.href)
-            this.page({ url: location.href })
+          const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+
+          if (currentUrl !== window.location.href) {
+            sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+            this.page({ url: window.location.href })
           }
         })
       },
@@ -83,13 +108,13 @@ export class ArcxAnalyticsSdk {
    * - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
    * - the `medium`, defining the medium your visitors arrived at your site
    * (e.g. `social`, `email`)
-   * - the `campaignId` if you wish to track a specific marketing campaign
+   * - the `campaign` if you wish to track a specific marketing campaign
    * (e.g. `bankless-podcast-1`, `discord-15`)
    */
   attribute(attributes: {
     source?: string
     medium?: string
-    campaignId?: string
+    campaign?: string
     [key: string]: unknown
   }): Promise<string> {
     return this.event(ATTRIBUTION_EVENT, attributes)
@@ -121,5 +146,15 @@ export class ArcxAnalyticsSdk {
   /** Logs an refferer of html page. */
   async referrer(referrer?: string) {
     return this.event(REFERRER_EVENT, { referrer: referrer || document.referrer })
+  }
+}
+
+type FirstVisitPageType = {
+  url?: string
+  referrer?: string
+  utm?: {
+    source: string | null
+    medium: string | null
+    campaign: string | null
   }
 }
