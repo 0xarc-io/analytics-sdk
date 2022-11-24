@@ -1,4 +1,5 @@
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![npm version](https://badge.fury.io/js/@arcxmoney%2Fanalytics.svg)](https://badge.fury.io/js/@arcxmoney%2Fanalytics) [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+
 
 # ARCx Analytics SDK
 
@@ -104,9 +105,8 @@ options.
 
 - `apiKey` **(string)** - the ARCx-provided API key.
 - `config` **(object)** - overrides of SDK configuration
-  - `trackPages` **(boolean)** - automatically reports page visit events.
+  - `trackPages` **(boolean)** - automatically logs page visit events.
   - `cacheIdentity` **(boolean)** - captures cross-session behaviours.
-  - `trackUTM` **(boolean)** - automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit.
 
 ```js
 await analytics = await ArcxAnalyticsSdk.init(
@@ -114,7 +114,6 @@ await analytics = await ArcxAnalyticsSdk.init(
   {
     trackPages: true,
     cacheIdentity: true,
-    trackUTM: true
   }
 )
 ```
@@ -202,7 +201,7 @@ Used for more advanced analytics.
   - `source` **optional(string)** - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
   - `medium` **optional(string)** - the `medium`, defining the medium your visitors arrived at your site
    * (e.g. `social`, `email`)
-  - `campaign` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
+  - `campaignId` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
 
 **Example:**
 
