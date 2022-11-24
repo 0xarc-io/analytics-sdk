@@ -88,9 +88,13 @@ in a collection of configuration options.  The defaults the SDK picks are sensib
 
 The configuration options are:
 
-- `trackPages` **(boolean)** - tracks whenever there is a URL change during the session and logs it automatically. Defaults to `true`
 - `cacheIdentity` **(boolean)** - caches the identity of users in the browser's local storage to capture cross-session behaviours. Defaults to `true`
+
 - `trackReferrer` **(boolean)** - wether or not to emit an initial `REFERRER` event containing the referrer attribute. Defaults to `true`
+
+- `trackPages` **(boolean)** - tracks whenever there is a URL change during the session and logs it automatically. Defaults to `true`
+
+- `trackUTM` **(boolean)** - automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit.
 
 ## API
 
@@ -112,8 +116,10 @@ options.
 await analytics = await ArcxAnalyticsSdk.init(
   YOUR_API_KEY, // The ARCx-provided API key
   {
-    trackPages: true,
     cacheIdentity: true,
+    trackReferrer: true,
+    trackPages: true,
+    trackUTM: true
   }
 )
 ```
@@ -201,7 +207,7 @@ Used for more advanced analytics.
   - `source` **optional(string)** - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
   - `medium` **optional(string)** - the `medium`, defining the medium your visitors arrived at your site
    * (e.g. `social`, `email`)
-  - `campaignId` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
+  - `campaign` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
 
 **Example:**
 
