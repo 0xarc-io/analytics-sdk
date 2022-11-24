@@ -23,7 +23,8 @@ jobs:
       - run: yarn build
 
       - name: Semantic Release
-        run: npx semantic-release
+        run: echo $TEST_SECRET && npx semantic-release
         env:
+          TEST_SECRET: ${{ secrets.TEST_SECRET }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
