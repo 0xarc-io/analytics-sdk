@@ -19,9 +19,11 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - run: yarn install --frozen-lockfile
+      
+      - run: yarn build
 
       - name: Semantic Release
-        run: |
-          yarn build
-          GH_TOKEN=${{ secrets.GH_TOKEN }} NPM_TOKEN=${{ secrets.NPM_TOKEN }} npx semantic-release
-
+        run: npx semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
