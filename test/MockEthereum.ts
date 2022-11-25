@@ -1,6 +1,8 @@
+import { RequestArguments } from '@metamask/providers/dist/BaseProvider'
 import { EventEmitter } from 'events'
-import { TEST_CHAIN_ID } from './fixture'
 
 export class MockEthereum extends EventEmitter {
-  chainId = TEST_CHAIN_ID
+  request(_args: RequestArguments) {
+    return Promise.resolve()
+  }
 }

@@ -1,4 +1,3 @@
-import { ArcxAnalyticsSdk } from '../src'
 import { SdkConfig } from '../src/types/types'
 import sinon from 'sinon'
 import { expect } from 'chai'
@@ -10,6 +9,7 @@ import {
   CURRENT_URL_KEY,
   REFERRER_EVENT,
   FIRST_PAGE_VISIT,
+  DISCONNECT_EVENT,
 } from '../src/constants'
 import * as postRequestModule from '../src/helpers/postRequest'
 import {
@@ -19,9 +19,9 @@ import {
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
 } from './jsdom.setup.test'
-import EventEmitter from 'events'
 import { TEST_ADDRESS, TEST_CHAIN_ID, TEST_IDENTITY } from './fixture'
 import { MockEthereum } from './MockEthereum'
+import { ArcxAnalyticsSdk } from '../src'
 
 const PROD_URL_BACKEND = DEFAULT_SDK_CONFIG.url // Backwards compatability
 
@@ -190,43 +190,78 @@ describe('(unit) ArcxAnalyticsSdk', () => {
   })
 
   describe('Automatic Metamask event reporting', () => {
-    let ethereum: EventEmitter
+    let ethereum: MockEthereum
     let postRequestStub: sinon.SinonStub
+    let requestStub: sinon.SinonStub
+    let analyticsSdk: ArcxAnalyticsSdk
 
-    before(async () => {
+    beforeEach(async () => {
+      requestStub = sinon.stub().resolves(TEST_CHAIN_ID)
       postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
 
       ethereum = new MockEthereum()
+      ethereum.request = requestStub
       ;(window as any).ethereum = ethereum
 
-      await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
+      analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, {
+        trackWalletConnections: true,
+      })
       postRequestStub.resetHistory()
+
+      analyticsSdk.previousChainId = TEST_CHAIN_ID
+      analyticsSdk.previousConnectedAccount = TEST_ADDRESS
     })
 
-    beforeEach(() => postRequestStub.resetHistory())
+    afterEach(sinon.restore)
 
     after(() => delete (window as any).ethereum)
 
+    it('does not call _onAccountsChanged if trackMetamaskEvents is false')
+
+    it('calls _onAccountsChanged listener', async () => {
+      await ethereum.removeAllListeners()
+      const stub = sinon
+        .stub(ArcxAnalyticsSdk.prototype, <any>'_onAccountsChanged')
+        .resolves('test')
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
+
+      ethereum.emit('accountsChanged', [TEST_ADDRESS])
+      expect(stub.calledOnceWith([TEST_ADDRESS])).to.be.true
+    })
+
     // This is the same event being fired wether the user switches the account or connects it
     it('reports a CONNECT event if trackWalletConnections is set to true and user connects wallet', async () => {
-      ethereum.emit('accountsChanged', [TEST_ADDRESS])
+      await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
+
+      expect(requestStub.calledOnceWith({ method: 'eth_chainId' })).to.be.true
+      expect(
+        postRequestStub.calledOnceWith(
+          PROD_URL_BACKEND,
+          TEST_API_KEY,
+          '/submit-event',
+          getAnalyticsData(CONNECT_EVENT, {
+            account: analyticsSdk.previousConnectedAccount,
+            chain: analyticsSdk.previousChainId,
+          }),
+        ),
+      ).to.be.true
+    })
+
+    it('reports a DISCONNECT event if trackWalletConnections is set to true and user disconnects wallet', async () => {
+      await analyticsSdk['_onAccountsChanged']([])
 
       expect(
         postRequestStub.calledOnceWithExactly(
           PROD_URL_BACKEND,
           TEST_API_KEY,
           '/submit-event',
-          getAnalyticsData(CONNECT_EVENT, {
-            account: TEST_ADDRESS,
-            chain: TEST_CHAIN_ID,
+          getAnalyticsData(DISCONNECT_EVENT, {
+            account: analyticsSdk.previousConnectedAccount,
+            chain: analyticsSdk.previousChainId,
           }),
         ),
       ).to.be.true
     })
-
-    it(
-      'reports a DISCONNECT event if trackWalletConnections is set to true and user disconnects walelt',
-    )
 
     it('reports a CHAIN_CHANGED event if the chain has changed')
   })
