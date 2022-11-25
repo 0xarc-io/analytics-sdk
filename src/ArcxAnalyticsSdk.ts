@@ -14,7 +14,7 @@ import {
 import { postRequest } from './helpers'
 
 export class ArcxAnalyticsSdk {
-  previousChainId?: string
+  previousChainId?: string | null
   previousConnectedAccount?: string
 
   private constructor(
@@ -31,7 +31,7 @@ export class ArcxAnalyticsSdk {
     }
 
     if (sdkConfig.trackWalletConnections) {
-      this._trackWalletChanges()
+      window.ethereum?.on('accountsChanged', this._onAccountsChanged)
     }
   }
 
@@ -83,31 +83,35 @@ export class ArcxAnalyticsSdk {
     )
   }
 
-  private _trackWalletChanges() {
-    window.ethereum?.on('accountsChanged', (...args: unknown[]) => {
-      const [accounts]: [string[]] = args as [string[]]
-      if (accounts.length > 0) {
-        if (!window.ethereum?.chainId) {
-          throw new Error(
-            'ArcxAnalyticsSdk::_trackWalletChanges: window.ethhereum.chainId is:' +
-              window.ethereum?.chainId,
-          )
-        }
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        this.connectWallet({ chain: window.ethereum!.chainId!, account: accounts[0] })
-      } else {
-        if (!this.previousChainId || !this.previousConnectedAccount) {
-          throw new Error(
-            'ArcxAnalyticsSdk::_trackWalletChanges: previousChainId or previousConnectedAccount is not set',
-          )
-        }
+  private async _onAccountsChanged(...args: unknown[]) {
+    if (!window.ethereum) {
+      throw new Error('ArcxAnalyticsSdk::_onAccountsChanged: No ethereum provider found')
+    }
 
-        this.event(DISCONNECT_EVENT, {
-          chain: this.previousChainId,
-          account: this.previousConnectedAccount,
-        })
+    const [accounts]: [string[]] = args as [string[]]
+
+    if (accounts.length > 0) {
+      this.previousChainId = await window.ethereum.request<string>({ method: 'eth_chainId' })
+      // Because we're connected, the chainId cannot be null
+      if (!this.previousChainId) {
+        throw new Error(
+          'ArcxAnalyticsSdk::_onAccountsChanged: this.previousChainId is:' + this.previousChainId,
+        )
       }
-    })
+
+      this.connectWallet({ chain: this.previousChainId, account: accounts[0] })
+    } else {
+      if (!this.previousChainId || !this.previousConnectedAccount) {
+        throw new Error(
+          'ArcxAnalyticsSdk::_onAccountsChanged: previousChainId or previousConnectedAccount is not set',
+        )
+      }
+
+      this.event(DISCONNECT_EVENT, {
+        chain: this.previousChainId,
+        account: this.previousConnectedAccount,
+      })
+    }
   }
 
   /********************/
