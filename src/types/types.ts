@@ -10,6 +10,7 @@ export type SdkConfig = {
   trackPages: boolean
   trackReferrer: boolean
   trackUTM: boolean
+  trackWalletConnections: boolean
   url: string
 }
 

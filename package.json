@@ -21,6 +21,7 @@
     "@babel/plugin-transform-react-jsx": "^7.14.9",
     "@commitlint/cli": "^17.3.0",
     "@commitlint/config-conventional": "^17.3.0",
+    "@metamask/providers": "^10.2.1",
     "@testing-library/react": "^13.4.0",
     "@types/chai": "^4.3.1",
     "@types/jsdom": "^20.0.1",

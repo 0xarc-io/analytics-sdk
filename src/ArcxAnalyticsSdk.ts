@@ -1,9 +1,10 @@
-import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types'
+import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types/types'
 import {
   ATTRIBUTION_EVENT,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
+  DISCONNECT_EVENT,
   FIRST_PAGE_VISIT,
   IDENTITY_KEY,
   PAGE_EVENT,
@@ -13,6 +14,9 @@ import {
 import { postRequest } from './helpers'
 
 export class ArcxAnalyticsSdk {
+  previousChainId?: string
+  previousConnectedAccount?: string
+
   private constructor(
     public readonly apiKey: string,
     public readonly identityId: string,
@@ -23,7 +27,11 @@ export class ArcxAnalyticsSdk {
     }
 
     if (this.sdkConfig.trackPages) {
-      this.trackPagesChanges()
+      this._trackPagesChanges()
+    }
+
+    if (sdkConfig.trackWalletConnections) {
+      this._trackWalletChanges()
     }
   }
 
@@ -58,7 +66,7 @@ export class ArcxAnalyticsSdk {
     return this.event(FIRST_PAGE_VISIT, attributes)
   }
 
-  private trackPagesChanges() {
+  private _trackPagesChanges() {
     document.body.addEventListener(
       'click',
       () => {
@@ -73,6 +81,33 @@ export class ArcxAnalyticsSdk {
       },
       true,
     )
+  }
+
+  private _trackWalletChanges() {
+    window.ethereum?.on('accountsChanged', (...args: unknown[]) => {
+      const [accounts]: [string[]] = args as [string[]]
+      if (accounts.length > 0) {
+        if (!window.ethereum?.chainId) {
+          throw new Error(
+            'ArcxAnalyticsSdk::_trackWalletChanges: window.ethhereum.chainId is:' +
+              window.ethereum?.chainId,
+          )
+        }
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        this.connectWallet({ chain: window.ethereum!.chainId!, account: accounts[0] })
+      } else {
+        if (!this.previousChainId || !this.previousConnectedAccount) {
+          throw new Error(
+            'ArcxAnalyticsSdk::_trackWalletChanges: previousChainId or previousConnectedAccount is not set',
+          )
+        }
+
+        this.event(DISCONNECT_EVENT, {
+          chain: this.previousChainId,
+          account: this.previousConnectedAccount,
+        })
+      }
+    })
   }
 
   /********************/

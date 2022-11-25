@@ -23,8 +23,8 @@ import {
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
 } from './jsdom.setup.test'
+import { TEST_IDENTITY } from './fixture'
 
-const IDENTITY_ID = 'test-dentity-id'
 const TEST_API_KEY = 'test-api-key'
 const TRACK_PAGES_CONFIG: SdkConfig = {
   ...DEFAULT_SDK_CONFIG,
@@ -80,9 +80,9 @@ describe('ArcxAnalyticxProvider', () => {
   let screen: RenderResult
 
   beforeEach(async () => {
-    postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(IDENTITY_ID)
+    postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
     screen = render(<ChildTest />, { wrapper: TestProvider })
-    expect(await screen.findByText(IDENTITY_ID)).to.exist
+    expect(await screen.findByText(TEST_IDENTITY)).to.exist
     postRequestStub.resetHistory()
   })
 
@@ -93,7 +93,7 @@ describe('ArcxAnalyticxProvider', () => {
       render(<TestProvider />)
 
       expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/identify'))
-      expect(await screen.findByText(IDENTITY_ID)).to.exist
+      expect(await screen.findByText(TEST_IDENTITY)).to.exist
     })
 
     it('fails to initialize sdk if api key was not provided', () => {
@@ -126,7 +126,7 @@ describe('ArcxAnalyticxProvider', () => {
           }}
         />,
       )
-      expect(await screen.findByText(IDENTITY_ID)).to.exist
+      expect(await screen.findByText(TEST_IDENTITY)).to.exist
 
       expect(postRequestStub.calledTwice).to.be.true
       expect(
@@ -138,7 +138,7 @@ describe('ArcxAnalyticxProvider', () => {
         postRequestStub
           .getCall(1)
           .calledWithExactly(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-            identityId: IDENTITY_ID,
+            identityId: TEST_IDENTITY,
             event: FIRST_PAGE_VISIT,
             attributes: {
               utm: {
@@ -158,7 +158,7 @@ describe('ArcxAnalyticxProvider', () => {
 
       expect(
         postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-          identityId: IDENTITY_ID,
+          identityId: TEST_IDENTITY,
           event: 'test-event',
           attributes: { gm: 'gm' },
         }),
@@ -170,7 +170,7 @@ describe('ArcxAnalyticxProvider', () => {
 
       expect(
         postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-          identityId: IDENTITY_ID,
+          identityId: TEST_IDENTITY,
           event: PAGE_EVENT,
           attributes: {
             url: '/test',
@@ -184,7 +184,7 @@ describe('ArcxAnalyticxProvider', () => {
 
       expect(
         postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-          identityId: IDENTITY_ID,
+          identityId: TEST_IDENTITY,
           event: 'TRANSACTION_SUBMITTED',
           attributes: { chain: 1, transaction_hash: '0x123', metadata: {} },
         }),
@@ -196,7 +196,7 @@ describe('ArcxAnalyticxProvider', () => {
 
       expect(
         postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-          identityId: IDENTITY_ID,
+          identityId: TEST_IDENTITY,
           event: ATTRIBUTION_EVENT,
           attributes: { source: 'facebook', medium: 'social', campaign: 'ad-camp' },
         }),
@@ -208,7 +208,7 @@ describe('ArcxAnalyticxProvider', () => {
 
       expect(
         postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/submit-event', {
-          identityId: IDENTITY_ID,
+          identityId: TEST_IDENTITY,
           event: REFERRER_EVENT,
           attributes: { referrer: '/test' },
         }),

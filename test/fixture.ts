@@ -1,0 +1,3 @@
+export const TEST_ADDRESS = '0x1234567890123456789012345678901234567890'
+export const TEST_CHAIN_ID = '1'
+export const TEST_IDENTITY = 'test-identity'
