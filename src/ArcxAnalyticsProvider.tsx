@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { ArcxAnalyticsSdk } from './ArcxAnalyticsSdk'
-import { ArcxAnalyticsProviderProps } from './types'
+import { ArcxAnalyticsProviderProps } from './types/types'
 
 export const ArcxAnalyticxContext = createContext<ArcxAnalyticsSdk | undefined>(undefined)
 

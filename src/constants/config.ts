@@ -1,10 +1,11 @@
-import { SdkConfig } from '../types'
+import { SdkConfig } from '../types/types'
 
 export const DEFAULT_SDK_CONFIG: SdkConfig = {
   cacheIdentity: true,
   trackPages: true,
   trackReferrer: true,
   trackUTM: true,
+  trackWalletConnections: true,
   url: 'https://api.arcx.money/v1',
 }
 
