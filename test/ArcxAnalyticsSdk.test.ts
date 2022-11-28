@@ -10,6 +10,7 @@ import {
   REFERRER_EVENT,
   FIRST_PAGE_VISIT,
   DISCONNECT_EVENT,
+  CHAIN_CHANGED_EVENT,
 } from '../src/constants'
 import * as postRequestModule from '../src/helpers/postRequest'
 import {
@@ -240,14 +241,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(stub.calledOnceWith([TEST_ADDRESS])).to.be.true
     })
 
-    // it.only('calls _onChainChanged listener', async () => {
-    //   const onChainChangedStub = sinon.stub(ArcxAnalyticsSdk.prototype, <any>'_onChainChanged')
-    //   await ethereum.removeAllListeners()
-    //   await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
+    it('calls _onChainChanged listener', async () => {
+      const onChainChangedStub = sinon.stub(ArcxAnalyticsSdk.prototype, <any>'_onChainChanged')
+      await ethereum.removeAllListeners()
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
-    //   ethereum.emit('chainChanged', '21')
-    //   expect(onChainChangedStub.calledOnceWith('21')).to.be.true
-    // })
+      ethereum.emit('chainChanged', '21')
+      expect(onChainChangedStub.calledOnceWith('21')).to.be.true
+    })
 
     // This is the same event being fired wether the user switches the account or connects it
     it('calls #connectWallet if trackWalletConnections is set to true and user connects wallet', async () => {
@@ -271,16 +272,16 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       ).to.be.true
     })
 
-    // it('reports a CHAIN_CHANGED event if the chain has changed', async () => {
-    //   const eventStub = sinon.stub(analyticsSdk, 'event')
-    //   await analyticsSdk['_onChainChanged']('21')
+    it('reports a CHAIN_CHANGED_EVENT event if the chain has changed', async () => {
+      const eventStub = sinon.stub(analyticsSdk, 'event')
+      await analyticsSdk['_onChainChanged']('21')
 
-    //   expect(
-    //     eventStub.calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
-    //       chainId: '21',
-    //     }),
-    //   ).to.be.true
-    // })
+      expect(
+        eventStub.calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
+          chainId: '21',
+        }),
+      ).to.be.true
+    })
 
     describe('#_reportCurrentWallet', () => {
       it('calls #connectWallet', async () => {
@@ -293,7 +294,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(requestStub.firstCall.calledWith({ method: 'eth_accounts' })).to.be.true
         expect(requestStub.secondCall.calledWith({ method: 'eth_chainId' })).to.be.true
-        console.log('connectWalletStub.args', JSON.stringify(connectWalletStub.args, null, 2))
         expect(connectWalletStub.calledOnceWith({ account: TEST_ADDRESS, chain: TEST_CHAIN_ID })).to
           .be.true
       })
