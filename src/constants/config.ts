@@ -6,6 +6,7 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
   trackReferrer: true,
   trackUTM: true,
   trackWalletConnections: true,
+  trackChainChanges: true,
   url: 'https://api.arcx.money/v1',
 }
 
