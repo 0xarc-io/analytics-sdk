@@ -88,13 +88,13 @@ in a collection of configuration options.  The defaults the SDK picks are sensib
 
 The configuration options are:
 
-- `cacheIdentity` **(boolean)** - caches the identity of users in the browser's local storage to capture cross-session behaviours. Defaults to `true`
-
-- `trackReferrer` **(boolean)** - wether or not to emit an initial `REFERRER` event containing the referrer attribute. Defaults to `true`
-
-- `trackPages` **(boolean)** - tracks whenever there is a URL change during the session and logs it automatically. Defaults to `true`
-
-- `trackUTM` **(boolean)** - automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit.
+| Config key               | Type    | Description                                                  | Default |
+| ------------------------ | ------- | ------------------------------------------------------------ | ------- |
+| `cacheIdentity`          | boolean | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`  |
+| `trackReferrer`          | boolean | Wether or not to emit an initial `REFERRER` event containing the referrer attribute | `true`  |
+| `trackPages`             | boolean | Tracks whenever there is a URL change during the session and logs it automatically. | `true`  |
+| `trackUTM`               | boolean | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`  |
+| `trackWalletConnections` | boolean | Automatically track wallet connections. Currently only supporting Metamask. | `true`  |
 
 ## API
 

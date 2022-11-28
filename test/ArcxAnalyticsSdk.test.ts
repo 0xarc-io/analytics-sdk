@@ -47,10 +47,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     beforeEach(async () => {
       postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
       analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
+      postRequestStub.resetHistory()
       sessionStorage.clear()
     })
-
-    beforeEach(() => postRequestStub.resetHistory())
 
     afterEach(() => sinon.restore())
 
@@ -113,7 +112,18 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         ).to.be.true
       })
 
-      it('reports a CONNECT event if the user wallet is connected')
+      it('calls _reportCurrentWallet if trackWalletConnections is true', async () => {
+        // eslint-disable-next-line @typescript-eslint/no-extra-semi
+        ;(window as any).ethereum = new MockEthereum()
+
+        const reportCurrentWalletStub = sinon.stub(
+          ArcxAnalyticsSdk.prototype,
+          <any>'_reportCurrentWallet',
+        )
+        await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
+
+        expect(reportCurrentWalletStub.calledOnce).to.be.true
+      })
     })
 
     it('#event', async () => {
@@ -191,13 +201,15 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
   describe('Automatic Metamask event reporting', () => {
     let ethereum: MockEthereum
-    let postRequestStub: sinon.SinonStub
     let requestStub: sinon.SinonStub
     let analyticsSdk: ArcxAnalyticsSdk
 
     beforeEach(async () => {
-      requestStub = sinon.stub().resolves(TEST_CHAIN_ID)
-      postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
+      requestStub = sinon.stub()
+      requestStub.withArgs({ method: 'eth_accounts' }).resolves([TEST_ADDRESS])
+      requestStub.withArgs({ method: 'eth_chainId' }).resolves(TEST_CHAIN_ID)
+
+      sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
 
       ethereum = new MockEthereum()
       ethereum.request = requestStub
@@ -206,10 +218,11 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, {
         trackWalletConnections: true,
       })
-      postRequestStub.resetHistory()
 
       analyticsSdk.previousChainId = TEST_CHAIN_ID
       analyticsSdk.previousConnectedAccount = TEST_ADDRESS
+
+      sinon.resetHistory()
     })
 
     afterEach(sinon.restore)
@@ -220,50 +233,71 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     it('calls _onAccountsChanged listener', async () => {
       await ethereum.removeAllListeners()
-      const stub = sinon
-        .stub(ArcxAnalyticsSdk.prototype, <any>'_onAccountsChanged')
-        .resolves('test')
+      const stub = sinon.stub(ArcxAnalyticsSdk.prototype, <any>'_onAccountsChanged').resolves()
       await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
       ethereum.emit('accountsChanged', [TEST_ADDRESS])
       expect(stub.calledOnceWith([TEST_ADDRESS])).to.be.true
     })
 
+    // it.only('calls _onChainChanged listener', async () => {
+    //   const onChainChangedStub = sinon.stub(ArcxAnalyticsSdk.prototype, <any>'_onChainChanged')
+    //   await ethereum.removeAllListeners()
+    //   await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
+
+    //   ethereum.emit('chainChanged', '21')
+    //   expect(onChainChangedStub.calledOnceWith('21')).to.be.true
+    // })
+
     // This is the same event being fired wether the user switches the account or connects it
-    it('reports a CONNECT event if trackWalletConnections is set to true and user connects wallet', async () => {
+    it('calls #connectWallet if trackWalletConnections is set to true and user connects wallet', async () => {
+      const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
       await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
 
       expect(requestStub.calledOnceWith({ method: 'eth_chainId' })).to.be.true
-      expect(
-        postRequestStub.calledOnceWith(
-          PROD_URL_BACKEND,
-          TEST_API_KEY,
-          '/submit-event',
-          getAnalyticsData(CONNECT_EVENT, {
-            account: analyticsSdk.previousConnectedAccount,
-            chain: analyticsSdk.previousChainId,
-          }),
-        ),
-      ).to.be.true
+      expect(connectWalletStub.calledOnceWith({ chain: TEST_CHAIN_ID, account: TEST_ADDRESS })).to
+        .be.true
     })
 
     it('reports a DISCONNECT event if trackWalletConnections is set to true and user disconnects wallet', async () => {
+      const eventStub = sinon.stub(analyticsSdk, 'event')
       await analyticsSdk['_onAccountsChanged']([])
 
       expect(
-        postRequestStub.calledOnceWithExactly(
-          PROD_URL_BACKEND,
-          TEST_API_KEY,
-          '/submit-event',
-          getAnalyticsData(DISCONNECT_EVENT, {
-            account: analyticsSdk.previousConnectedAccount,
-            chain: analyticsSdk.previousChainId,
-          }),
-        ),
+        eventStub.calledOnceWithExactly(DISCONNECT_EVENT, {
+          chain: TEST_CHAIN_ID,
+          account: TEST_ADDRESS,
+        }),
       ).to.be.true
     })
 
-    it('reports a CHAIN_CHANGED event if the chain has changed')
+    // it('reports a CHAIN_CHANGED event if the chain has changed', async () => {
+    //   const eventStub = sinon.stub(analyticsSdk, 'event')
+    //   await analyticsSdk['_onChainChanged']('21')
+
+    //   expect(
+    //     eventStub.calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
+    //       chainId: '21',
+    //     }),
+    //   ).to.be.true
+    // })
+
+    describe('#_reportCurrentWallet', () => {
+      it('calls #connectWallet', async () => {
+        const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
+
+        expect(await requestStub({ method: 'eth_accounts' })).to.be.deep.eq([TEST_ADDRESS])
+        expect(await requestStub({ method: 'eth_chainId' })).to.be.deep.eq(TEST_CHAIN_ID)
+
+        await analyticsSdk['_reportCurrentWallet']()
+
+        expect(requestStub.firstCall.calledWith({ method: 'eth_accounts' })).to.be.true
+        expect(requestStub.secondCall.calledWith({ method: 'eth_chainId' })).to.be.true
+        console.log('connectWalletStub.args', JSON.stringify(connectWalletStub.args, null, 2))
+        expect(connectWalletStub.calledOnceWith({ account: TEST_ADDRESS, chain: TEST_CHAIN_ID })).to
+          .be.true
+      })
+    })
   })
 })
 

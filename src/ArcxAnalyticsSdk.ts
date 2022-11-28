@@ -31,6 +31,7 @@ export class ArcxAnalyticsSdk {
     }
 
     if (sdkConfig.trackWalletConnections) {
+      this._reportCurrentWallet()
       window.ethereum?.on('accountsChanged', this._onAccountsChanged)
     }
   }
@@ -108,6 +109,34 @@ export class ArcxAnalyticsSdk {
       }
 
       this.event(DISCONNECT_EVENT, {
+        chain: this.previousChainId,
+        account: this.previousConnectedAccount,
+      })
+    }
+  }
+
+  private async _reportCurrentWallet() {
+    if (!window.ethereum) {
+      console.warn('ArcxAnalyticsSdk::_reportCurrentWallet: No ethereum provider found')
+      return
+    }
+
+    const accounts = await window.ethereum.request<string[]>({ method: 'eth_accounts' })
+
+    if (accounts && accounts.length > 0) {
+      if (!accounts[0]) {
+        throw new Error('ArcxAnalyticsSdk::_reportCurrentWallet: accounts[0] is:' + accounts[0])
+      }
+
+      this.previousConnectedAccount = accounts[0]
+      const chainId = await window.ethereum.request<string>({ method: 'eth_chainId' })
+
+      if (!chainId) {
+        throw new Error('ArcxAnalyticsSdk::_reportCurrentWallet: chainId is:' + chainId)
+      }
+      this.previousChainId = chainId
+
+      return this.connectWallet({
         chain: this.previousChainId,
         account: this.previousConnectedAccount,
       })
