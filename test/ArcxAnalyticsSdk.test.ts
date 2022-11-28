@@ -32,6 +32,7 @@ const ALL_FALSE_CONFIG: SdkConfig = {
   trackReferrer: false,
   trackUTM: false,
   trackWalletConnections: false,
+  trackChainChanges: false,
   url: PROD_URL_BACKEND,
 }
 const TEST_API_KEY = '01234'
@@ -230,7 +231,29 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     after(() => delete (window as any).ethereum)
 
-    it('does not call _onAccountsChanged if trackMetamaskEvents is false')
+    it('does not call _onAccountsChanged if trackWalletConnections is false', async () => {
+      await ethereum.removeAllListeners()
+      const stub = sinon.stub(ArcxAnalyticsSdk.prototype, <any>'_onAccountsChanged').resolves()
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, {
+        ...DEFAULT_SDK_CONFIG,
+        trackWalletConnections: false,
+      })
+
+      ethereum.emit('accountsChanged', [TEST_ADDRESS])
+      expect(stub.notCalled).to.be.true
+    })
+
+    it('does not call _onChainChanged if trackChainChanges is false', async () => {
+      await ethereum.removeAllListeners()
+      const stub = sinon.stub(ArcxAnalyticsSdk.prototype, <any>'_onChainChanged').resolves()
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, {
+        ...DEFAULT_SDK_CONFIG,
+        trackChainChanges: false,
+      })
+
+      ethereum.emit('chainChanged', '21')
+      expect(stub.notCalled).to.be.true
+    })
 
     it('calls _onAccountsChanged listener', async () => {
       await ethereum.removeAllListeners()

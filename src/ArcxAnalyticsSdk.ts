@@ -34,6 +34,9 @@ export class ArcxAnalyticsSdk {
     if (sdkConfig.trackWalletConnections) {
       this._reportCurrentWallet()
       window.ethereum?.on('accountsChanged', this._onAccountsChanged)
+    }
+
+    if (sdkConfig.trackChainChanges) {
       window.ethereum?.on('chainChanged', this._onChainChanged)
     }
   }

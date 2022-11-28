@@ -95,6 +95,7 @@ The configuration options are:
 | `trackPages`             | boolean | Tracks whenever there is a URL change during the session and logs it automatically. | `true`  |
 | `trackUTM`               | boolean | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`  |
 | `trackWalletConnections` | boolean | Automatically track wallet connections. Currently only supporting Metamask. | `true`  |
+| `trackChainChanges`      | boolean | Automatically track chain ID changes. Currenlty only supporting Metamask | `true`  |
 
 ## API
 
