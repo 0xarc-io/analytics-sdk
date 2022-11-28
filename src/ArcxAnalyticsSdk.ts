@@ -1,6 +1,7 @@
 import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types/types'
 import {
   ATTRIBUTION_EVENT,
+  CHAIN_CHANGED_EVENT,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -33,6 +34,7 @@ export class ArcxAnalyticsSdk {
     if (sdkConfig.trackWalletConnections) {
       this._reportCurrentWallet()
       window.ethereum?.on('accountsChanged', this._onAccountsChanged)
+      window.ethereum?.on('chainChanged', this._onChainChanged)
     }
   }
 
@@ -113,6 +115,21 @@ export class ArcxAnalyticsSdk {
         account: this.previousConnectedAccount,
       })
     }
+  }
+
+  private _onChainChanged(...args: unknown[]) {
+    if (args.length === 0) {
+      throw new Error('ArcxAnalyticsSdk::_onChainChanged: No chainId provided')
+    }
+
+    const chainId = args[0] as string
+    if (!chainId) {
+      throw new Error(`ArcxAnalyticsSdk::_onChainChanged: chainId is: ${chainId}`)
+    }
+
+    this.previousChainId = chainId
+
+    return this.event(CHAIN_CHANGED_EVENT, { chainId })
   }
 
   private async _reportCurrentWallet() {
