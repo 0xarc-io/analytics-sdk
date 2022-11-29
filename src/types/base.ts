@@ -12,6 +12,7 @@ export type SdkConfig = {
   trackUTM: boolean
   trackWalletConnections: boolean
   trackChainChanges: boolean
+  trackTransactions: boolean
   url: string
 }
 
