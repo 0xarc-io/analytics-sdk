@@ -138,7 +138,7 @@ export class ArcxAnalyticsSdk {
   private _onChainChanged(chainIdHex: string) {
     this.previousChainId = parseInt(chainIdHex, 16).toString()
 
-    return this.event(CHAIN_CHANGED_EVENT, { chainId: chainIdHex })
+    return this.event(CHAIN_CHANGED_EVENT, { chainId: this.previousChainId })
   }
 
   private async _reportCurrentWallet() {
