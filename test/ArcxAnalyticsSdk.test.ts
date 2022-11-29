@@ -309,13 +309,11 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     it('reports a CHAIN_CHANGED_EVENT event if the chain has changed', async () => {
       const eventStub = sinon.stub(analyticsSdk, 'event')
-      await analyticsSdk['_onChainChanged']('21')
+      await analyticsSdk['_onChainChanged']('0x1')
 
-      expect(
-        eventStub.calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
-          chainId: '21',
-        }),
-      ).to.be.true
+      expect(eventStub).to.have.been.calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
+        chainId: '1',
+      })
     })
 
     describe('#_reportCurrentWallet', () => {
