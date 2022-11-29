@@ -41,7 +41,9 @@ export class ArcxAnalyticsSdk {
 
     if (sdkConfig.trackChainChanges) {
       this._onChainChanged = this._onChainChanged.bind(this)
-      window.ethereum?.on('chainChanged', this._onChainChanged)
+      window.ethereum?.on('chainChanged', (...args: unknown[]) =>
+        this._onChainChanged(args[0] as string),
+      )
     }
   }
 
@@ -106,13 +108,12 @@ export class ArcxAnalyticsSdk {
         this.previousConnectedAccount = accounts[0]
       }
 
-      this.previousChainId = await window.ethereum.request<string>({ method: 'eth_chainId' })
+      const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
       // Because we're connected, the chainId cannot be null
-      if (!this.previousChainId) {
-        throw new Error(
-          'ArcxAnalyticsSdk::_onAccountsChanged: this.previousChainId is:' + this.previousChainId,
-        )
+      if (!chainIdHex) {
+        throw new Error('ArcxAnalyticsSdk::_onAccountsChanged: chainIdHex is:' + chainIdHex)
       }
+      this.previousChainId = parseInt(chainIdHex, 16).toString()
 
       this.connectWallet({ chain: this.previousChainId, account: accounts[0] })
     } else {
@@ -134,19 +135,10 @@ export class ArcxAnalyticsSdk {
     }
   }
 
-  private _onChainChanged(...args: unknown[]) {
-    if (args.length === 0) {
-      throw new Error('ArcxAnalyticsSdk::_onChainChanged: No chainId provided')
-    }
+  private _onChainChanged(chainIdHex: string) {
+    this.previousChainId = parseInt(chainIdHex, 16).toString()
 
-    const chainId = args[0] as string
-    if (!chainId) {
-      throw new Error(`ArcxAnalyticsSdk::_onChainChanged: chainId is: ${chainId}`)
-    }
-
-    this.previousChainId = chainId
-
-    return this.event(CHAIN_CHANGED_EVENT, { chainId })
+    return this.event(CHAIN_CHANGED_EVENT, { chainId: chainIdHex })
   }
 
   private async _reportCurrentWallet() {
@@ -163,12 +155,12 @@ export class ArcxAnalyticsSdk {
       }
 
       this.previousConnectedAccount = accounts[0]
-      const chainId = await window.ethereum.request<string>({ method: 'eth_chainId' })
+      const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
 
-      if (!chainId) {
-        throw new Error('ArcxAnalyticsSdk::_reportCurrentWallet: chainId is:' + chainId)
+      if (!chainIdHex) {
+        throw new Error('ArcxAnalyticsSdk::_reportCurrentWallet: chainId is:' + chainIdHex)
       }
-      this.previousChainId = chainId
+      this.previousChainId = parseInt(chainIdHex, 16).toString()
 
       return this.connectWallet({
         chain: this.previousChainId,
