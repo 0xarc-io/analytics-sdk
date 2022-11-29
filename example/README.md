@@ -18,6 +18,8 @@ Then, in children components, you will have access to the `useArcxAnalytics()` h
 
 ## Note
 
-You can test this app with the local package by linking it locally with [yarn link](https://classic.yarnpkg.com/lang/en/docs/cli/link/). If you face "two copies of react" problems, you can fix it by temporarily deleting the `react` and `react-dom` folders inside `../node_modules`.
+You can test this app with the local package by linking it locally with [yarn link](https://classic.yarnpkg.com/lang/en/docs/cli/link/). If you face "two copies of react" problems, you can fix it by temporarily linking the `react` and `@types/react` folders in `/` to `/example/node_modules/{react,@types/react}`. You can do that by runinng:
 
-This is why there is a `rm ../node_modules/{react,react-dom}` at the beginning of the `start` script in `package.json`.
+1. In `example/node_modules/react`, run `yarn link`
+2. In `example/node_modules/@types/react` run `yarn link`
+3. In the project directory, run `yarn link react && yarn link @types/react && yarn`
