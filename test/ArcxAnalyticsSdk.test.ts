@@ -221,9 +221,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         trackWalletConnections: true,
       })
 
-      analyticsSdk.previousChainId = TEST_CHAIN_ID
-      analyticsSdk.previousConnectedAccount = TEST_ADDRESS
-
       sinon.resetHistory()
     })
 
@@ -274,13 +271,28 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     // This is the same event being fired wether the user switches the account or connects it
-    it('calls #connectWallet if trackWalletConnections is set to true and user connects wallet', async () => {
+    it('#_onAccountsChanged: calls #connectWallet if trackWalletConnections is set to true and user connects wallet', async () => {
       const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
+      analyticsSdk.previousConnectedAccount = undefined
+      analyticsSdk.previousChainId = undefined
+
       await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
+
+      expect(analyticsSdk.previousConnectedAccount).to.equal(TEST_ADDRESS)
+      expect(analyticsSdk.previousConnectedAccount).to.equal(TEST_ADDRESS)
 
       expect(requestStub.calledOnceWith({ method: 'eth_chainId' })).to.be.true
       expect(connectWalletStub.calledOnceWith({ chain: TEST_CHAIN_ID, account: TEST_ADDRESS })).to
         .be.true
+    })
+
+    it('#_onAccountsChanged: does not call #connectWallet if the same event was already reported once', async () => {
+      expect(analyticsSdk.previousConnectedAccount).to.be.equal(TEST_ADDRESS)
+      const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
+
+      await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
+
+      expect(connectWalletStub.notCalled).to.be.true
     })
 
     it('reports a DISCONNECT event if trackWalletConnections is set to true and user disconnects wallet', async () => {

@@ -33,10 +33,14 @@ export class ArcxAnalyticsSdk {
 
     if (sdkConfig.trackWalletConnections) {
       this._reportCurrentWallet()
-      window.ethereum?.on('accountsChanged', this._onAccountsChanged)
+      this._onAccountsChanged = this._onAccountsChanged.bind(this)
+      window.ethereum?.on('accountsChanged', (...args: unknown[]) =>
+        this._onAccountsChanged(args[0] as string[]),
+      )
     }
 
     if (sdkConfig.trackChainChanges) {
+      this._onChainChanged = this._onChainChanged.bind(this)
       window.ethereum?.on('chainChanged', this._onChainChanged)
     }
   }
@@ -89,14 +93,19 @@ export class ArcxAnalyticsSdk {
     )
   }
 
-  private async _onAccountsChanged(...args: unknown[]) {
+  private async _onAccountsChanged(accounts: string[]) {
     if (!window.ethereum) {
       throw new Error('ArcxAnalyticsSdk::_onAccountsChanged: No ethereum provider found')
     }
 
-    const [accounts]: [string[]] = args as [string[]]
-
     if (accounts.length > 0) {
+      if (accounts[0] === this.previousConnectedAccount) {
+        // We have already reported this account
+        return
+      } else {
+        this.previousConnectedAccount = accounts[0]
+      }
+
       this.previousChainId = await window.ethereum.request<string>({ method: 'eth_chainId' })
       // Because we're connected, the chainId cannot be null
       if (!this.previousChainId) {
@@ -113,9 +122,14 @@ export class ArcxAnalyticsSdk {
         )
       }
 
+      const previousChainId = this.previousChainId
+      const previousConnectedAccount = this.previousConnectedAccount
+      this.previousChainId = undefined
+      this.previousConnectedAccount = undefined
+
       this.event(DISCONNECT_EVENT, {
-        chain: this.previousChainId,
-        account: this.previousConnectedAccount,
+        chain: previousChainId,
+        account: previousConnectedAccount,
       })
     }
   }
