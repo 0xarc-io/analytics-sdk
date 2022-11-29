@@ -209,7 +209,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     beforeEach(async () => {
       requestStub = sinon.stub()
       requestStub.withArgs({ method: 'eth_accounts' }).resolves([TEST_ADDRESS])
-      requestStub.withArgs({ method: 'eth_chainId' }).resolves(TEST_CHAIN_ID)
+      requestStub.withArgs({ method: 'eth_chainId' }).resolves('0x1')
 
       sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
 
@@ -282,8 +282,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(analyticsSdk.previousConnectedAccount).to.equal(TEST_ADDRESS)
 
       expect(requestStub.calledOnceWith({ method: 'eth_chainId' })).to.be.true
-      expect(connectWalletStub.calledOnceWith({ chain: TEST_CHAIN_ID, account: TEST_ADDRESS })).to
-        .be.true
+      expect(connectWalletStub).to.have.been.calledOnceWith({
+        chain: TEST_CHAIN_ID,
+        account: TEST_ADDRESS,
+      })
     })
 
     it('#_onAccountsChanged: does not call #connectWallet if the same event was already reported once', async () => {
@@ -299,12 +301,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       const eventStub = sinon.stub(analyticsSdk, 'event')
       await analyticsSdk['_onAccountsChanged']([])
 
-      expect(
-        eventStub.calledOnceWithExactly(DISCONNECT_EVENT, {
-          chain: TEST_CHAIN_ID,
-          account: TEST_ADDRESS,
-        }),
-      ).to.be.true
+      expect(eventStub).to.have.been.calledOnceWithExactly(DISCONNECT_EVENT, {
+        chain: TEST_CHAIN_ID,
+        account: TEST_ADDRESS,
+      })
     })
 
     it('reports a CHAIN_CHANGED_EVENT event if the chain has changed', async () => {
@@ -322,15 +322,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('calls #connectWallet', async () => {
         const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
 
-        expect(await requestStub({ method: 'eth_accounts' })).to.be.deep.eq([TEST_ADDRESS])
-        expect(await requestStub({ method: 'eth_chainId' })).to.be.deep.eq(TEST_CHAIN_ID)
-
         await analyticsSdk['_reportCurrentWallet']()
 
         expect(requestStub.firstCall.calledWith({ method: 'eth_accounts' })).to.be.true
         expect(requestStub.secondCall.calledWith({ method: 'eth_chainId' })).to.be.true
-        expect(connectWalletStub.calledOnceWith({ account: TEST_ADDRESS, chain: TEST_CHAIN_ID })).to
-          .be.true
+        expect(connectWalletStub).to.have.been.calledOnceWith({
+          account: TEST_ADDRESS,
+          chain: TEST_CHAIN_ID,
+        })
       })
     })
   })
