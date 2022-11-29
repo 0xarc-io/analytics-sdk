@@ -2,6 +2,7 @@ import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './type
 import {
   ATTRIBUTION_EVENT,
   CHAIN_CHANGED_EVENT,
+  CAUGHT_TRANSACTION_EVENT,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -13,6 +14,8 @@ import {
   TRANSACTION_EVENT,
 } from './constants'
 import { postRequest } from './helpers'
+import { MetaMaskInpageProvider } from '@metamask/providers'
+import { RequestArguments } from '@metamask/providers/dist/BaseProvider'
 
 export class ArcxAnalyticsSdk {
   currentChainId?: string | null
@@ -42,6 +45,10 @@ export class ArcxAnalyticsSdk {
       window.ethereum?.on('chainChanged', (...args: unknown[]) =>
         this._onChainChanged(args[0] as string),
       )
+    }
+
+    if (this.sdkConfig.trackTransactions) {
+      this._trackTransactions()
     }
   }
 
@@ -164,6 +171,33 @@ export class ArcxAnalyticsSdk {
     return parseInt(chainIdHex, 16).toString()
   }
 
+  /*
+    Sent object in eth_sendTransaction is describe under link below:
+    https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction
+  */
+  private _trackTransactions() {
+    const provider = getWeb3Provider()
+    if (!provider) {
+      return
+    }
+    const request = provider.request
+    provider.request = async ({ method, params }: RequestArguments) => {
+      if (Array.isArray(params) && method === 'eth_sendTransaction') {
+        const transactionParams = params[0]
+        const nonce = await provider.request({
+          method: 'eth_getTransactionCount',
+          params: [transactionParams.from, 'latest'],
+        })
+
+        this.event(CAUGHT_TRANSACTION_EVENT, {
+          ...transactionParams,
+          nonce,
+        })
+      }
+      return request({ method, params })
+    }
+  }
+
   /********************/
   /** PUBLIC METHODS **/
   /********************/
@@ -246,4 +280,8 @@ type FirstVisitPageType = {
     medium: string | null
     campaign: string | null
   }
+}
+
+function getWeb3Provider(): MetaMaskInpageProvider | undefined {
+  return window.web3?.currentProvider || window?.ethereum
 }
