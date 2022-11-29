@@ -1,3 +1,5 @@
+import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
+import { Connector } from '@web3-react/types'
 import { ConsoleView } from './ConsoleView'
 import { TestEventButtons } from './TestEventButtons'
 import { TestPageButtons } from './TestPageButtons'
@@ -5,6 +7,10 @@ import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { CustomRequest } from './types'
+import { MetamaskButtons } from './MetamaskButtons'
+import { metamask, metamaskHooks } from './connectors'
+
+const connectors: [Connector, Web3ReactHooks][] = [[metamask, metamaskHooks]]
 
 function App() {
   const [isInitialized, setInitialized] = useState(false)
@@ -67,33 +73,44 @@ function App() {
             Click on the buttons below to change routes and fire events. You can observe what is
             being sent to the API below
           </p>
-          {!isInitialized && (
-            <button
-              className="rounded-full px-4 py-2 bg-slate-50 text-black disabled:bg-gray-500 disabled:text-slate-50"
-              disabled={isInitialized}
-              onClick={() => setInitialized(true)}
-            >
-              Initialize
-            </button>
-          )}
-          <TestPageButtons />
-          <TestEventButtons />
+          <div className="max-w-md flex flex-col gap-4">
+            {!isInitialized && (
+              <button
+                className="rounded-full px-4 py-2 bg-slate-50 text-black disabled:bg-gray-500 disabled:text-slate-50 font-bold"
+                disabled={isInitialized}
+                onClick={() => setInitialized(true)}
+              >
+                Initialize SDK
+              </button>
+            )}
+            <TestPageButtons />
+            <TestEventButtons />
+            <MetamaskButtons />
+          </div>
           <ConsoleView capturedRequests={capturedRequests} />
+          <button
+            className="rounded-full bg-white px-4 py-2 mb-4 hover:bg-gray-100 font-bold text-black"
+            onClick={() => setCapturedRequests([])}
+          >
+            Clear console
+          </button>
         </div>
       </div>
     </div>
   )
 
   return (
-    <BrowserRouter>
-      {isInitialized ? (
-        <ArcxAnalyticsProvider apiKey={API_KEY} config={{ url }}>
-          {content}
-        </ArcxAnalyticsProvider>
-      ) : (
-        content
-      )}
-    </BrowserRouter>
+    <Web3ReactProvider connectors={connectors}>
+      <BrowserRouter>
+        {isInitialized ? (
+          <ArcxAnalyticsProvider apiKey={API_KEY} config={{ url }}>
+            {content}
+          </ArcxAnalyticsProvider>
+        ) : (
+          content
+        )}
+      </BrowserRouter>
+    </Web3ReactProvider>
   )
 }
 
