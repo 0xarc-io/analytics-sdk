@@ -2,11 +2,11 @@ import { useWeb3React } from '@web3-react/core'
 import { metamask } from './connectors'
 
 export const MetamaskButtons = () => {
-  const { account, connector } = useWeb3React()
+  const { account, connector, chainId } = useWeb3React()
 
-  const onConnectMetamaskClicked = async () => {
+  const onConnectMetamaskClicked = async (chainId?: number) => {
     try {
-      await metamask.activate()
+      await metamask.activate(chainId)
     } catch (err) {
       console.error('MetamaskButtons::onConnectMetamaskClicked: error connecting wallet', err)
     }
@@ -27,7 +27,7 @@ export const MetamaskButtons = () => {
         {!account && (
           <button
             className="rounded-full bg-white px-4 py-2 hover:bg-gray-100 font-bold text-black"
-            onClick={onConnectMetamaskClicked}
+            onClick={() => onConnectMetamaskClicked()}
           >
             Connect
           </button>
@@ -40,9 +40,14 @@ export const MetamaskButtons = () => {
             Disconnect
           </button>
         )}
-        <button className="rounded-full bg-purple-500 px-4 py-2 hover:bg-purple-300 font-bold">
-          Change to Polygon
-        </button>
+        {account && (
+          <button
+            className="rounded-full bg-purple-500 px-4 py-2 hover:bg-purple-300 font-bold"
+            onClick={() => onConnectMetamaskClicked(chainId === 1 ? 137 : 1)}
+          >
+            Change to {chainId === 1 ? 'Polygon' : 'Ethereum'}
+          </button>
+        )}
       </div>
     </>
   )
