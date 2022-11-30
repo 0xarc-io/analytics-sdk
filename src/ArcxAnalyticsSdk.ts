@@ -31,7 +31,7 @@ export class ArcxAnalyticsSdk {
     }
 
     if (this.sdkConfig.trackPages) {
-      this._trackPagesChanges()
+      this._trackPagesChange()
     }
 
     if (sdkConfig.trackWalletConnections) {
@@ -83,7 +83,7 @@ export class ArcxAnalyticsSdk {
     return this.event(FIRST_PAGE_VISIT, attributes)
   }
 
-  private _trackPagesChanges() {
+  private _trackPagesChange() {
     document.body.addEventListener(
       'click',
       () => {
@@ -141,7 +141,7 @@ export class ArcxAnalyticsSdk {
   private _onChainChanged(chainIdHex: string) {
     this.currentChainId = parseInt(chainIdHex, 16).toString()
 
-    return this.event(CHAIN_CHANGED_EVENT, { chainId: this.currentChainId })
+    return this.event(CHAIN_CHANGED_EVENT, { chain: this.currentChainId })
   }
 
   private async _reportCurrentWallet() {
@@ -207,9 +207,9 @@ export class ArcxAnalyticsSdk {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
     const identityId =
-      (sdkConfig?.cacheIdentity && localStorage.getItem(IDENTITY_KEY)) ||
+      (sdkConfig?.cacheIdentity && window.localStorage.getItem(IDENTITY_KEY)) ||
       (await postRequest(sdkConfig.url, apiKey, '/identify'))
-    sdkConfig?.cacheIdentity && localStorage.setItem(IDENTITY_KEY, identityId)
+    sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
 
     return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig)
   }
