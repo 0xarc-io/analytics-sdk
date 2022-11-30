@@ -145,12 +145,7 @@ export class ArcxAnalyticsSdk {
 
     const accounts = await window.ethereum.request<string[]>({ method: 'eth_accounts' })
 
-    if (accounts && accounts.length > 0) {
-      if (!accounts[0]) {
-        // This should never happen
-        return
-      }
-
+    if (accounts && accounts.length > 0 && accounts[0]) {
       this._handleAccountConnected(accounts[0])
     }
   }
