@@ -33,14 +33,12 @@ export class ArcxAnalyticsSdk {
 
     if (sdkConfig.trackWalletConnections) {
       this._reportCurrentWallet()
-      this._onAccountsChanged = this._onAccountsChanged.bind(this)
       window.ethereum?.on('accountsChanged', (...args: unknown[]) =>
         this._onAccountsChanged(args[0] as string[]),
       )
     }
 
     if (sdkConfig.trackChainChanges) {
-      this._onChainChanged = this._onChainChanged.bind(this)
       window.ethereum?.on('chainChanged', (...args: unknown[]) =>
         this._onChainChanged(args[0] as string),
       )
@@ -104,10 +102,6 @@ export class ArcxAnalyticsSdk {
   }
 
   private async _handleAccountConnected(account: string) {
-    if (!window.ethereum) {
-      throw new Error('ArcxAnalyticsSdk::_onAccountsChanged: No ethereum provider found')
-    }
-
     if (account === this.currentConnectedAccount) {
       // We have already reported this account
       return
@@ -115,12 +109,7 @@ export class ArcxAnalyticsSdk {
       this.currentConnectedAccount = account
     }
 
-    const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
-    // Because we're connected, the chainId cannot be null
-    if (!chainIdHex) {
-      throw new Error('ArcxAnalyticsSdk::_onAccountsChanged: chainIdHex is:' + chainIdHex)
-    }
-    this.currentChainId = parseInt(chainIdHex, 16).toString()
+    this.currentChainId = await this._getCurrentChainId()
 
     return this.connectWallet({ chain: this.currentChainId, account: account })
   }
@@ -128,7 +117,7 @@ export class ArcxAnalyticsSdk {
   private _handleAccountDisconnected() {
     if (!this.currentChainId || !this.currentConnectedAccount) {
       throw new Error(
-        'ArcxAnalyticsSdk::_onAccountsChanged: previousChainId or previousConnectedAccount is not set',
+        'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set',
       )
     }
 
@@ -161,19 +150,22 @@ export class ArcxAnalyticsSdk {
         throw new Error('ArcxAnalyticsSdk::_reportCurrentWallet: accounts[0] is:' + accounts[0])
       }
 
-      this.currentConnectedAccount = accounts[0]
-      const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
-
-      if (!chainIdHex) {
-        throw new Error('ArcxAnalyticsSdk::_reportCurrentWallet: chainId is:' + chainIdHex)
-      }
-      this.currentChainId = parseInt(chainIdHex, 16).toString()
-
-      return this.connectWallet({
-        chain: this.currentChainId,
-        account: this.currentConnectedAccount,
-      })
+      this._handleAccountConnected(accounts[0])
     }
+  }
+
+  private async _getCurrentChainId(): Promise<string> {
+    if (!window.ethereum) {
+      throw new Error('ArcxAnalyticsSdk::_getCurrentChainId: No ethereum provider found')
+    }
+
+    const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
+    // Because we're connected, the chainId cannot be null
+    if (!chainIdHex) {
+      throw new Error('ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is:' + chainIdHex)
+    }
+
+    return parseInt(chainIdHex, 16).toString()
   }
 
   /********************/

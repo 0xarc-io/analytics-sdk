@@ -217,9 +217,15 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       ethereum.request = requestStub
       ;(window as any).ethereum = ethereum
 
+      const connectWalletStub = sinon.stub(ArcxAnalyticsSdk.prototype, 'connectWallet')
+      const currentChainIdStub = sinon
+        .stub(ArcxAnalyticsSdk.prototype, <any>'_getCurrentChainId')
+        .resolves(TEST_CHAIN_ID)
       analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, {
         trackWalletConnections: true,
       })
+      currentChainIdStub.restore()
+      connectWalletStub.restore()
 
       sinon.resetHistory()
     })
@@ -271,12 +277,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     // This is the same event being fired wether the user switches the account or connects it
-    it('#_onAccountsChanged: calls #connectWallet if trackWalletConnections is set to true and user connects wallet', async () => {
+    it('#_handleAccountConnected: calls #connectWallet if trackWalletConnections is set to true and user connects wallet', async () => {
       const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
       analyticsSdk.currentConnectedAccount = undefined
       analyticsSdk.currentChainId = undefined
 
-      await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
+      await analyticsSdk['_handleAccountConnected'](TEST_ADDRESS)
 
       expect(analyticsSdk.currentConnectedAccount).to.equal(TEST_ADDRESS)
       expect(analyticsSdk.currentConnectedAccount).to.equal(TEST_ADDRESS)
@@ -288,18 +294,21 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    it('#_onAccountsChanged: does not call #connectWallet if the same event was already reported once', async () => {
+    it('#_handleAccountConnected: does not call #connectWallet if the same event was already reported once', async () => {
       expect(analyticsSdk.currentConnectedAccount).to.be.equal(TEST_ADDRESS)
       const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
 
-      await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
+      await analyticsSdk['_handleAccountConnected'](TEST_ADDRESS)
 
-      expect(connectWalletStub.notCalled).to.be.true
+      expect(connectWalletStub).to.not.have.been.called
     })
 
     it('reports a DISCONNECT event if trackWalletConnections is set to true and user disconnects wallet', async () => {
+      expect(analyticsSdk.currentConnectedAccount).to.be.equal(TEST_ADDRESS)
+      expect(analyticsSdk.currentChainId).to.be.equal(TEST_CHAIN_ID)
+
       const eventStub = sinon.stub(analyticsSdk, 'event')
-      await analyticsSdk['_onAccountsChanged']([])
+      await analyticsSdk['_handleAccountDisconnected']()
 
       expect(eventStub).to.have.been.calledOnceWithExactly(DISCONNECT_EVENT, {
         chain: TEST_CHAIN_ID,
@@ -318,16 +327,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_reportCurrentWallet', () => {
       it('calls #connectWallet', async () => {
-        const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
+        const handleConnectedAccountStub = sinon.stub(analyticsSdk, <any>'_handleAccountConnected')
 
         await analyticsSdk['_reportCurrentWallet']()
 
         expect(requestStub.firstCall.calledWith({ method: 'eth_accounts' })).to.be.true
-        expect(requestStub.secondCall.calledWith({ method: 'eth_chainId' })).to.be.true
-        expect(connectWalletStub).to.have.been.calledOnceWith({
-          account: TEST_ADDRESS,
-          chain: TEST_CHAIN_ID,
-        })
+        expect(handleConnectedAccountStub).to.have.been.calledOnceWithExactly(TEST_ADDRESS)
       })
     })
   })
