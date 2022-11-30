@@ -1,4 +1,4 @@
-import { SdkConfig } from '../src/types/types'
+import { SdkConfig } from '../src/types'
 import sinon from 'sinon'
 import { expect } from 'chai'
 import {
