@@ -61,7 +61,7 @@
     "build-cjs": "yarn tsc --build",
     "build-esm": "yarn tsc -m es6 --outdir dist/esm",
     "clean": "rm -rf dist",
-    "lint": "eslint '{src,test}/**/*.ts'",
+    "lint": "eslint '{src,test}/**/*.{ts,tsx}'",
     "test": "nyc mocha 'test/**/*.test.{ts,tsx}'",
     "test-watch": "mocha 'test/**/*.test.{ts,tsx}' -w",
     "prepare": "husky install",
