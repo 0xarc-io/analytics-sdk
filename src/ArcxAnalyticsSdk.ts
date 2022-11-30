@@ -132,15 +132,14 @@ export class ArcxAnalyticsSdk {
       )
     }
 
-    const previousChainId = this.currentChainId
-    const previousConnectedAccount = this.currentConnectedAccount
+    const disconnectAttributes = {
+      account: this.currentConnectedAccount,
+      chain: this.currentChainId,
+    }
     this.currentChainId = undefined
     this.currentConnectedAccount = undefined
 
-    return this.event(DISCONNECT_EVENT, {
-      chain: previousChainId,
-      account: previousConnectedAccount,
-    })
+    return this.event(DISCONNECT_EVENT, disconnectAttributes)
   }
 
   private _onChainChanged(chainIdHex: string) {
