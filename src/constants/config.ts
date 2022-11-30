@@ -1,4 +1,4 @@
-import { SdkConfig } from '../types/types'
+import { SdkConfig } from '../types'
 
 export const DEFAULT_SDK_CONFIG: SdkConfig = {
   cacheIdentity: true,

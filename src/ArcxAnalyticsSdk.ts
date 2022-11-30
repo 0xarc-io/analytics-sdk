@@ -1,4 +1,4 @@
-import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types/types'
+import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types'
 import {
   ATTRIBUTION_EVENT,
   CHAIN_CHANGED_EVENT,
