@@ -273,13 +273,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     // This is the same event being fired wether the user switches the account or connects it
     it('#_onAccountsChanged: calls #connectWallet if trackWalletConnections is set to true and user connects wallet', async () => {
       const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
-      analyticsSdk.previousConnectedAccount = undefined
-      analyticsSdk.previousChainId = undefined
+      analyticsSdk.currentConnectedAccount = undefined
+      analyticsSdk.currentChainId = undefined
 
       await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
 
-      expect(analyticsSdk.previousConnectedAccount).to.equal(TEST_ADDRESS)
-      expect(analyticsSdk.previousConnectedAccount).to.equal(TEST_ADDRESS)
+      expect(analyticsSdk.currentConnectedAccount).to.equal(TEST_ADDRESS)
+      expect(analyticsSdk.currentConnectedAccount).to.equal(TEST_ADDRESS)
 
       expect(requestStub.calledOnceWith({ method: 'eth_chainId' })).to.be.true
       expect(connectWalletStub).to.have.been.calledOnceWith({
@@ -289,7 +289,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('#_onAccountsChanged: does not call #connectWallet if the same event was already reported once', async () => {
-      expect(analyticsSdk.previousConnectedAccount).to.be.equal(TEST_ADDRESS)
+      expect(analyticsSdk.currentConnectedAccount).to.be.equal(TEST_ADDRESS)
       const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
 
       await analyticsSdk['_onAccountsChanged']([TEST_ADDRESS])
