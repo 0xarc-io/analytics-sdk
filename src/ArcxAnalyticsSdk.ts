@@ -147,7 +147,8 @@ export class ArcxAnalyticsSdk {
 
     if (accounts && accounts.length > 0) {
       if (!accounts[0]) {
-        throw new Error('ArcxAnalyticsSdk::_reportCurrentWallet: accounts[0] is:' + accounts[0])
+        // This should never happen
+        return
       }
 
       this._handleAccountConnected(accounts[0])
