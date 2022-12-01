@@ -112,6 +112,7 @@ options.
 - `config` **(object)** - overrides of SDK configuration
   - `trackPages` **(boolean)** - automatically logs page visit events.
   - `cacheIdentity` **(boolean)** - captures cross-session behaviours.
+  - `trackTransactions` **(boolean)** - captures initiated (even not sumbited yet) transaction.
 
 ```js
 await analytics = await ArcxAnalyticsSdk.init(
@@ -120,7 +121,8 @@ await analytics = await ArcxAnalyticsSdk.init(
     cacheIdentity: true,
     trackReferrer: true,
     trackPages: true,
-    trackUTM: true
+    trackUTM: true,
+    trackTransactions: true,
   }
 )
 ```
