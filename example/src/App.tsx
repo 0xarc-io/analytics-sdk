@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from 'react'
 import { CustomRequest } from './types'
 import { MetamaskButtons } from './MetamaskButtons'
 import { metamask, metamaskHooks } from './connectors'
+import { EthereumEventsButtons } from './EthereumEventsButtons'
 
 const connectors: [Connector, Web3ReactHooks][] = [[metamask, metamaskHooks]]
 
@@ -86,6 +87,7 @@ function App() {
             <TestPageButtons />
             <TestEventButtons />
             <MetamaskButtons />
+            <EthereumEventsButtons />
           </div>
           <ConsoleView capturedRequests={capturedRequests} />
           <button

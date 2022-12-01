@@ -3,7 +3,6 @@ import { expect } from 'chai'
 import { ArcxAnalyticsSdk, SdkConfig } from '../src'
 import {
   ATTRIBUTION_EVENT,
-  CAUGHT_TRANSACTION_EVENT,
   CHAIN_CHANGED_EVENT,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
@@ -14,6 +13,7 @@ import {
   PAGE_EVENT,
   REFERRER_EVENT,
   TRANSACTION_EVENT,
+  TRANSACTION_TRIGGERED,
 } from '../src/constants'
 import * as postRequestModule from '../src/helpers/postRequest'
 import {
@@ -38,6 +38,7 @@ const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   trackWalletConnections: false,
   trackChainChanges: false,
   trackTransactions: false,
+  trackSigning: false,
 }
 
 describe('(unit) ArcxAnalyticsSdk', () => {
@@ -539,7 +540,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           method: 'eth_sendTransaction',
           params: [transactionParams],
         })
-        expect(eventStub).calledWithExactly(CAUGHT_TRANSACTION_EVENT, {
+        expect(eventStub).calledWithExactly(TRANSACTION_TRIGGERED, {
           ...transactionParams,
           nonce,
         })

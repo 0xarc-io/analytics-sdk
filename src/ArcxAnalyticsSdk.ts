@@ -2,7 +2,7 @@ import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './type
 import {
   ATTRIBUTION_EVENT,
   CHAIN_CHANGED_EVENT,
-  CAUGHT_TRANSACTION_EVENT,
+  TRANSACTION_TRIGGERED,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -12,6 +12,7 @@ import {
   PAGE_EVENT,
   REFERRER_EVENT,
   TRANSACTION_EVENT,
+  SIGNING_EVENT,
 } from './constants'
 import { postRequest } from './helpers'
 import { MetaMaskInpageProvider } from '@metamask/providers'
@@ -49,6 +50,10 @@ export class ArcxAnalyticsSdk {
 
     if (this.sdkConfig.trackTransactions) {
       this._trackTransactions()
+    }
+
+    if (this.sdkConfig.trackSigning) {
+      this._trackSigning()
     }
   }
 
@@ -190,7 +195,7 @@ export class ArcxAnalyticsSdk {
           params: [transactionParams.from, 'latest'],
         })
 
-        this.event(CAUGHT_TRANSACTION_EVENT, {
+        this.event(TRANSACTION_TRIGGERED, {
           ...transactionParams,
           nonce,
         })
@@ -199,6 +204,32 @@ export class ArcxAnalyticsSdk {
     }
 
     return true
+  }
+
+  private _trackSigning() {
+    const provider = getWeb3Provider()
+    if (!provider) {
+      return
+    }
+    const request = provider.request
+    provider.request = async ({ method, params }: RequestArguments) => {
+      if (Array.isArray(params)) {
+        if (['signTypedData_v4', 'eth_sign'].includes(method)) {
+          this.event(SIGNING_EVENT, {
+            account: params[0],
+            messageToSign: params[1],
+          })
+        }
+        if (method === 'personal_sign') {
+          this.event(SIGNING_EVENT, {
+            account: params[1],
+            messageToSign: params[0],
+            password: params[2],
+          })
+        }
+      }
+      return request({ method, params })
+    }
   }
 
   /********************/
