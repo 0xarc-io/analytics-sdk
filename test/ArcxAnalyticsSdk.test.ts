@@ -129,6 +129,43 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(reportCurrentWalletStub.calledOnce).to.be.true
       })
+
+      it('trackTransactions', async () => {
+        const transactionParams = {
+          gas: '0x22719',
+          from: '0xbb4153b55a59cc8bde72550b0cf16781b08ef7b0',
+          to: '0x03cddc9c7fad4b6848d6741b0ef381470bc675cd',
+          data: '0x97b4d89f0...082ec95a',
+        }
+        window.web3 = {
+          currentProvider: sinon.createStubInstance(MetaMaskInpageProvider),
+        }
+        const nonce = 12
+        ;(window.web3.currentProvider.request as sinon.SinonStub).resolves(nonce).withArgs({
+          method: 'eth_getTransactionCount',
+          params: [transactionParams.from, 'latest'],
+        })
+        await ArcxAnalyticsSdk.init('', {
+          ...ALL_FALSE_CONFIG,
+          trackTransactions: true,
+        })
+        expect(postRequestStub.getCall(0).calledWith(PROD_URL_BACKEND, '', '/identify')).to.be.true
+
+        await window.web3.currentProvider.request({
+          method: 'eth_sendTransaction',
+          params: [transactionParams],
+        })
+        expect(
+          postRequestStub
+            .getCall(1)
+            .calledWith(
+              PROD_URL_BACKEND,
+              '',
+              '/submit-event',
+              getAnalyticsData(CAUGHT_TRANSACTION_EVENT, { ...transactionParams, nonce }),
+            ),
+        ).to.be.true
+      })
     })
 
     it('#event', async () => {
@@ -142,44 +179,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         ),
       ).to.be.true
     })
-
-    it('trackTransactions', async () => {
-      const transactionParams = {
-        gas: '0x22719',
-        from: '0xbb4153b55a59cc8bde72550b0cf16781b08ef7b0',
-        to: '0x03cddc9c7fad4b6848d6741b0ef381470bc675cd',
-        data: '0x97b4d89f0...082ec95a',
-      }
-      window.web3 = {
-        currentProvider: sinon.createStubInstance(MetaMaskInpageProvider),
-      }
-      const nonce = 12
-      ;(window.web3.currentProvider.request as sinon.SinonStub).resolves(nonce).withArgs({
-        method: 'eth_getTransactionCount',
-        params: [transactionParams.from, 'latest'],
-      })
-      await ArcxAnalyticsSdk.init('', {
-        ...ALL_FALSE_CONFIG,
-        trackTransactions: true,
-      })
-      expect(postRequestStub.getCall(0).calledWith(PROD_URL_BACKEND, '', '/identify')).to.be.true
-
-      await window.web3.currentProvider.request({
-        method: 'eth_sendTransaction',
-        params: [transactionParams],
-      })
-      expect(
-        postRequestStub
-          .getCall(1)
-          .calledWith(
-            PROD_URL_BACKEND,
-            '',
-            '/submit-event',
-            getAnalyticsData(CAUGHT_TRANSACTION_EVENT, { ...transactionParams, nonce }),
-          ),
-      ).to.be.true
-    })
-  })
 
     it('#page', async () => {
       const pageAttributes = { url: 'page.test' }
