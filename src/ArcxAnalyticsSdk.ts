@@ -175,11 +175,12 @@ export class ArcxAnalyticsSdk {
     Sent object in eth_sendTransaction is describe under link below:
     https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction
   */
-  private _trackTransactions() {
+  private _trackTransactions(): boolean {
     const provider = getWeb3Provider()
     if (!provider) {
-      return
+      return false
     }
+
     const request = provider.request
     provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params) && method === 'eth_sendTransaction') {
@@ -196,6 +197,8 @@ export class ArcxAnalyticsSdk {
       }
       return request({ method, params })
     }
+
+    return true
   }
 
   /********************/

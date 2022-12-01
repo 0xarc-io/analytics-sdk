@@ -3,6 +3,7 @@ import { expect } from 'chai'
 import { ArcxAnalyticsSdk, SdkConfig } from '../src'
 import {
   ATTRIBUTION_EVENT,
+  CAUGHT_TRANSACTION_EVENT,
   CHAIN_CHANGED_EVENT,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
@@ -520,6 +521,49 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(requestStub).calledOnceWithExactly({ method: 'eth_chainId' })
         expect(chainId).to.eq('1')
+      })
+    })
+
+    describe('#_trackTransactions', () => {
+      it('does not change request if provider is undefined', () => {
+        window.web3 = undefined
+        window.ethereum = undefined
+        expect(analyticsSdk['_trackTransactions']()).to.be.false
+      })
+
+      it('makes a CAUGHT_TRANSACTION_SUBMITTED event', async () => {
+        const transactionParams = {
+          gas: '0x22719',
+          from: '0xbb4153b55a59cc8bde72550b0cf16781b08ef7b0',
+          to: '0x03cddc9c7fad4b6848d6741b0ef381470bc675cd',
+          data: '0x97b4d89f0...082ec95a',
+        }
+        const nonce = 12
+
+        const stubProvider = sinon.createStubInstance(MetaMaskInpageProvider)
+        window.web3 = {
+          currentProvider: stubProvider,
+        }
+
+        stubProvider.request.returns(nonce as any).withArgs({
+          method: 'eth_getTransactionCount',
+          params: [transactionParams.from, 'latest'],
+        })
+
+        analyticsSdk = await ArcxAnalyticsSdk.init('', {
+          ...ALL_FALSE_CONFIG,
+          trackTransactions: true,
+        })
+        const eventStub = sinon.stub(analyticsSdk, 'event')
+
+        await window.web3.currentProvider.request({
+          method: 'eth_sendTransaction',
+          params: [transactionParams],
+        })
+        expect(eventStub).calledWithExactly(CAUGHT_TRANSACTION_EVENT, {
+          ...transactionParams,
+          nonce,
+        })
       })
     })
   })
