@@ -62,8 +62,8 @@
     "build-esm": "yarn tsc -m es6 --outdir dist/esm",
     "clean": "rm -rf dist",
     "lint": "eslint '{src,test}/**/*.{ts,tsx}'",
-    "test": "nyc mocha 'test/**/*.test.{ts,tsx}'",
-    "test-watch": "mocha 'test/**/*.test.{ts,tsx}' -w",
+    "test": "nyc mocha",
+    "test-watch": "mocha --config .mocharc-watch.yaml",
     "prepare": "husky install",
     "commit": "git add . && cz"
   },
