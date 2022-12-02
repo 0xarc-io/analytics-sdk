@@ -12,6 +12,7 @@ import {
   IDENTITY_KEY,
   PAGE_EVENT,
   REFERRER_EVENT,
+  SIGNING_EVENT,
   TRANSACTION_EVENT,
   TRANSACTION_TRIGGERED,
 } from '../src/constants'
@@ -46,6 +47,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
   beforeEach(() => {
     window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
+    window.web3 = {
+      currentProvider: window.ethereum,
+    }
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
   })
 
@@ -150,6 +154,16 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
       window.ethereum?.emit('chainChanged', TEST_CHAIN_ID)
       expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
+    })
+
+    it('calls _trackSigning if trackSigning is true', async () => {
+      const trackSigningStub = sinon.stub(
+        ArcxAnalyticsSdk.prototype,
+        '_trackSigning' as any,
+      )
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackSigning: true })
+
+      expect(trackSigningStub).to.be.calledOnce
     })
   })
 
@@ -511,10 +525,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(analyticsSdk['_trackTransactions']()).to.be.false
       })
 
-      it('makes a CAUGHT_TRANSACTION_SUBMITTED event', async () => {
+      it('makes a TRANSACTION_TRIGGERED event', async () => {
         const transactionParams = {
           gas: '0x22719',
-          from: '0xbb4153b55a59cc8bde72550b0cf16781b08ef7b0',
+          from: '0x884151235a59c38b4e72550b0cf16781b08ef7b0',
           to: '0x03cddc9c7fad4b6848d6741b0ef381470bc675cd',
           data: '0x97b4d89f0...082ec95a',
         }
@@ -536,13 +550,40 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
         const eventStub = sinon.stub(analyticsSdk, 'event')
 
-        await window.web3.currentProvider.request({
+        await window.web3.currentProvider!.request({
           method: 'eth_sendTransaction',
           params: [transactionParams],
         })
         expect(eventStub).calledWithExactly(TRANSACTION_TRIGGERED, {
           ...transactionParams,
           nonce,
+        })
+      })
+    })
+
+    describe('#_trackSigning', () => {
+      const method = 'personal_sign'
+      const params = [
+        '0x884151235a59c38b4e72550b0cf16781b08ef7b0',
+        '0x389423948....4392049230493204',
+      ]
+
+      it('does not change request if provider is undefined', async () => {
+        window.web3 = undefined
+        window.ethereum = undefined
+        expect(analyticsSdk['_trackSigning']()).to.be.false
+      })
+
+      it('makes a SIGNING_EVENT event', async () => {
+        expect(analyticsSdk['_trackSigning']()).to.be.true
+
+        const eventStub = sinon.stub(analyticsSdk, 'event')
+        await window.web3!.currentProvider!.request({ method, params })
+
+        expect(eventStub).calledWithExactly(SIGNING_EVENT, {
+          account: params[1],
+          messageToSign: params[0],
+          password: undefined,
         })
       })
     })

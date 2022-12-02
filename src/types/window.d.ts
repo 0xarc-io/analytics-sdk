@@ -4,7 +4,7 @@ declare global {
   interface Window {
     ethereum?: MetaMaskInpageProvider
     web3?: {
-      currentProvider: MetaMaskInpageProvider
+      currentProvider?: MetaMaskInpageProvider
     }
   }
 }
