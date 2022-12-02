@@ -222,8 +222,8 @@ export class ArcxAnalyticsSdk {
         }
         if (method === 'personal_sign') {
           this.event(SIGNING_EVENT, {
-            account: params[1],
             messageToSign: params[0],
+            account: params[1],
             password: params[2],
           })
         }
