@@ -82,8 +82,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
   let screen: RenderResult
 
   beforeEach(async () => {
-    const ethereumMock = sinon.createStubInstance(MetaMaskInpageProvider)
-    window.ethereum = ethereumMock
+    window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
 
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
 
