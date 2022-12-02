@@ -88,30 +88,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
+        const trackFirstPageVisitStub = sinon.stub(
+          ArcxAnalyticsSdk.prototype,
+          <any>'_trackFirstPageVisit',
+        )
+
         await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
-        expect(postRequestStub.getCall(0)).to.have.been.calledWithExactly(
-          DEFAULT_SDK_CONFIG.url,
-          '',
-          '/identify',
-        )
-        expect(postRequestStub.getCall(1)).to.have.been.calledWithExactly(
-          DEFAULT_SDK_CONFIG.url,
-          '',
-          '/submit-event',
-          {
-            identityId: TEST_IDENTITY,
-            event: FIRST_PAGE_VISIT,
-            attributes: {
-              url: TEST_JSDOM_URL,
-              referrer: TEST_REFERRER,
-              utm: {
-                source: TEST_UTM_SOURCE,
-                medium: TEST_UTM_MEDIUM,
-                campaign: TEST_UTM_CAMPAIGN,
-              },
-            },
-          },
-        )
+
+        expect(trackFirstPageVisitStub).to.be.calledOnce
       })
 
       it('does not make a FIRST_PAGE_VISIT call if trackPages, referrer and UTM configs are set to false', async () => {
