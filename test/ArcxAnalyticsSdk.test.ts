@@ -143,7 +143,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
       })
 
-      it('calls _reportCurrentWallet if trackWalletConnections is true', async () => {
+      it('calls _reportCurrentWallet and register the listener if trackWalletConnections is true', async () => {
         const reportCurrentWalletStub = sinon.stub(
           ArcxAnalyticsSdk.prototype,
           '_reportCurrentWallet' as any,
@@ -151,11 +151,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
         expect(reportCurrentWalletStub.calledOnce).to.be.true
-      })
-
-      it('registers a listener on event accountsChanged if trackWalletConnections is true', async () => {
-        await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
-
         expect(window.ethereum?.on).calledWithMatch('accountsChanged')
       })
 
