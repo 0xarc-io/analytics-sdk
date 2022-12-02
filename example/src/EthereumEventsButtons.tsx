@@ -18,8 +18,7 @@ export const EthereumEventsButtons = () => {
   const signMessage = async () => {
     const exampleMessage = 'Example `personal_sign` message'
     const signer = provider?.getSigner()
-    const sign = await signer?.signMessage(exampleMessage)
-    console.log({ sign })
+    return signer?.signMessage(exampleMessage)
   }
 
   if (!isActive) {
