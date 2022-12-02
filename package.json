@@ -65,7 +65,6 @@
     "test": "nyc mocha",
     "test-watch": "mocha --config .mocharc-watch.yaml",
     "prepare": "husky install",
-    "start-example": "rm -rf node_modules/@types/react node_modules/react && cd example && yarn start",
     "commit": "git add . && cz"
   },
   "peerDependencies": {
