@@ -42,121 +42,124 @@ const ALL_FALSE_CONFIG: SdkConfig = {
 }
 
 describe('(unit) ArcxAnalyticsSdk', () => {
-  let analyticsSdk: ArcxAnalyticsSdk
   let postRequestStub: sinon.SinonStub
 
-  beforeEach(async () => {
-    const ethereumMock = sinon.createStubInstance(MetaMaskInpageProvider)
-    window.ethereum = ethereumMock
+  beforeEach(() => {
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
+  })
 
-    analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
-
-    postRequestStub.resetHistory()
+  afterEach(() => {
+    sinon.restore()
     localStorage.clear()
     sessionStorage.clear()
   })
 
-  afterEach(sinon.restore)
+  describe('#init', () => {
+    it('does not get the identity from localStorage if `cacheIdentity` is false', async () => {
+      const localStorageStub = sinon.stub(localStorage, 'getItem')
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, cacheIdentity: false })
+      expect(localStorageStub).to.not.have.been.called
+    })
 
-  describe('Public Functions', () => {
-    describe('#init', () => {
-      it('does not get the identity from localStorage if `cacheIdentity` is false', async () => {
-        const localStorageStub = sinon.stub(localStorage, 'getItem')
-        await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, cacheIdentity: false })
-        expect(localStorageStub).to.not.have.been.called
+    it('sets the identity in localStorage if `cacheIdentity` is true', async () => {
+      expect(localStorage.getItem(IDENTITY_KEY)).to.be.null
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, cacheIdentity: true })
+      expect(localStorage.getItem(IDENTITY_KEY)).to.equal(TEST_IDENTITY)
+    })
+
+    it('makes an /identity call when no identity is found in localStorage', async () => {
+      await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
+      expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, '', '/identify')).to.be.true
+    })
+
+    it('sets the current URL in the session storage when `trackPages` is true', async () => {
+      expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
+      expect(window.location.href).to.eq(TEST_JSDOM_URL)
+
+      await ArcxAnalyticsSdk.init('', { trackPages: true })
+
+      expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
+    })
+
+    it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
+      const trackFirstPageVisitStub = sinon.stub(
+        ArcxAnalyticsSdk.prototype,
+        <any>'_trackFirstPageVisit',
+      )
+
+      await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
+
+      expect(trackFirstPageVisitStub).to.be.calledOnce
+    })
+
+    it('does not make a FIRST_PAGE_VISIT call if trackPages, referrer and UTM configs are set to false', async () => {
+      await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
+
+      expect(postRequestStub).to.have.been.calledOnceWithExactly(
+        DEFAULT_SDK_CONFIG.url,
+        '',
+        '/identify',
+      )
+    })
+
+    it('does not include the UTM object if trackUTM is set to false', async () => {
+      await ArcxAnalyticsSdk.init('', {
+        ...ALL_FALSE_CONFIG,
+        trackPages: true,
       })
-
-      it('sets the identity in localStorage if `cacheIdentity` is true', async () => {
-        expect(localStorage.getItem(IDENTITY_KEY)).to.be.null
-        await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, cacheIdentity: true })
-        expect(localStorage.getItem(IDENTITY_KEY)).to.equal(TEST_IDENTITY)
+      expect(postRequestStub.getCall(0)).calledWithExactly(DEFAULT_SDK_CONFIG.url, '', '/identify')
+      expect(postRequestStub.getCall(1)).calledWith(DEFAULT_SDK_CONFIG.url, '', '/submit-event', {
+        identityId: TEST_IDENTITY,
+        event: FIRST_PAGE_VISIT,
+        attributes: {
+          url: TEST_JSDOM_URL,
+        },
       })
+    })
 
-      it('makes an /identity call when no identity is found in localStorage', async () => {
-        await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
-        expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, '', '/identify')).to.be.true
-      })
+    it('calls _reportCurrentWallet and register the listener if trackWalletConnections is true', async () => {
+      window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
+      const reportCurrentWalletStub = sinon.stub(
+        ArcxAnalyticsSdk.prototype,
+        '_reportCurrentWallet' as any,
+      )
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
-      it('sets the current URL in the session storage when `trackPages` is true', async () => {
-        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
-        expect(window.location.href).to.eq(TEST_JSDOM_URL)
+      expect(reportCurrentWalletStub.calledOnce).to.be.true
+      expect(window.ethereum?.on).calledWithMatch('accountsChanged')
+    })
 
-        await ArcxAnalyticsSdk.init('', { trackPages: true })
+    it('calls _onAccountsChanged when accountsChanged is fied and trackWalletConnections is true', async () => {
+      window.ethereum = new MockEthereum() as any
+      const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
-        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
-      })
+      const onAccountsChangedStub = sinon.stub(sdk, '_onAccountsChanged' as any)
 
-      it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
-        const trackFirstPageVisitStub = sinon.stub(
-          ArcxAnalyticsSdk.prototype,
-          <any>'_trackFirstPageVisit',
-        )
+      window.ethereum?.emit('accountsChanged', [TEST_ACCOUNT])
+      expect(onAccountsChangedStub).calledOnceWithExactly([TEST_ACCOUNT])
+    })
 
-        await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
+    it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
+      window.ethereum = new MockEthereum() as any
+      const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
 
-        expect(trackFirstPageVisitStub).to.be.calledOnce
-      })
+      const onChainChangedStub = sinon.stub(sdk, '_onChainChanged' as any)
 
-      it('does not make a FIRST_PAGE_VISIT call if trackPages, referrer and UTM configs are set to false', async () => {
-        await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
+      window.ethereum?.emit('chainChanged', TEST_CHAIN_ID)
+      expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
+    })
+  })
 
-        expect(postRequestStub).to.have.been.calledOnceWithExactly(
-          DEFAULT_SDK_CONFIG.url,
-          '',
-          '/identify',
-        )
-      })
+  describe('Functionality', () => {
+    let analyticsSdk: ArcxAnalyticsSdk
 
-      it('does not include the UTM object if trackUTM is set to false', async () => {
-        await ArcxAnalyticsSdk.init('', {
-          ...ALL_FALSE_CONFIG,
-          trackPages: true,
-        })
-        expect(postRequestStub.getCall(0)).calledWithExactly(
-          DEFAULT_SDK_CONFIG.url,
-          '',
-          '/identify',
-        )
-        expect(postRequestStub.getCall(1)).calledWith(DEFAULT_SDK_CONFIG.url, '', '/submit-event', {
-          identityId: TEST_IDENTITY,
-          event: FIRST_PAGE_VISIT,
-          attributes: {
-            url: TEST_JSDOM_URL,
-          },
-        })
-      })
+    beforeEach(async () => {
+      const ethereumMock = sinon.createStubInstance(MetaMaskInpageProvider)
+      window.ethereum = ethereumMock
 
-      it('calls _reportCurrentWallet and register the listener if trackWalletConnections is true', async () => {
-        const reportCurrentWalletStub = sinon.stub(
-          ArcxAnalyticsSdk.prototype,
-          '_reportCurrentWallet' as any,
-        )
-        await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
-
-        expect(reportCurrentWalletStub.calledOnce).to.be.true
-        expect(window.ethereum?.on).calledWithMatch('accountsChanged')
-      })
-
-      it('calls _onAccountsChanged when accountsChanged is fied and trackWalletConnections is true', async () => {
-        window.ethereum = new MockEthereum() as any
-        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
-
-        const onAccountsChangedStub = sinon.stub(sdk, '_onAccountsChanged' as any)
-
-        window.ethereum?.emit('accountsChanged', [TEST_ACCOUNT])
-        expect(onAccountsChangedStub).calledOnceWithExactly([TEST_ACCOUNT])
-      })
-
-      it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
-        window.ethereum = new MockEthereum() as any
-        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
-
-        const onChainChangedStub = sinon.stub(sdk, '_onChainChanged' as any)
-
-        window.ethereum?.emit('chainChanged', TEST_CHAIN_ID)
-        expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
-      })
+      analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
+      // Reset history after init because of the /identify call
+      postRequestStub.resetHistory()
     })
 
     describe('#event', () => {
@@ -248,9 +251,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(eventStub.calledOnceWith(REFERRER_EVENT, { referrer: TEST_REFERRER })).to.be.true
       })
     })
-  })
 
-  describe('Private functions', () => {
     describe('#_trackFirstPageVisit', () => {
       let eventStub: sinon.SinonStub
 
