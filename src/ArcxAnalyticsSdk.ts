@@ -209,7 +209,7 @@ export class ArcxAnalyticsSdk {
   private _trackSigning() {
     const provider = getWeb3Provider()
     if (!provider) {
-      return
+      return false
     }
     const request = provider.request
     provider.request = async ({ method, params }: RequestArguments) => {
@@ -230,6 +230,7 @@ export class ArcxAnalyticsSdk {
       }
       return request({ method, params })
     }
+    return true
   }
 
   /********************/
