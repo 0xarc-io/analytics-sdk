@@ -318,5 +318,5 @@ type FirstVisitPageType = {
 }
 
 function getWeb3Provider(): MetaMaskInpageProvider | undefined {
-  return window.web3?.currentProvider || window?.ethereum
+  return window?.web3?.currentProvider || window?.ethereum
 }
