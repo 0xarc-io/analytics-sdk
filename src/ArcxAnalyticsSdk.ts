@@ -165,7 +165,7 @@ export class ArcxAnalyticsSdk {
     const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
     // Because we're connected, the chainId cannot be null
     if (!chainIdHex) {
-      throw new Error('ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ' + chainIdHex)
+      throw new Error(`ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ${chainIdHex}`)
     }
 
     return parseInt(chainIdHex, 16).toString()

@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
 import { postRequest } from '../src/helpers'
-import { TEST_API_KEY } from './fixture'
+import { TEST_API_KEY } from './constants'
 
 describe('(unit) postRequest', () => {
   it('calls fetch with the given arguments', async () => {
