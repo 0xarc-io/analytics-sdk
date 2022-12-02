@@ -47,9 +47,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
   beforeEach(() => {
     window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
-    window.web3 = {
-      currentProvider: window.ethereum,
-    }
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
   })
 
@@ -157,10 +154,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('calls _trackSigning if trackSigning is true', async () => {
-      const trackSigningStub = sinon.stub(
-        ArcxAnalyticsSdk.prototype,
-        '_trackSigning' as any,
-      )
+      const trackSigningStub = sinon.stub(ArcxAnalyticsSdk.prototype, '_trackSigning' as any)
       await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackSigning: true })
 
       expect(trackSigningStub).to.be.calledOnce
@@ -562,7 +556,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_trackSigning', () => {
-      const method = 'personal_sign'
       const params = [
         '0x884151235a59c38b4e72550b0cf16781b08ef7b0',
         '0x389423948....4392049230493204',
@@ -574,16 +567,47 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(analyticsSdk['_trackSigning']()).to.be.false
       })
 
-      it('makes a SIGNING_EVENT event', async () => {
+      it('ethereum is not undefined', () => {
         expect(analyticsSdk['_trackSigning']()).to.be.true
+      })
 
+      it('makes a SIGNING_EVENT event if personal_sign appears', async () => {
+        const method = 'personal_sign'
+
+        analyticsSdk['_trackSigning']()
         const eventStub = sinon.stub(analyticsSdk, 'event')
-        await window.web3!.currentProvider!.request({ method, params })
+        await window.ethereum!.request({ method, params })
 
         expect(eventStub).calledWithExactly(SIGNING_EVENT, {
           account: params[1],
           messageToSign: params[0],
           password: undefined,
+        })
+      })
+
+      it('makes a SIGNING_EVENT event if eth_sign appears', async () => {
+        const method = 'eth_sign'
+
+        analyticsSdk['_trackSigning']()
+        const eventStub = sinon.stub(analyticsSdk, 'event')
+        await window.ethereum!.request({ method, params })
+
+        expect(eventStub).calledWithExactly(SIGNING_EVENT, {
+          account: params[0],
+          messageToSign: params[1],
+        })
+      })
+
+      it('makes a SIGNING_EVENT event if signTypedData_v4 appears', async () => {
+        const method = 'signTypedData_v4'
+
+        analyticsSdk['_trackSigning']()
+        const eventStub = sinon.stub(analyticsSdk, 'event')
+        await window.ethereum!.request({ method, params })
+
+        expect(eventStub).calledWithExactly(SIGNING_EVENT, {
+          account: params[0],
+          messageToSign: params[1],
         })
       })
     })
