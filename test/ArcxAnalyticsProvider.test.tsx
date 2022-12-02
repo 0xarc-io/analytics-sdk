@@ -24,7 +24,7 @@ import {
   TEST_UTM_CAMPAIGN,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
-} from './fixture'
+} from './constants'
 import { MetaMaskInpageProvider } from '@metamask/providers'
 
 const TEST_API_KEY = 'test-api-key'

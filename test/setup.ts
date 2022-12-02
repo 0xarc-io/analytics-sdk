@@ -1,7 +1,7 @@
 import chai from 'chai'
 import globalJsdom from 'global-jsdom'
 import sinonChai from 'sinon-chai'
-import { TEST_JSDOM_URL, TEST_REFERRER } from './fixture'
+import { TEST_JSDOM_URL, TEST_REFERRER } from './constants'
 
 chai.use(sinonChai)
 

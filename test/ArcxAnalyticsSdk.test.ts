@@ -26,12 +26,11 @@ import {
   TEST_UTM_CAMPAIGN,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
-} from './fixture'
+} from './constants'
 import { MetaMaskInpageProvider } from '@metamask/providers'
 import { MockEthereum } from './MockEthereum'
 
-const ALL_FALSE_CONFIG: SdkConfig = {
-  ...DEFAULT_SDK_CONFIG,
+const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   cacheIdentity: false,
   trackPages: false,
   trackReferrer: false,
@@ -45,6 +44,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
   let postRequestStub: sinon.SinonStub
 
   beforeEach(() => {
+    window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
   })
 
@@ -55,16 +55,18 @@ describe('(unit) ArcxAnalyticsSdk', () => {
   })
 
   describe('#init', () => {
-    it('does not get the identity from localStorage if `cacheIdentity` is false', async () => {
-      const localStorageStub = sinon.stub(localStorage, 'getItem')
-      await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, cacheIdentity: false })
-      expect(localStorageStub).to.not.have.been.called
-    })
+    describe('cacheIdentity', () => {
+      it('does not get the identity from localStorage if `cacheIdentity` is false', async () => {
+        const localStorageStub = sinon.stub(localStorage, 'getItem')
+        await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
+        expect(localStorageStub).to.not.have.been.called
+      })
 
-    it('sets the identity in localStorage if `cacheIdentity` is true', async () => {
-      expect(localStorage.getItem(IDENTITY_KEY)).to.be.null
-      await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, cacheIdentity: true })
-      expect(localStorage.getItem(IDENTITY_KEY)).to.equal(TEST_IDENTITY)
+      it('sets the identity in localStorage if `cacheIdentity` is true', async () => {
+        expect(localStorage.getItem(IDENTITY_KEY)).to.be.null
+        await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, cacheIdentity: true })
+        expect(localStorage.getItem(IDENTITY_KEY)).to.equal(TEST_IDENTITY)
+      })
     })
 
     it('makes an /identity call when no identity is found in localStorage', async () => {
@@ -129,7 +131,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(window.ethereum?.on).calledWithMatch('accountsChanged')
     })
 
-    it('calls _onAccountsChanged when accountsChanged is fied and trackWalletConnections is true', async () => {
+    it('calls _onAccountsChanged when accountsChanged is fired and trackWalletConnections is true', async () => {
       window.ethereum = new MockEthereum() as any
       const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
@@ -154,9 +156,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     let analyticsSdk: ArcxAnalyticsSdk
 
     beforeEach(async () => {
-      const ethereumMock = sinon.createStubInstance(MetaMaskInpageProvider)
-      window.ethereum = ethereumMock
-
       analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
       // Reset history after init because of the /identify call
       postRequestStub.resetHistory()
@@ -164,29 +163,29 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#event', () => {
       it('calls postRequest with the correct params', async () => {
-        const testAttributes = {
+        const attributes = {
           a: 'value',
           b: 'second value',
         }
 
-        await analyticsSdk.event('TEST_EVENT', testAttributes)
+        await analyticsSdk.event('TEST_EVENT', attributes)
         expect(postRequestStub).calledOnceWith(
           DEFAULT_SDK_CONFIG.url,
           TEST_API_KEY,
           '/submit-event',
-          getAnalyticsData('TEST_EVENT', testAttributes),
+          getAnalyticsData('TEST_EVENT', attributes),
         )
       })
 
       it('supports nested attributes', async () => {
-        const pageAttributes = { layer1: { layer2: { layer3: { layer4: 'hello!' } } } }
+        const attributes = { layer1: { layer2: { layer3: { layer4: 'hello!' } } } }
 
-        await analyticsSdk.event('TEST_EVENT', pageAttributes)
+        await analyticsSdk.event('TEST_EVENT', attributes)
         expect(postRequestStub).calledOnceWithExactly(
           DEFAULT_SDK_CONFIG.url,
           TEST_API_KEY,
           '/submit-event',
-          getAnalyticsData('TEST_EVENT', pageAttributes),
+          getAnalyticsData('TEST_EVENT', attributes),
         )
       })
     })
@@ -194,48 +193,48 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     describe('#attribute', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(analyticsSdk, 'event')
-        const testAttributes = {
+        const attributes = {
           source: TEST_UTM_SOURCE,
           medium: TEST_UTM_MEDIUM,
           campaign: TEST_UTM_CAMPAIGN,
         }
-        await analyticsSdk.attribute(testAttributes)
-        expect(eventStub).calledOnceWithExactly(ATTRIBUTION_EVENT, testAttributes)
+        await analyticsSdk.attribute(attributes)
+        expect(eventStub).calledOnceWithExactly(ATTRIBUTION_EVENT, attributes)
       })
     })
 
     describe('#page', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(analyticsSdk, 'event')
-        const testAttributes = {
+        const attributes = {
           url: TEST_JSDOM_URL,
         }
-        await analyticsSdk.page(testAttributes)
-        expect(eventStub).calledOnceWithExactly(PAGE_EVENT, testAttributes)
+        await analyticsSdk.page(attributes)
+        expect(eventStub).calledOnceWithExactly(PAGE_EVENT, attributes)
       })
     })
 
     describe('#connectWallet', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(analyticsSdk, 'event')
-        const testAttributes = {
+        const attributes = {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         }
-        await analyticsSdk.connectWallet(testAttributes)
-        expect(eventStub).calledOnceWithExactly(CONNECT_EVENT, testAttributes)
+        await analyticsSdk.connectWallet(attributes)
+        expect(eventStub).calledOnceWithExactly(CONNECT_EVENT, attributes)
       })
     })
 
     describe('#transaction', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(analyticsSdk, 'event')
-        const testAttributes = {
+        const attributes = {
           chain: '1',
           transactionHash: '0x123456789',
           metadata: { timestamp: '123456' },
         }
-        await analyticsSdk.transaction(testAttributes)
+        await analyticsSdk.transaction(attributes)
         expect(eventStub).calledOnceWithExactly(TRANSACTION_EVENT, {
           chain: '1',
           transaction_hash: '0x123456789',
