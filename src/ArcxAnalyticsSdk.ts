@@ -87,20 +87,34 @@ export class ArcxAnalyticsSdk {
   }
 
   private _trackPagesChange() {
-    document.body.addEventListener(
-      'click',
-      () => {
-        requestAnimationFrame(() => {
-          const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+    const oldPushState = history.pushState
+    history.pushState = function pushState(...args) {
+      const ret = oldPushState.apply(this, args)
+      window.dispatchEvent(new Event('pushstate'))
+      window.dispatchEvent(new Event('locationchange'))
+      return ret
+    }
 
-          if (currentUrl !== window.location.href) {
-            sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
-            this.page({ url: window.location.href })
-          }
-        })
-      },
-      true,
-    )
+    const oldReplaceState = history.replaceState
+    history.replaceState = function replaceState(...args) {
+      const ret = oldReplaceState.apply(this, args)
+      window.dispatchEvent(new Event('replacestate'))
+      window.dispatchEvent(new Event('locationchange'))
+      return ret
+    }
+
+    window.addEventListener('popstate', () => {
+      window.dispatchEvent(new Event('locationchange'))
+    })
+
+    window.addEventListener('locationchange', () => {
+      const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+
+      if (currentUrl !== window.location.href) {
+        sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+        this.page({ url: window.location.href })
+      }
+    })
   }
 
   private async _onAccountsChanged(accounts: string[]) {

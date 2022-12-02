@@ -31,7 +31,6 @@ function App() {
     // Hijack global fetch to capture the initial events
     const originalFetch = window.fetch
     window.fetch = (input: RequestInfo | URL, init?: RequestInit) => {
-      console.log('captured', input, init)
       setCapturedRequests((capturedRequests) => {
         let body: any
 
