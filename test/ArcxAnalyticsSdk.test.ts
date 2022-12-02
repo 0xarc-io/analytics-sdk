@@ -29,6 +29,7 @@ import {
   TEST_UTM_SOURCE,
 } from './constants'
 import { MockEthereum } from './MockEthereum'
+import globalJsdom from 'global-jsdom'
 
 const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   cacheIdentity: false,
@@ -42,9 +43,15 @@ const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
 }
 
 describe('(unit) ArcxAnalyticsSdk', () => {
+  let cleanup: () => void
   let postRequestStub: sinon.SinonStub
 
   beforeEach(() => {
+    cleanup = globalJsdom(undefined, {
+      url: TEST_JSDOM_URL,
+      referrer: TEST_REFERRER,
+    })
+
     window.ethereum = sinon.createStubInstance(MockEthereum)
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
   })
@@ -53,6 +60,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     sinon.restore()
     localStorage.clear()
     sessionStorage.clear()
+    cleanup()
   })
 
   describe('#init', () => {
@@ -128,18 +136,19 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       )
       await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
-      expect(reportCurrentWalletStub.calledOnce).to.be.true
-      expect(window.ethereum?.on).calledWithMatch('accountsChanged')
-    })
+        expect(reportCurrentWalletStub.calledOnce).to.be.true
+        expect(window.ethereum?.on).calledWithMatch('accountsChanged')
+      })
 
-    it('calls _onAccountsChanged when accountsChanged is fired and trackWalletConnections is true', async () => {
-      window.ethereum = new MockEthereum() as any
-      const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
+      it('calls _onAccountsChanged when accountsChanged is fired and trackWalletConnections is true', async () => {
+        window.ethereum = new MockEthereum() as any
+        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
-      const onAccountsChangedStub = sinon.stub(sdk, '_onAccountsChanged' as any)
+        const onAccountsChangedStub = sinon.stub(sdk, '_onAccountsChanged' as any)
 
-      window.ethereum?.emit('accountsChanged', [TEST_ACCOUNT])
-      expect(onAccountsChangedStub).calledOnceWithExactly([TEST_ACCOUNT])
+        window.ethereum?.emit('accountsChanged', [TEST_ACCOUNT])
+        expect(onAccountsChangedStub).calledOnceWithExactly([TEST_ACCOUNT])
+      })
     })
 
     it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
@@ -332,12 +341,48 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_trackPagesChange', () => {
-      it('registers an on-click event listener', () => {
-        const addEventListenerStub = sinon.stub(document.body, 'addEventListener')
-
+      it('registers a locationChange event', () => {
+        const pageStub = sinon.stub(analyticsSdk, 'page')
         analyticsSdk['_trackPagesChange']()
 
-        expect(addEventListenerStub).calledOnce
+        window.dispatchEvent(
+          new window.Event('locationchange', { bubbles: true, cancelable: false }),
+        )
+
+        expect(pageStub).calledWithExactly({ url: TEST_JSDOM_URL })
+      })
+
+      it('triggers a locationchange event on history.pushState', () => {
+        const locationChangeListener = sinon.spy()
+        analyticsSdk['_trackPagesChange']()
+
+        window.addEventListener('locationchange', locationChangeListener)
+        window.history.pushState({}, '', '/new-url')
+        expect(locationChangeListener).calledOnce
+
+        window.removeEventListener('locationchange', locationChangeListener)
+      })
+
+      it('triggers a locationchange event on history.replaceState', () => {
+        const locationChangeListener = sinon.spy()
+        analyticsSdk['_trackPagesChange']()
+
+        window.addEventListener('locationchange', locationChangeListener)
+        window.history.replaceState({}, '', '/new-url')
+        expect(locationChangeListener).calledOnce
+
+        window.removeEventListener('locationchange', locationChangeListener)
+      })
+
+      it('triggers a locationchange event on history.popstate', () => {
+        const locationChangeListener = sinon.spy()
+        analyticsSdk['_trackPagesChange']()
+
+        window.addEventListener('locationchange', locationChangeListener)
+        window.dispatchEvent(new PopStateEvent('popstate'))
+        expect(locationChangeListener).calledOnce
+
+        window.removeEventListener('locationchange', locationChangeListener)
       })
     })
 

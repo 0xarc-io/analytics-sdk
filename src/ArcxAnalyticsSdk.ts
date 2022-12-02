@@ -90,21 +90,21 @@ export class ArcxAnalyticsSdk {
     const oldPushState = history.pushState
     history.pushState = function pushState(...args) {
       const ret = oldPushState.apply(this, args)
-      window.dispatchEvent(new Event('pushstate'))
-      window.dispatchEvent(new Event('locationchange'))
+      window.dispatchEvent(new window.Event('pushstate'))
+      window.dispatchEvent(new window.Event('locationchange'))
       return ret
     }
 
     const oldReplaceState = history.replaceState
     history.replaceState = function replaceState(...args) {
       const ret = oldReplaceState.apply(this, args)
-      window.dispatchEvent(new Event('replacestate'))
-      window.dispatchEvent(new Event('locationchange'))
+      window.dispatchEvent(new window.Event('replacestate'))
+      window.dispatchEvent(new window.Event('locationchange'))
       return ret
     }
 
     window.addEventListener('popstate', () => {
-      window.dispatchEvent(new Event('locationchange'))
+      window.dispatchEvent(new window.Event('locationchange'))
     })
 
     window.addEventListener('locationchange', () => {

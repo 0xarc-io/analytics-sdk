@@ -21,11 +21,13 @@ import React from 'react'
 import {
   TEST_IDENTITY,
   TEST_JSDOM_URL,
+  TEST_REFERRER,
   TEST_UTM_CAMPAIGN,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
 } from './constants'
 import { MockEthereum } from './MockEthereum'
+import globalJsdom from 'global-jsdom'
 
 const TEST_API_KEY = 'test-api-key'
 const TRACK_PAGES_CONFIG: SdkConfig = {
@@ -78,8 +80,20 @@ const ChildTest = () => {
 }
 
 describe('(int) ArcxAnalyticxProvider', () => {
+  let cleanup: () => void
   let postRequestStub: sinon.SinonStub
   let screen: RenderResult
+
+  before(() => {
+    cleanup = globalJsdom(undefined, {
+      url: TEST_JSDOM_URL,
+      referrer: TEST_REFERRER,
+    })
+  })
+
+  after(() => {
+    cleanup()
+  })
 
   beforeEach(async () => {
     window.ethereum = sinon.createStubInstance(MockEthereum)
