@@ -1,4 +1,4 @@
-import { Account, Attributes, ChainID, SdkConfig, TransactionHash } from './types'
+import { Account, Attributes, ChainID, SdkConfig, TransactionHash, RequestArguments, InpageProvider } from './types'
 import {
   ATTRIBUTION_EVENT,
   CHAIN_CHANGED_EVENT,
@@ -15,8 +15,6 @@ import {
   SIGNING_EVENT,
 } from './constants'
 import { postRequest } from './helpers'
-import { MetaMaskInpageProvider } from '@metamask/providers'
-import { RequestArguments } from '@metamask/providers/dist/BaseProvider'
 
 export class ArcxAnalyticsSdk {
   currentChainId?: string | null
@@ -317,6 +315,6 @@ type FirstVisitPageType = {
   }
 }
 
-function getWeb3Provider(): MetaMaskInpageProvider | undefined {
+function getWeb3Provider(): InpageProvider | undefined {
   return window.web3?.currentProvider || window?.ethereum
 }

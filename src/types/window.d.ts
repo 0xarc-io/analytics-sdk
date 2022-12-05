@@ -1,10 +1,10 @@
-import { MetaMaskInpageProvider } from '@metamask/providers'
+import { InpageProvider } from './web3'
 
 declare global {
   interface Window {
-    ethereum?: MetaMaskInpageProvider
+    ethereum?: InpageProvider
     web3?: {
-      currentProvider?: MetaMaskInpageProvider
+      currentProvider?: InpageProvider
     }
   }
 }

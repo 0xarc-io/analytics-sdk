@@ -25,7 +25,7 @@ import {
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
 } from './constants'
-import { MetaMaskInpageProvider } from '@metamask/providers'
+import { MockEthereum } from './MockEthereum'
 
 const TEST_API_KEY = 'test-api-key'
 const TRACK_PAGES_CONFIG: SdkConfig = {
@@ -82,7 +82,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
   let screen: RenderResult
 
   beforeEach(async () => {
-    window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
+    window.ethereum = sinon.createStubInstance(MockEthereum)
 
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
 
