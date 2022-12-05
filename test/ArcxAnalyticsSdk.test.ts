@@ -342,14 +342,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_trackPagesChange', () => {
       it('registers a locationChange event', () => {
-        const pageStub = sinon.stub(analyticsSdk, 'page')
+        const onLocationChangeStub = sinon.stub(analyticsSdk, <any>'_onLocationChange')
         analyticsSdk['_trackPagesChange']()
 
         window.dispatchEvent(
           new window.Event('locationchange', { bubbles: true, cancelable: false }),
         )
 
-        expect(pageStub).calledWithExactly({ url: TEST_JSDOM_URL })
+        expect(onLocationChangeStub).calledOnce
       })
 
       it('triggers a locationchange event on history.pushState', () => {
@@ -383,6 +383,18 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(locationChangeListener).calledOnce
 
         window.removeEventListener('locationchange', locationChangeListener)
+      })
+    })
+
+    describe('#_onLocationChange', () => {
+      it('sets the current location in the storage and calls page', () => {
+        const pageStub = sinon.stub(analyticsSdk, 'page')
+        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
+
+        analyticsSdk['_onLocationChange']()
+
+        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
+        expect(pageStub).to.be.calledOnceWithExactly({ url: TEST_JSDOM_URL })
       })
     })
 
