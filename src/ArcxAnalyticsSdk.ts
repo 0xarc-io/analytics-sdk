@@ -90,7 +90,6 @@ export class ArcxAnalyticsSdk {
     const oldPushState = history.pushState
     history.pushState = function pushState(...args) {
       const ret = oldPushState.apply(this, args)
-      window.dispatchEvent(new window.Event('pushstate'))
       window.dispatchEvent(new window.Event('locationchange'))
       return ret
     }
@@ -98,7 +97,6 @@ export class ArcxAnalyticsSdk {
     const oldReplaceState = history.replaceState
     history.replaceState = function replaceState(...args) {
       const ret = oldReplaceState.apply(this, args)
-      window.dispatchEvent(new window.Event('replacestate'))
       window.dispatchEvent(new window.Event('locationchange'))
       return ret
     }
