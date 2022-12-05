@@ -105,14 +105,16 @@ export class ArcxAnalyticsSdk {
       window.dispatchEvent(new window.Event('locationchange'))
     })
 
-    window.addEventListener('locationchange', () => {
-      const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+    window.addEventListener('locationchange', () => this._onLocationChange())
+  }
 
-      if (currentUrl !== window.location.href) {
-        sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
-        this.page({ url: window.location.href })
-      }
-    })
+  private _onLocationChange() {
+    const currentUrl = sessionStorage.getItem(CURRENT_URL_KEY)
+
+    if (currentUrl !== window.location.href) {
+      sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+      this.page({ url: window.location.href })
+    }
   }
 
   private async _onAccountsChanged(accounts: string[]) {
