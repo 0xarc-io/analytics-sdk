@@ -96,6 +96,8 @@ The configuration options are:
 | `trackUTM`               | boolean | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`  |
 | `trackWalletConnections` | boolean | Automatically track wallet connections. Currently only supporting Metamask. | `true`  |
 | `trackChainChanges`      | boolean | Automatically track chain ID changes. Currenlty only supporting Metamask | `true`  |
+| `trackTransactions`      | boolean | Automatically track transaction requests before they are sent to Metamask. Currently only supporting Metamask | `true`  |
+| `trackSigning`           | boolean | Autmatically track signing requests before they are signed in Metamask. Currently only supporting Metamask. | `true`  |
 
 ## API
 
