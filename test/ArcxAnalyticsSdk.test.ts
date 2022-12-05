@@ -340,7 +340,17 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_trackPagesChange', () => {
-      it('registers a locationChange event', () => {
+      it('locationchange event does not exist', () => {
+        const onLocationChangeStub = sinon.stub(analyticsSdk, <any>'_onLocationChange')
+
+        window.dispatchEvent(
+          new window.Event('locationchange', { bubbles: true, cancelable: false }),
+        )
+
+        expect(onLocationChangeStub).to.not.have.been.called
+      })
+
+      it('registers a locationchange event', () => {
         const onLocationChangeStub = sinon.stub(analyticsSdk, <any>'_onLocationChange')
         analyticsSdk['_trackPagesChange']()
 
@@ -351,37 +361,54 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(onLocationChangeStub).calledOnce
       })
 
-      it('triggers a locationchange event on history.pushState', () => {
-        const locationChangeListener = sinon.spy()
-        analyticsSdk['_trackPagesChange']()
+      describe('triggers a locationchange event', () => {
+        it('triggers on history.pushState', () => {
+          const locationChangeListener = sinon.spy()
+          analyticsSdk['_trackPagesChange']()
 
-        window.addEventListener('locationchange', locationChangeListener)
-        window.history.pushState({}, '', '/new-url')
-        expect(locationChangeListener).calledOnce
+          window.addEventListener('locationchange', locationChangeListener)
+          window.history.pushState({}, '', '/new-url')
+          expect(locationChangeListener).calledOnce
 
-        window.removeEventListener('locationchange', locationChangeListener)
-      })
+          window.removeEventListener('locationchange', locationChangeListener)
+        })
 
-      it('triggers a locationchange event on history.replaceState', () => {
-        const locationChangeListener = sinon.spy()
-        analyticsSdk['_trackPagesChange']()
+        it('triggers on history.replaceState', () => {
+          const locationChangeListener = sinon.spy()
+          analyticsSdk['_trackPagesChange']()
 
-        window.addEventListener('locationchange', locationChangeListener)
-        window.history.replaceState({}, '', '/new-url')
-        expect(locationChangeListener).calledOnce
+          window.addEventListener('locationchange', locationChangeListener)
+          window.history.replaceState({}, '', '/new-url')
+          expect(locationChangeListener).calledOnce
 
-        window.removeEventListener('locationchange', locationChangeListener)
-      })
+          window.removeEventListener('locationchange', locationChangeListener)
+        })
 
-      it('triggers a locationchange event on history.popstate', () => {
-        const locationChangeListener = sinon.spy()
-        analyticsSdk['_trackPagesChange']()
+        it('triggers on history.popstate', () => {
+          const locationChangeListener = sinon.spy()
+          analyticsSdk['_trackPagesChange']()
 
-        window.addEventListener('locationchange', locationChangeListener)
-        window.dispatchEvent(new PopStateEvent('popstate'))
-        expect(locationChangeListener).calledOnce
+          window.addEventListener('locationchange', locationChangeListener)
+          window.dispatchEvent(new PopStateEvent('popstate'))
+          expect(locationChangeListener).calledOnce
 
-        window.removeEventListener('locationchange', locationChangeListener)
+          window.removeEventListener('locationchange', locationChangeListener)
+        })
+
+        it('triggers multiple times', () => {
+          const locationChangeListener = sinon.spy()
+          analyticsSdk['_trackPagesChange']()
+
+          window.addEventListener('locationchange', locationChangeListener)
+
+          window.dispatchEvent(new PopStateEvent('popstate'))
+          window.history.pushState({}, '', '/new-url')
+          window.history.replaceState({}, '', '/new-url')
+
+          expect(locationChangeListener).calledThrice
+
+          window.removeEventListener('locationchange', locationChangeListener)
+        })
       })
     })
 
@@ -394,6 +421,31 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
         expect(pageStub).to.be.calledOnceWithExactly({ url: TEST_JSDOM_URL })
+      })
+
+      it('sets the current location in the storage and calls page once if path is not changed ', () => {
+        const pageStub = sinon.stub(analyticsSdk, 'page')
+        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
+
+        analyticsSdk['_onLocationChange']()
+        analyticsSdk['_onLocationChange']()
+
+        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
+        expect(pageStub).to.be.calledOnceWithExactly({ url: TEST_JSDOM_URL })
+      })
+
+      it('sets the current location in the storage and calls page twice if the path has changed', () => {
+        const pageStub = sinon.stub(analyticsSdk, 'page')
+        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
+
+        analyticsSdk['_onLocationChange']()
+        window.history.pushState({}, '', `${TEST_JSDOM_URL}new`)
+        analyticsSdk['_onLocationChange']()
+
+        expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(`${TEST_JSDOM_URL}new`)
+        expect(pageStub).to.be.calledTwice
+        expect(pageStub.getCall(0)).to.be.calledWithExactly({ url: TEST_JSDOM_URL })
+        expect(pageStub.getCall(1)).to.be.calledWithExactly({ url: `${TEST_JSDOM_URL}new` })
       })
     })
 
