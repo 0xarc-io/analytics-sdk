@@ -136,19 +136,18 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       )
       await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
-        expect(reportCurrentWalletStub.calledOnce).to.be.true
-        expect(window.ethereum?.on).calledWithMatch('accountsChanged')
-      })
+      expect(reportCurrentWalletStub.calledOnce).to.be.true
+      expect(window.ethereum?.on).calledWithMatch('accountsChanged')
+    })
 
-      it('calls _onAccountsChanged when accountsChanged is fired and trackWalletConnections is true', async () => {
-        window.ethereum = new MockEthereum() as any
-        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
+    it('calls _onAccountsChanged when accountsChanged is fired and trackWalletConnections is true', async () => {
+      window.ethereum = new MockEthereum() as any
+      const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackWalletConnections: true })
 
-        const onAccountsChangedStub = sinon.stub(sdk, '_onAccountsChanged' as any)
+      const onAccountsChangedStub = sinon.stub(sdk, '_onAccountsChanged' as any)
 
-        window.ethereum?.emit('accountsChanged', [TEST_ACCOUNT])
-        expect(onAccountsChangedStub).calledOnceWithExactly([TEST_ACCOUNT])
-      })
+      window.ethereum?.emit('accountsChanged', [TEST_ACCOUNT])
+      expect(onAccountsChangedStub).calledOnceWithExactly([TEST_ACCOUNT])
     })
 
     it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
