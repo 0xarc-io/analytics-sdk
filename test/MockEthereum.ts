@@ -1,8 +1,8 @@
-import { RequestArguments } from '@metamask/providers/dist/BaseProvider'
 import { EventEmitter } from 'events'
+import { InpageProvider, RequestArguments } from '../src'
 
-export class MockEthereum extends EventEmitter {
-  request(_args: RequestArguments) {
-    return Promise.resolve()
+export class MockEthereum extends EventEmitter implements InpageProvider {
+  async request(_args: RequestArguments) {
+    return undefined
   }
 }

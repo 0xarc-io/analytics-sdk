@@ -28,7 +28,6 @@ import {
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
 } from './constants'
-import { MetaMaskInpageProvider } from '@metamask/providers'
 import { MockEthereum } from './MockEthereum'
 
 const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
@@ -46,7 +45,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
   let postRequestStub: sinon.SinonStub
 
   beforeEach(() => {
-    window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
+    window.ethereum = sinon.createStubInstance(MockEthereum)
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
   })
 
@@ -122,7 +121,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('calls _reportCurrentWallet and register the listener if trackWalletConnections is true', async () => {
-      window.ethereum = sinon.createStubInstance(MetaMaskInpageProvider)
+      window.ethereum = sinon.createStubInstance(MockEthereum)
       const reportCurrentWalletStub = sinon.stub(
         ArcxAnalyticsSdk.prototype,
         '_reportCurrentWallet' as any,
@@ -528,7 +527,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         }
         const nonce = 12
 
-        const stubProvider = sinon.createStubInstance(MetaMaskInpageProvider)
+        const stubProvider = sinon.createStubInstance(MockEthereum)
         window.web3 = {
           currentProvider: stubProvider,
         }
