@@ -11,7 +11,7 @@ export const EthereumEventsButtons = () => {
     const signer = provider?.getSigner()
     await signer?.sendTransaction({
       to: '0x0000000000000000000000000000000000000000',
-      value: '10000000000'
+      value: '10000000000',
     })
   }
 
