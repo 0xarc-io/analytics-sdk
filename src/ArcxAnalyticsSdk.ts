@@ -161,6 +161,10 @@ export class ArcxAnalyticsSdk {
 
   private _handleAccountDisconnected() {
     if (!this.currentChainId || !this.currentConnectedAccount) {
+      this._report(
+        'error',
+        'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set',
+      )
       /**
        * It is possible that this function has already been called once and the cached values
        * have been cleared. This can happen in the following scenario:
@@ -202,13 +206,15 @@ export class ArcxAnalyticsSdk {
 
   private async _getCurrentChainId(): Promise<string> {
     if (!this.provider) {
-      throw new Error('ArcxAnalyticsSdk::_getCurrentChainId: provider not set')
+      this._reportErrorAndThrow('ArcxAnalyticsSdk::_getCurrentChainId: provider not set')
     }
 
     const chainIdHex = await this.provider.request<string>({ method: 'eth_chainId' })
     // Because we're connected, the chainId cannot be null
     if (!chainIdHex) {
-      throw new Error(`ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ${chainIdHex}`)
+      this._reportErrorAndThrow(
+        `ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ${chainIdHex}`,
+      )
     }
 
     return parseInt(chainIdHex, 16).toString()
@@ -221,6 +227,7 @@ export class ArcxAnalyticsSdk {
   private _trackTransactions(): boolean {
     const provider = this.provider
     if (!provider) {
+      this._report('error', 'ArcxAnalyticsSdk::_trackTransactions: provider not found')
       return false
     }
 
@@ -248,6 +255,7 @@ export class ArcxAnalyticsSdk {
 
   private _trackSigning() {
     if (!this.provider) {
+      this._report('error', 'ArcxAnalyticsSdk::_trackTransactions: provider not found')
       return false
     }
 
@@ -307,6 +315,23 @@ export class ArcxAnalyticsSdk {
         this._trackTransactions()
       }
     }
+  }
+
+  /** Report error to the server in order to better understand edge cases which can appear */
+  _report(logLevel: 'error' | 'log' | 'warning', content: string): Promise<string> {
+    return postRequest(this.sdkConfig.url, this.apiKey, '/report-error', {
+      logLevel,
+      data: {
+        identityId: this.identityId,
+        msg: content,
+      },
+    })
+  }
+
+  /** Report error to the server and throw an error */
+  _reportErrorAndThrow(error: string): never {
+    this._report('error', error)
+    throw new Error(error)
   }
 
   /********************/
