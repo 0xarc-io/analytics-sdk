@@ -429,6 +429,42 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
+    describe('#_reportError', () => {
+      it('calls postRequest with error message', async () => {
+        const errorMsg = 'TestError: this should not happen'
+        await analyticsSdk['_report']('error', errorMsg)
+        expect(postRequestStub).calledOnceWith(
+          DEFAULT_SDK_CONFIG.url,
+          TEST_API_KEY,
+          '/report-error',
+          {
+            logLevel: 'error',
+            data: {
+              identityId: TEST_IDENTITY,
+              msg: errorMsg
+            },
+          },
+        )
+      })
+
+      it('calls postRequest with warning message', async () => {
+        const errorMsg = 'TestError: this should not happen'
+        await analyticsSdk['_report']('warning', errorMsg)
+        expect(postRequestStub).calledOnceWith(
+          DEFAULT_SDK_CONFIG.url,
+          TEST_API_KEY,
+          '/report-error',
+          {
+            logLevel: 'warning',
+            data: {
+              identityId: TEST_IDENTITY,
+              msg: errorMsg
+            },
+          },
+        )
+      })
+    })
+
     describe('#_trackFirstPageVisit', () => {
       let eventStub: sinon.SinonStub
 
@@ -802,7 +838,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     describe('#_trackTransactions', () => {
       it('does not change request if provider is undefined', () => {
         analyticsSdk['_provider'] = undefined
+        const reportErrorStub = sinon.stub(analyticsSdk, '_report')
         expect(analyticsSdk['_trackTransactions']()).to.be.false
+        expect(reportErrorStub).to.be.calledOnce
       })
 
       it('makes a TRANSACTION_TRIGGERED event', async () => {
@@ -849,7 +887,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
       it('does not change request if provider is undefined', async () => {
         analyticsSdk['_provider'] = undefined
+        const reportErrorStub = sinon.stub(analyticsSdk, '_report')
         expect(analyticsSdk['_trackSigning']()).to.be.false
+        expect(reportErrorStub).to.be.calledOnce
       })
 
       it('returns true if provider is not undefined', () => {
