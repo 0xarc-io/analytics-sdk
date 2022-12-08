@@ -1,10 +1,10 @@
-import { InpageProvider } from './web3'
+import { EIP1193Provider } from './web3'
 
 declare global {
   interface Window {
-    ethereum?: InpageProvider
+    ethereum?: EIP1193Provider
     web3?: {
-      currentProvider?: InpageProvider
+      currentProvider?: EIP1193Provider
     }
   }
 }
