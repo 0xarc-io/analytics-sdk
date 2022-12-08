@@ -5,7 +5,7 @@ import {
   SdkConfig,
   TransactionHash,
   RequestArguments,
-  InpageProvider,
+  EIP1193Provider,
 } from './types'
 import {
   ATTRIBUTION_EVENT,
@@ -26,14 +26,26 @@ import {
 import { postRequest } from './helpers'
 
 export class ArcxAnalyticsSdk {
+  /* --------------------------- Private properties --------------------------- */
+  private _provider?: EIP1193Provider
+  private _originalRequest?: EIP1193Provider['request']
+  private _registeredListeners: Record<string, (...args: unknown[]) => void> = {}
+
+  /* ---------------------------- Public properties --------------------------- */
   currentChainId?: string | null
   currentConnectedAccount?: string
+
+  get provider(): EIP1193Provider | undefined {
+    return this._provider
+  }
 
   private constructor(
     public readonly apiKey: string,
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
   ) {
+    this.setProvider(sdkConfig.initialProvider || window.web3?.currentProvider || window?.ethereum)
+
     if (sdkConfig.trackPages || sdkConfig.trackReferrer || sdkConfig.trackUTM) {
       this._trackFirstPageVisit()
     }
@@ -71,6 +83,18 @@ export class ArcxAnalyticsSdk {
   /**********************/
   /** INTERNAL METHODS **/
   /**********************/
+
+  private _registerAccountsChangedListener() {
+    const listener = (...args: unknown[]) => this._onAccountsChanged(args[0] as string[])
+    this.provider?.on('accountsChanged', listener)
+    this._registeredListeners['accountsChanged'] = listener
+  }
+
+  private _registerChainChangedListener() {
+    const listener = (...args: unknown[]) => this._onChainChanged(args[0] as string)
+    this.provider?.on('chainChanged', listener)
+    this._registeredListeners['chainChanged'] = listener
+  }
 
   private _trackFirstPageVisit() {
     const attributes: FirstVisitPageType = {}
@@ -175,12 +199,12 @@ export class ArcxAnalyticsSdk {
   }
 
   private async _reportCurrentWallet() {
-    if (!window.ethereum) {
-      console.warn('ArcxAnalyticsSdk::_reportCurrentWallet: No ethereum provider found')
+    if (!this.provider) {
+      console.warn('ArcxAnalyticsSdk::_reportCurrentWallet: the provider is not set')
       return
     }
 
-    const accounts = await window.ethereum.request<string[]>({ method: 'eth_accounts' })
+    const accounts = await this.provider.request<string[]>({ method: 'eth_accounts' })
 
     if (accounts && accounts.length > 0 && accounts[0]) {
       this._handleAccountConnected(accounts[0])
@@ -188,11 +212,11 @@ export class ArcxAnalyticsSdk {
   }
 
   private async _getCurrentChainId(): Promise<string> {
-    if (!window.ethereum) {
-      throw new Error('ArcxAnalyticsSdk::_getCurrentChainId: No ethereum provider found')
+    if (!this.provider) {
+      throw new Error('ArcxAnalyticsSdk::_getCurrentChainId: provider not set')
     }
 
-    const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
+    const chainIdHex = await this.provider.request<string>({ method: 'eth_chainId' })
     // Because we're connected, the chainId cannot be null
     if (!chainIdHex) {
       throw new Error(`ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ${chainIdHex}`)
@@ -206,11 +230,17 @@ export class ArcxAnalyticsSdk {
     https://ethereum.org/en/developers/docs/apis/json-rpc/#eth_sendtransaction
   */
   private _trackTransactions(): boolean {
-    const provider = getWeb3Provider()
+    const provider = this.provider
     if (!provider) {
       return false
     }
 
+    if (!this._originalRequest) {
+      this._originalRequest = provider.request
+    }
+
+    // Deliberately not using this._original request to not intefere with the signature tracking's
+    // request modification
     const request = provider.request
     provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params) && method === 'eth_sendTransaction') {
@@ -232,12 +262,18 @@ export class ArcxAnalyticsSdk {
   }
 
   private _trackSigning() {
-    const provider = getWeb3Provider()
-    if (!provider) {
+    if (!this.provider) {
       return false
     }
-    const request = provider.request
-    provider.request = async ({ method, params }: RequestArguments) => {
+
+    if (!this._originalRequest) {
+      this._originalRequest = this.provider.request
+    }
+
+    // Deliberately not using this._original request to not intefere with the transaction tracking's
+    // request modification
+    const request = this.provider.request
+    this.provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params)) {
         if (['signTypedData_v4', 'eth_sign'].includes(method)) {
           this.event(SIGNING_EVENT, {
@@ -271,9 +307,62 @@ export class ArcxAnalyticsSdk {
     })
   }
 
+  private _initializeMetamaskTracking() {
+    if (this.provider) {
+      if (this.sdkConfig.trackWalletConnections) {
+        this._reportCurrentWallet()
+        this._registerAccountsChangedListener()
+      }
+
+      if (this.sdkConfig.trackChainChanges) {
+        this._registerChainChangedListener()
+      }
+
+      if (this.sdkConfig.trackSigning) {
+        this._trackSigning()
+      }
+
+      if (this.sdkConfig.trackTransactions) {
+        this._trackTransactions()
+      }
+    }
+
   /********************/
   /** PUBLIC METHODS **/
   /********************/
+
+  /**
+   * Sets a new provider. If automatic EVM events tracking is enabled,
+   * the registered listeners will be removed from the old provider and added to the new one.
+   */
+  setProvider(provider: EIP1193Provider | undefined) {
+    if (provider === this._provider) {
+      return
+    }
+
+    delete this.currentChainId
+    delete this.currentConnectedAccount
+
+    if (this._provider) {
+      // Restore listeners
+      this._provider.removeListener('accountsChanged', this._registeredListeners['accountsChanged'])
+      this._provider.removeListener('chainChanged', this._registeredListeners['chainChanged'])
+
+      delete this._registeredListeners['accountsChanged']
+      delete this._registeredListeners['chainChanged']
+
+      // Restore original request
+      if (this._originalRequest) {
+        this._provider.request = this._originalRequest
+        delete this._originalRequest
+      }
+    }
+
+    this._provider = provider
+
+    // TODO: to be replaced by the refactored version from init
+    this._initializeMetamaskTracking()
+  }
 
   /** Initialises the Analytics SDK with desired configuration. */
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
@@ -353,10 +442,6 @@ type FirstVisitPageType = {
     medium: string | null
     campaign: string | null
   }
-}
-
-function getWeb3Provider(): InpageProvider | undefined {
-  return window.web3?.currentProvider || window?.ethereum
 }
 
 function getElementIdentifier(clickedElement: Element): string {
