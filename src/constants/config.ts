@@ -9,6 +9,7 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
   trackChainChanges: true,
   trackTransactions: true,
   trackSigning: true,
+  trackClicks: true,
   url: 'https://api.arcx.money/v1',
 }
 
