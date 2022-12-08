@@ -14,6 +14,7 @@ export type SdkConfig = {
   trackChainChanges: boolean
   trackTransactions: boolean
   trackSigning: boolean
+  trackClicks: boolean
   url: string
 }
 

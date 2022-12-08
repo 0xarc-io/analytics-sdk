@@ -4,6 +4,7 @@ import { ArcxAnalyticsSdk, SdkConfig } from '../src'
 import {
   ATTRIBUTION_EVENT,
   CHAIN_CHANGED_EVENT,
+  CLICK_EVENT,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -40,6 +41,7 @@ const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   trackChainChanges: false,
   trackTransactions: false,
   trackSigning: false,
+  trackClicks: false,
 }
 
 describe('(unit) ArcxAnalyticsSdk', () => {
@@ -165,6 +167,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackSigning: true })
 
       expect(trackSigningStub).to.be.calledOnce
+    })
+
+    it('calls _trackClicks if config.trackClicks is true', async () => {
+      const trackClicksStub = sinon.stub(ArcxAnalyticsSdk.prototype, '_trackClicks' as any)
+      await ArcxAnalyticsSdk.init(TEST_API_KEY, { ...ALL_FALSE_CONFIG, trackClicks: true })
+
+      expect(trackClicksStub).to.be.calledOnce
     })
   })
 
@@ -446,6 +455,25 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(pageStub).to.be.calledTwice
         expect(pageStub.getCall(0)).to.be.calledWithExactly({ url: TEST_JSDOM_URL })
         expect(pageStub.getCall(1)).to.be.calledWithExactly({ url: `${TEST_JSDOM_URL}new` })
+      })
+    })
+
+    describe('#_trackClicks', () => {
+      it('does not track clicks', () => {
+        const eventStub = sinon.stub(analyticsSdk, 'event')
+
+        window.dispatchEvent(new window.Event('click'))
+
+        expect(eventStub).to.not.have.been.called
+      })
+
+      it('catches click event', () => {
+        const eventStub = sinon.stub(analyticsSdk, 'event')
+
+        analyticsSdk['_trackClicks']()
+        window.dispatchEvent(new window.Event('click'))
+
+        expect(eventStub).calledOnceWith(CLICK_EVENT, { path: undefined })
       })
     })
 

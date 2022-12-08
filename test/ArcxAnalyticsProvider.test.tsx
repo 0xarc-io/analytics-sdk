@@ -35,6 +35,7 @@ const TRACK_PAGES_CONFIG: SdkConfig = {
   trackPages: true,
   trackReferrer: false,
   trackUTM: false,
+  trackClicks: false,
   cacheIdentity: false,
 }
 
@@ -146,7 +147,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       render(
         <TestProvider
           providerOverrides={{
-            config: { trackUTM: true, trackReferrer: false, trackPages: false },
+            config: { trackUTM: true, trackReferrer: false, trackPages: false, trackClicks: false },
           }}
         />,
       )

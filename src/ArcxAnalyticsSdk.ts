@@ -21,6 +21,7 @@ import {
   REFERRER_EVENT,
   TRANSACTION_EVENT,
   SIGNING_EVENT,
+  CLICK_EVENT,
 } from './constants'
 import { postRequest } from './helpers'
 
@@ -60,6 +61,10 @@ export class ArcxAnalyticsSdk {
 
     if (this.sdkConfig.trackSigning) {
       this._trackSigning()
+    }
+
+    if (this.sdkConfig.trackClicks) {
+      this._trackClicks()
     }
   }
 
@@ -251,6 +256,18 @@ export class ArcxAnalyticsSdk {
       return request({ method, params })
     }
     return true
+  }
+
+  private _trackClicks() {
+    window.addEventListener('click', (event) => {
+      this._onClick(event)
+    })
+  }
+
+  private _onClick(event: MouseEvent) {
+    this.event(CLICK_EVENT, {
+      path: (event as any).path,
+    })
   }
 
   /********************/
