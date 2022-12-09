@@ -3,7 +3,7 @@ import {
   ArcxAnalyticsProvider,
   ArcxAnalyticsProviderProps,
   ArcxAnalyticsSdk,
-  ArcxAnalyticxContext,
+  ArcxAnalyticsContext,
   SdkConfig,
   useArcxAnalytics,
 } from '../src'
@@ -48,7 +48,7 @@ const TestProvider = ({
   providerOverrides?: Partial<ArcxAnalyticsProviderProps>
 }) => (
   <ArcxAnalyticsProvider apiKey={TEST_API_KEY} config={TRACK_PAGES_CONFIG} {...providerOverrides}>
-    <ArcxAnalyticxContext.Consumer>
+    <ArcxAnalyticsContext.Consumer>
       {(sdk) => (
         <div>
           <div>Identity: {sdk?.identityId}</div>
@@ -62,7 +62,7 @@ const TestProvider = ({
           <div>{children}</div>
         </div>
       )}
-    </ArcxAnalyticxContext.Consumer>
+    </ArcxAnalyticsContext.Consumer>
   </ArcxAnalyticsProvider>
 )
 

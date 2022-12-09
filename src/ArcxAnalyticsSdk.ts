@@ -307,7 +307,7 @@ export class ArcxAnalyticsSdk {
     })
   }
 
-  private _initializeMetamaskTracking() {
+  private _initializeWeb3Tracking() {
     if (this.provider) {
       if (this.sdkConfig.trackWalletConnections) {
         this._reportCurrentWallet()
@@ -326,6 +326,7 @@ export class ArcxAnalyticsSdk {
         this._trackTransactions()
       }
     }
+  }
 
   /********************/
   /** PUBLIC METHODS **/
@@ -340,8 +341,8 @@ export class ArcxAnalyticsSdk {
       return
     }
 
-    delete this.currentChainId
-    delete this.currentConnectedAccount
+    this.currentChainId = undefined
+    this.currentConnectedAccount = undefined
 
     if (this._provider) {
       // Restore listeners
@@ -354,14 +355,13 @@ export class ArcxAnalyticsSdk {
       // Restore original request
       if (this._originalRequest) {
         this._provider.request = this._originalRequest
-        delete this._originalRequest
+        this._originalRequest = undefined
       }
     }
 
     this._provider = provider
 
-    // TODO: to be replaced by the refactored version from init
-    this._initializeMetamaskTracking()
+    this._initializeWeb3Tracking()
   }
 
   /** Initialises the Analytics SDK with desired configuration. */
