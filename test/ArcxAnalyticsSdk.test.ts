@@ -473,7 +473,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         analyticsSdk['_trackClicks']()
         window.dispatchEvent(new window.Event('click'))
 
-        expect(eventStub).calledOnceWith(CLICK_EVENT, { path: undefined })
+        expect(eventStub).calledOnceWith(CLICK_EVENT, { elementId: undefined, content: undefined })
       })
     })
 
