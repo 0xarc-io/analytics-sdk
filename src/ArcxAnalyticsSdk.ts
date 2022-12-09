@@ -185,7 +185,7 @@ export class ArcxAnalyticsSdk {
     if (!this.currentChainId || !this.currentConnectedAccount) {
       /**
        * It is possible that this function has already been called once and the cached values
-       * have been cleared. This can happen in the follwoing scenario:
+       * have been cleared. This can happen in the following scenario:
        * 1. Initialize ArcxAnalyticsProvider with the default config (sets MM as the initial provider)
        * 2. Connect WalletConnect
        * 3. Disconnect
