@@ -7,11 +7,14 @@ import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { CustomRequest } from './types'
-import { MetamaskButtons } from './MetamaskButtons'
-import { metamask, metamaskHooks } from './connectors'
+import { Web3Buttons } from './Web3Buttons'
+import { metamask, metamaskHooks, walletConnect, walletConnectHooks } from './connectors'
 import { EthereumEventsButtons } from './EthereumEventsButtons'
 
-const connectors: [Connector, Web3ReactHooks][] = [[metamask, metamaskHooks]]
+const connectors: [Connector, Web3ReactHooks][] = [
+  [metamask, metamaskHooks],
+  [walletConnect, walletConnectHooks],
+]
 
 function App() {
   const [isInitialized, setInitialized] = useState(false)
@@ -85,7 +88,7 @@ function App() {
             )}
             <TestPageButtons />
             <TestEventButtons />
-            <MetamaskButtons />
+            <Web3Buttons />
             <EthereumEventsButtons />
           </div>
           <ConsoleView capturedRequests={capturedRequests} />
@@ -104,8 +107,13 @@ function App() {
     <Web3ReactProvider connectors={connectors}>
       <BrowserRouter>
         {isInitialized ? (
-          <ArcxAnalyticsProvider apiKey={API_KEY} config={{ url }}>
-            {content}
+          <ArcxAnalyticsProvider
+            apiKey={API_KEY}
+            config={{
+              url,
+            }}
+          >
+            <>{content}</>
           </ArcxAnalyticsProvider>
         ) : (
           content
