@@ -16,7 +16,7 @@ export const Web3Buttons = () => {
       // provider disconnected from external source (e.g. user clicked disconnect in wallet connect)
       setConnectedWallet(undefined)
     }
-  }, [provider])
+  }, [sdk, provider])
 
   const onConnectWalletClicked = async (givenConnector: Connector, chainId?: number) => {
     try {
