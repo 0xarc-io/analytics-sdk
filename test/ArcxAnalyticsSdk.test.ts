@@ -662,10 +662,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_handleAccountDisconnected', () => {
-      it('throws if no current chain ID is not set', () => {
+      it('does nothing if current chain id or current acount are not set', () => {
+        const eventStub = sinon.stub(analyticsSdk, 'event')
         expect(analyticsSdk.currentChainId).to.be.undefined
         expect(analyticsSdk.currentConnectedAccount).to.be.undefined
-        expect(() => analyticsSdk['_handleAccountDisconnected']()).to.throw()
+
+        analyticsSdk['_handleAccountDisconnected']()
+
+        expect(eventStub).to.not.be.called
       })
 
       it('clears the current chain id and account', () => {
