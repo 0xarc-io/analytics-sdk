@@ -3,14 +3,14 @@ import { WalletConnect } from '@web3-react/walletconnect'
 
 export const [walletConnect, walletConnectHooks] = initializeConnector<WalletConnect>((actions) => {
   const mainnetKey = process.env.REACT_APP_ALCHEMY_KEY_MAINNET
-  const polygonKey = process.env.REACT_APP_ALCHEMY_KEY_POLYGON
+  const goerliKey = process.env.REACT_APP_ALCHEMY_KEY_GOERLI
 
   if (!mainnetKey) {
     throw new Error('Missing Alchemy API key REACT_APP_ALCHEMY_KEY_MAINNET')
   }
 
-  if (!polygonKey) {
-    throw new Error('Missing Alchemy API key REACT_APP_ALCHEMY_KEY_POLYGON')
+  if (!goerliKey) {
+    throw new Error('Missing Alchemy API key REACT_APP_ALCHEMY_KEY_GOERLI')
   }
 
   return new WalletConnect({
@@ -18,7 +18,7 @@ export const [walletConnect, walletConnectHooks] = initializeConnector<WalletCon
     options: {
       rpc: {
         1: 'https://eth-mainnet.g.alchemy.com/v2/' + mainnetKey,
-        137: 'https://polygon-mainnet.g.alchemy.com/v2/' + polygonKey,
+        5: 'https://eth-goerli.g.alchemy.com/v2/' + goerliKey,
       },
       qrcode: true,
     },

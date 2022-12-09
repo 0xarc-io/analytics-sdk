@@ -30,13 +30,13 @@ export const EthereumEventsButtons = () => {
       <div className="text-lg font-bold">Ethereum (don't use prodnets)</div>
       <div className="flex gap-4 mt-2">
         <button
-          className="rounded-full bg-white px-4 py-2 hover:bg-gray-100 font-bold text-black"
+          className="rounded-full bg-white px-4 py-2 hover:bg-purple-300 font-bold text-black"
           onClick={() => sendTransaction()}
         >
           Send transaction
         </button>
         <button
-          className="rounded-full bg-purple-500 px-4 py-2 hover:bg-purple-300 font-bold"
+          className="rounded-full bg-white px-4 py-2 hover:bg-purple-300 font-bold text-black"
           onClick={() => signMessage()}
         >
           Sign message
