@@ -364,7 +364,7 @@ export class ArcxAnalyticsSdk {
 
       // Restore original request
       if (this._originalRequest) {
-        this._provider.request = this._originalRequest.bind(this._provider)
+        this._provider.request = this._originalRequest
         this._originalRequest = undefined
       }
     }
