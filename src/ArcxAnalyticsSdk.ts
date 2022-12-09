@@ -78,6 +78,8 @@ export class ArcxAnalyticsSdk {
     if (this.sdkConfig.trackClicks) {
       this._trackClicks()
     }
+    this._handleAccountDisconnected = this._handleAccountDisconnected.bind(this)
+    this.setProvider = this.setProvider.bind(this)
   }
 
   /**********************/
@@ -86,8 +88,12 @@ export class ArcxAnalyticsSdk {
 
   private _registerAccountsChangedListener() {
     const listener = (...args: unknown[]) => this._onAccountsChanged(args[0] as string[])
-    this.provider?.on('accountsChanged', listener)
+
+    this._provider?.on('accountsChanged', listener)
     this._registeredListeners['accountsChanged'] = listener
+
+    this._provider?.on('disconnect', this._handleAccountDisconnected)
+    this._registeredListeners['disconnect'] = this._handleAccountDisconnected
   }
 
   private _registerChainChangedListener() {
@@ -177,9 +183,14 @@ export class ArcxAnalyticsSdk {
 
   private _handleAccountDisconnected() {
     if (!this.currentChainId || !this.currentConnectedAccount) {
-      throw new Error(
-        'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set',
-      )
+      /**
+       * It is possible that this function has already been called once and the cached values
+       * have been cleared. This can happen in the follwoing scenario:
+       * 1. Initialize ArcxAnalyticsProvider with the default config (sets MM as the initial provider)
+       * 2. Connect WalletConnect
+       * 3. Disconnect
+       */
+      return
     }
 
     const disconnectAttributes = {
@@ -241,7 +252,7 @@ export class ArcxAnalyticsSdk {
 
     // Deliberately not using this._original request to not intefere with the signature tracking's
     // request modification
-    const request = provider.request
+    const request = provider.request.bind(provider)
     provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params) && method === 'eth_sendTransaction') {
         const transactionParams = params[0]
@@ -272,7 +283,7 @@ export class ArcxAnalyticsSdk {
 
     // Deliberately not using this._original request to not intefere with the transaction tracking's
     // request modification
-    const request = this.provider.request
+    const request = this.provider.request.bind(this.provider)
     this.provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params)) {
         if (['signTypedData_v4', 'eth_sign'].includes(method)) {
@@ -345,16 +356,15 @@ export class ArcxAnalyticsSdk {
     this.currentConnectedAccount = undefined
 
     if (this._provider) {
-      // Restore listeners
-      this._provider.removeListener('accountsChanged', this._registeredListeners['accountsChanged'])
-      this._provider.removeListener('chainChanged', this._registeredListeners['chainChanged'])
-
-      delete this._registeredListeners['accountsChanged']
-      delete this._registeredListeners['chainChanged']
+      const eventNames = Object.keys(this._registeredListeners)
+      for (const eventName of eventNames) {
+        this._provider.removeListener(eventName, this._registeredListeners[eventName])
+        delete this._registeredListeners[eventName]
+      }
 
       // Restore original request
       if (this._originalRequest) {
-        this._provider.request = this._originalRequest
+        this._provider.request = this._originalRequest.bind(this._provider)
         this._originalRequest = undefined
       }
     }
