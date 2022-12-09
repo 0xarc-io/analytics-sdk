@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { ArcxAnalyticsSdk } from './ArcxAnalyticsSdk'
 import { ArcxAnalyticsProviderProps } from './types'
 
-export const ArcxAnalyticxContext = createContext<ArcxAnalyticsSdk | undefined>(undefined)
+export const ArcxAnalyticsContext = createContext<ArcxAnalyticsSdk | undefined>(undefined)
 
 export const ArcxAnalyticsProvider = ({ apiKey, config, children }: ArcxAnalyticsProviderProps) => {
   const [sdk, setSdk] = useState<ArcxAnalyticsSdk | undefined>()
@@ -18,9 +18,9 @@ export const ArcxAnalyticsProvider = ({ apiKey, config, children }: ArcxAnalytic
     ArcxAnalyticsSdk.init(apiKey, config).then((sdk) => setSdk(sdk))
   }, [apiKey])
 
-  return <ArcxAnalyticxContext.Provider value={sdk}>{children}</ArcxAnalyticxContext.Provider>
+  return <ArcxAnalyticsContext.Provider value={sdk}>{children}</ArcxAnalyticsContext.Provider>
 }
 
 export const useArcxAnalytics = () => {
-  return useContext(ArcxAnalyticxContext)
+  return useContext(ArcxAnalyticsContext)
 }
