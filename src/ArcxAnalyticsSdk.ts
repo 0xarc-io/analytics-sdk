@@ -264,9 +264,10 @@ export class ArcxAnalyticsSdk {
     })
   }
 
-  private _onClick(event: MouseEvent) {
+  private _onClick(event: any) {
     this.event(CLICK_EVENT, {
-      path: (event as any).path,
+      elementId: getElementIdentifier(event),
+      content: event.target.innerText,
     })
   }
 
@@ -356,4 +357,15 @@ type FirstVisitPageType = {
 
 function getWeb3Provider(): InpageProvider | undefined {
   return window.web3?.currentProvider || window?.ethereum
+}
+
+function getElementIdentifier(e: any): string {
+  let identifier = e.target.tagName?.toLowerCase()
+  if (e.target.id) {
+    identifier = `${identifier}#${e.target.id}`
+  }
+  if (e.target.classList) {
+    identifier = `${identifier}.${e.target.className.replaceAll(' ', '.')}`
+  }
+  return identifier
 }
