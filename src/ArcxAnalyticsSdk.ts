@@ -366,7 +366,8 @@ function getElementIdentifier(clickedElement: Element): string {
   if (clickedElement.id) {
     identifier = `${identifier}#${clickedElement.id}`
   }
-  if (clickedElement.classList) {
+
+  if (clickedElement.classList?.length > 0) {
     identifier = `${identifier}.${clickedElement.className.replace(/ /g, '.')}`
   }
   return identifier
