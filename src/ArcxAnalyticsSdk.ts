@@ -267,7 +267,7 @@ export class ArcxAnalyticsSdk {
   private _onClick(event: any) {
     this.event(CLICK_EVENT, {
       elementId: getElementIdentifier(event),
-      content: event.target.innerText,
+      content: event.target.textContent,
     })
   }
 
@@ -364,7 +364,7 @@ function getElementIdentifier(e: any): string {
   if (e.target.id) {
     identifier = `${identifier}#${e.target.id}`
   }
-  if (e.target.classList) {
+  if (e.target.classList?.length > 0) {
     identifier = `${identifier}.${e.target.className.replaceAll(' ', '.')}`
   }
   return identifier
