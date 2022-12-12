@@ -467,7 +467,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(eventStub).to.not.have.been.called
       })
 
-      it('catches click event', () => {
+      xit('catches click event', () => {
         const eventStub = sinon.stub(analyticsSdk, 'event')
 
         analyticsSdk['_trackClicks']()
