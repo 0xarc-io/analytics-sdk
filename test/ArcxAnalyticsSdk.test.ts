@@ -459,7 +459,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_trackClicks', () => {
-      it('does not track clicks', () => {
+      it('does nothing if trackClicks is disabled', () => {
         const eventStub = sinon.stub(analyticsSdk, 'event')
 
         window.dispatchEvent(new window.Event('click'))
