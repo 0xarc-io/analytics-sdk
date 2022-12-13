@@ -1,3 +1,5 @@
+import { EIP1193Provider } from './eip1193'
+
 export type CustomRequest = {
   method: string
   url: string
@@ -6,6 +8,7 @@ export type CustomRequest = {
 }
 
 export interface ArcxAnalyticsSdk {
+  provider?: EIP1193Provider
   identityId: string
 
   init: (apiKey: string, config?: any) => Promise<ArcxAnalyticsSdk>
@@ -15,4 +18,5 @@ export interface ArcxAnalyticsSdk {
   connectWallet: (attributes: any) => Promise<string>
   transaction: (attributes: any) => Promise<string>
   referrer: (referrer?: string) => Promise<string>
+  setProvider: (provider: EIP1193Provider | undefined) => void
 }

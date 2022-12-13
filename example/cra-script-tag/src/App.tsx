@@ -6,11 +6,15 @@ import { TestPageButtons } from './TestPageButtons'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { useEffect, useRef, useState } from 'react'
 import { CustomRequest } from './types/types'
-import { MetamaskButtons } from './MetamaskButtons'
+import { Web3Buttons } from './Web3Buttons'
 import { metamask, metamaskHooks } from './connectors'
 import { EthereumEventsButtons } from './EthereumEventsButtons'
+import { walletConnect, walletConnectHooks } from './connectors/walletConnect'
 
-const connectors: [Connector, Web3ReactHooks][] = [[metamask, metamaskHooks]]
+const connectors: [Connector, Web3ReactHooks][] = [
+  [metamask, metamaskHooks],
+  [walletConnect, walletConnectHooks],
+]
 
 function App() {
   const [capturedRequests, setCapturedRequests] = useState<CustomRequest[]>([])
@@ -73,14 +77,10 @@ function App() {
                 being sent to the API below
               </p>
               <div className="max-w-md flex flex-col gap-4">
-                {window.arcx && (
-                  <>
-                    <TestPageButtons />
-                    <TestEventButtons />
-                    <MetamaskButtons />
-                    <EthereumEventsButtons />
-                  </>
-                )}
+                <TestPageButtons />
+                <TestEventButtons />
+                <Web3Buttons />
+                <EthereumEventsButtons />
               </div>
               <ConsoleView capturedRequests={capturedRequests} />
               <button
