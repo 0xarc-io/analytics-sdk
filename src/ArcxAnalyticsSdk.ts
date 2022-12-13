@@ -268,7 +268,10 @@ export class ArcxAnalyticsSdk {
           content: event.target.textContent,
         })
       } else {
-        // TODO: fire warning report https://github.com/arcxmoney/analytics-sdk/issues/54
+        this.event(CLICK_EVENT, {
+          elementId: undefined,
+          content: undefined,
+        })
       }
     })
   }

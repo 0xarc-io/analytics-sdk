@@ -4,6 +4,7 @@ import { ArcxAnalyticsSdk, SdkConfig } from '../src'
 import {
   ATTRIBUTION_EVENT,
   CHAIN_CHANGED_EVENT,
+  CLICK_EVENT,
   CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -482,11 +483,16 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(eventStub).to.not.have.been.called
       })
 
-      xit('report warning if event target is not element', () => {
+      it('catches click event when click on non-element', () => {
+        const eventStub = sinon.stub(analyticsSdk, 'event')
+
         analyticsSdk['_trackClicks']()
         window.dispatchEvent(new window.Event('click'))
 
-        // expect warning is fired
+        expect(eventStub).calledOnceWith(CLICK_EVENT, {
+          elementId: undefined,
+          content: undefined,
+        })
       })
     })
 
