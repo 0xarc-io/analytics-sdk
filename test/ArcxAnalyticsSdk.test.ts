@@ -141,7 +141,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(reportCurrentWalletStub.calledOnce).to.be.true
         expect(sdk.provider?.on).calledWithMatch('accountsChanged')
-        expect(sdk['_registeredListeners']['accountsChanged']).to.not.be.null
+        expect(sdk['_registeredProviderListeners']['accountsChanged']).to.not.be.null
       })
 
       it('calls _onAccountsChanged when accountsChanged is fired and trackWalletConnections is true', async () => {
@@ -166,7 +166,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         provider.emit('chainChanged', TEST_CHAIN_ID)
         expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
-        expect(sdk['_registeredListeners']['chainChanged']).to.not.be.null
+        expect(sdk['_registeredProviderListeners']['chainChanged']).to.not.be.null
       })
     })
 
@@ -312,6 +312,19 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       describe('setting a provider', () => {
+        it('saves the original `request` to _originalRequest', async () => {
+          const provider = new MockEthereum()
+          const originalRequest = provider.request
+          window.ethereum = undefined
+          const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackTransactions: true })
+
+          expect(sdk['_originalRequest']).to.be.undefined
+
+          sdk.setProvider(provider)
+
+          expect(sdk['_originalRequest']).to.eq(originalRequest)
+        })
+
         it('sets `provider` to the given provider', () => {
           expect(analyticsSdk.provider).to.eq(window.ethereum)
 
@@ -826,20 +839,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           nonce,
         })
       })
-
-      it('saves the original `request` to _originalRequest', async () => {
-        const provider = new MockEthereum()
-        const originalRequest = provider.request
-        window.ethereum = undefined
-        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackTransactions: true })
-
-        expect(sdk['_originalRequest']).to.be.undefined
-
-        sdk['_provider'] = provider
-        sdk['_trackTransactions']()
-
-        expect(sdk['_originalRequest']).to.eq(originalRequest)
-      })
     })
 
     describe('#_trackSigning', () => {
@@ -900,7 +899,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_registerAccountsChangedListener', () => {
-      it('registers an accountsChanged event listener and saves it to `_registeredListeners`', async () => {
+      it('registers an accountsChanged event listener and saves it to `_registeredProviderListeners`', async () => {
         const provider = new MockEthereum()
         window.ethereum = provider
 
@@ -914,7 +913,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_registerChainChangedListener', () => {
-      it('registers a chainChanged event listener and saves it to `_registeredListeners`', async () => {
+      it('registers a chainChanged event listener and saves it to `_registeredProviderListeners`', async () => {
         const provider = new MockEthereum()
         window.ethereum = provider
 

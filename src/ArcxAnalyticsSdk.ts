@@ -29,7 +29,7 @@ export class ArcxAnalyticsSdk {
   /* --------------------------- Private properties --------------------------- */
   private _provider?: EIP1193Provider
   private _originalRequest?: EIP1193Provider['request']
-  private _registeredListeners: Record<string, (...args: unknown[]) => void> = {}
+  private _registeredProviderListeners: Record<string, (...args: unknown[]) => void> = {}
 
   /* ---------------------------- Public properties --------------------------- */
   currentChainId?: string | null
@@ -57,9 +57,6 @@ export class ArcxAnalyticsSdk {
     if (this.sdkConfig.trackClicks) {
       this._trackClicks()
     }
-
-    this._handleAccountDisconnected = this._handleAccountDisconnected.bind(this)
-    this.setProvider = this.setProvider.bind(this)
   }
 
   /**********************/
@@ -70,16 +67,17 @@ export class ArcxAnalyticsSdk {
     const listener = (...args: unknown[]) => this._onAccountsChanged(args[0] as string[])
 
     this._provider?.on('accountsChanged', listener)
-    this._registeredListeners['accountsChanged'] = listener
+    this._registeredProviderListeners['accountsChanged'] = listener
 
-    this._provider?.on('disconnect', this._handleAccountDisconnected)
-    this._registeredListeners['disconnect'] = this._handleAccountDisconnected
+    const _handleAccountDisconnected = this._handleAccountDisconnected.bind(this)
+    this._provider?.on('disconnect', _handleAccountDisconnected)
+    this._registeredProviderListeners['disconnect'] = _handleAccountDisconnected
   }
 
   private _registerChainChangedListener() {
     const listener = (...args: unknown[]) => this._onChainChanged(args[0] as string)
     this.provider?.on('chainChanged', listener)
-    this._registeredListeners['chainChanged'] = listener
+    this._registeredProviderListeners['chainChanged'] = listener
   }
 
   private _trackFirstPageVisit() {
@@ -226,10 +224,6 @@ export class ArcxAnalyticsSdk {
       return false
     }
 
-    if (!this._originalRequest) {
-      this._originalRequest = provider.request
-    }
-
     // Deliberately not using this._original request to not intefere with the signature tracking's
     // request modification
     const request = provider.request.bind(provider)
@@ -255,10 +249,6 @@ export class ArcxAnalyticsSdk {
   private _trackSigning() {
     if (!this.provider) {
       return false
-    }
-
-    if (!this._originalRequest) {
-      this._originalRequest = this.provider.request
     }
 
     // Deliberately not using this._original request to not intefere with the transaction tracking's
@@ -336,20 +326,20 @@ export class ArcxAnalyticsSdk {
     this.currentConnectedAccount = undefined
 
     if (this._provider) {
-      const eventNames = Object.keys(this._registeredListeners)
+      const eventNames = Object.keys(this._registeredProviderListeners)
       for (const eventName of eventNames) {
-        this._provider.removeListener(eventName, this._registeredListeners[eventName])
-        delete this._registeredListeners[eventName]
+        this._provider.removeListener(eventName, this._registeredProviderListeners[eventName])
+        delete this._registeredProviderListeners[eventName]
       }
 
       // Restore original request
       if (this._originalRequest) {
         this._provider.request = this._originalRequest
-        this._originalRequest = undefined
       }
     }
 
     this._provider = provider
+    this._originalRequest = provider?.request
 
     this._initializeWeb3Tracking()
   }
