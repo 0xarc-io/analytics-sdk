@@ -261,15 +261,16 @@ export class ArcxAnalyticsSdk {
   private _trackClicks() {
     window.addEventListener('click', (event: MouseEvent) => {
       if (event.target instanceof Element) {
-        this._onClick(event.target)
+        this.event(CLICK_EVENT, {
+          elementId: getElementIdentifier(event.target),
+          content: event.target.textContent,
+        })
+      } else {
+        this.event(CLICK_EVENT, {
+          elementId: undefined,
+          content: undefined,
+        })
       }
-    })
-  }
-
-  private _onClick(clickedElement: Element) {
-    this.event(CLICK_EVENT, {
-      elementId: getElementIdentifier(clickedElement),
-      content: clickedElement.textContent,
     })
   }
 
@@ -362,12 +363,12 @@ function getWeb3Provider(): InpageProvider | undefined {
 }
 
 function getElementIdentifier(clickedElement: Element): string {
-  let identifier = clickedElement.tagName?.toLowerCase()
+  let identifier = clickedElement.tagName.toLowerCase()
   if (clickedElement.id) {
     identifier = `${identifier}#${clickedElement.id}`
   }
 
-  if (clickedElement.classList?.length > 0) {
+  if (clickedElement.classList.length > 0) {
     identifier = `${identifier}.${clickedElement.className.replace(/ /g, '.')}`
   }
   return identifier
