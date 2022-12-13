@@ -155,7 +155,7 @@ export class ArcxAnalyticsSdk {
     if (!this.currentChainId || !this.currentConnectedAccount) {
       const errorMsg =
         'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set'
-      this._reportError(errorMsg)
+      this.reportError(errorMsg)
       throw new Error(errorMsg)
     }
 
@@ -191,7 +191,7 @@ export class ArcxAnalyticsSdk {
   private async _getCurrentChainId(): Promise<string> {
     if (!window.ethereum) {
       const errorMsg = 'ArcxAnalyticsSdk::_getCurrentChainId: No ethereum provider found'
-      this._reportError(errorMsg)
+      this.reportError(errorMsg)
       throw new Error(errorMsg)
     }
 
@@ -199,7 +199,7 @@ export class ArcxAnalyticsSdk {
     // Because we're connected, the chainId cannot be null
     if (!chainIdHex) {
       const errorMsg = `ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ${chainIdHex}`
-      this._reportError(errorMsg)
+      this.reportError(errorMsg)
       throw new Error(errorMsg)
     }
 
@@ -213,7 +213,7 @@ export class ArcxAnalyticsSdk {
   private _trackTransactions(): boolean {
     const provider = getWeb3Provider()
     if (!provider) {
-      this._reportError('ArcxAnalyticsSdk::_trackTransactions: provider not found')
+      this.reportError('ArcxAnalyticsSdk::_trackTransactions: provider not found')
       return false
     }
 
@@ -240,7 +240,7 @@ export class ArcxAnalyticsSdk {
   private _trackSigning() {
     const provider = getWeb3Provider()
     if (!provider) {
-      this._reportError('ArcxAnalyticsSdk::_trackTransactions: provider not found')
+      this.reportError('ArcxAnalyticsSdk::_trackTransactions: provider not found')
       return false
     }
     const request = provider.request
@@ -278,14 +278,6 @@ export class ArcxAnalyticsSdk {
     })
   }
 
-  /** Report error to the server in order to better understand edge cases which can appear */
-  _reportError(error: string): Promise<string> {
-    return postRequest(this.sdkConfig.url, this.apiKey, '/report-error', {
-      identityId: this.identityId,
-      error,
-    })
-  }
-
   /********************/
   /** PUBLIC METHODS **/
   /********************/
@@ -308,6 +300,14 @@ export class ArcxAnalyticsSdk {
       identityId: this.identityId,
       event,
       attributes: { ...attributes },
+    })
+  }
+
+  /** Report error to the server in order to better understand edge cases which can appear */
+  reportError(error: string): Promise<string> {
+    return postRequest(this.sdkConfig.url, this.apiKey, '/report-error', {
+      identityId: this.identityId,
+      error,
     })
   }
 

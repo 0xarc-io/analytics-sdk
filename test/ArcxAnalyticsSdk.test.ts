@@ -275,22 +275,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe('#_reportError', () => {
-      it('calls postRequest with error message', async () => {
-        const errorMsg = 'TestError: this should not happen'
-        await analyticsSdk['_reportError'](errorMsg)
-        expect(postRequestStub).calledOnceWith(
-          DEFAULT_SDK_CONFIG.url,
-          TEST_API_KEY,
-          '/report-error',
-          {
-            identityId: TEST_IDENTITY,
-            error: errorMsg,
-          },
-        )
-      })
-    })
-
     describe('#_trackFirstPageVisit', () => {
       let eventStub: sinon.SinonStub
 
@@ -664,9 +648,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('does not change request if provider is undefined', () => {
         window.web3 = undefined
         window.ethereum = undefined
-        const reportErrorStub = sinon.stub(analyticsSdk, '_reportError')
         expect(analyticsSdk['_trackTransactions']()).to.be.false
-        expect(reportErrorStub).to.be.calledOnce
       })
 
       it('makes a TRANSACTION_TRIGGERED event', async () => {
@@ -714,9 +696,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('does not change request if provider is undefined', async () => {
         window.web3 = undefined
         window.ethereum = undefined
-        const reportErrorStub = sinon.stub(analyticsSdk, '_reportError')
         expect(analyticsSdk['_trackSigning']()).to.be.false
-        expect(reportErrorStub).to.be.calledOnce
       })
 
       it('ethereum is not undefined', () => {
