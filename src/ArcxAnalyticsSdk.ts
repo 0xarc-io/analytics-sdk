@@ -54,30 +54,10 @@ export class ArcxAnalyticsSdk {
       this._trackPagesChange()
     }
 
-    if (sdkConfig.trackWalletConnections) {
-      this._reportCurrentWallet()
-      window.ethereum?.on('accountsChanged', (...args: unknown[]) =>
-        this._onAccountsChanged(args[0] as string[]),
-      )
-    }
-
-    if (sdkConfig.trackChainChanges) {
-      window.ethereum?.on('chainChanged', (...args: unknown[]) =>
-        this._onChainChanged(args[0] as string),
-      )
-    }
-
-    if (this.sdkConfig.trackTransactions) {
-      this._trackTransactions()
-    }
-
-    if (this.sdkConfig.trackSigning) {
-      this._trackSigning()
-    }
-
     if (this.sdkConfig.trackClicks) {
       this._trackClicks()
     }
+
     this._handleAccountDisconnected = this._handleAccountDisconnected.bind(this)
     this.setProvider = this.setProvider.bind(this)
   }
