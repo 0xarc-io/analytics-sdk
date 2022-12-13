@@ -467,13 +467,16 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(eventStub).to.not.have.been.called
       })
 
-      xit('catches click event', () => {
+      it('catches click event when click on non-element', () => {
         const eventStub = sinon.stub(analyticsSdk, 'event')
 
         analyticsSdk['_trackClicks']()
         window.dispatchEvent(new window.Event('click'))
 
-        expect(eventStub).calledOnceWith(CLICK_EVENT, { elementId: undefined, content: undefined })
+        expect(eventStub).calledOnceWith(CLICK_EVENT, {
+          elementId: undefined,
+          content: undefined,
+        })
       })
     })
 
