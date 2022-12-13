@@ -153,9 +153,10 @@ export class ArcxAnalyticsSdk {
 
   private _handleAccountDisconnected() {
     if (!this.currentChainId || !this.currentConnectedAccount) {
-      this._reportErrorAndThrow(
-        'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set',
-      )
+      const errorMsg =
+        'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set'
+      this._reportError(errorMsg)
+      throw new Error(errorMsg)
     }
 
     const disconnectAttributes = {
@@ -189,13 +190,17 @@ export class ArcxAnalyticsSdk {
 
   private async _getCurrentChainId(): Promise<string> {
     if (!window.ethereum) {
-      this._reportErrorAndThrow('ArcxAnalyticsSdk::_getCurrentChainId: No ethereum provider found')
+      const errorMsg = 'ArcxAnalyticsSdk::_getCurrentChainId: No ethereum provider found'
+      this._reportError(errorMsg)
+      throw new Error(errorMsg)
     }
 
     const chainIdHex = await window.ethereum.request<string>({ method: 'eth_chainId' })
     // Because we're connected, the chainId cannot be null
     if (!chainIdHex) {
-      this._reportErrorAndThrow(`ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ${chainIdHex}`)
+      const errorMsg = `ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: ${chainIdHex}`
+      this._reportError(errorMsg)
+      throw new Error(errorMsg)
     }
 
     return parseInt(chainIdHex, 16).toString()
@@ -279,12 +284,6 @@ export class ArcxAnalyticsSdk {
       identityId: this.identityId,
       error,
     })
-  }
-
-  /** Report error to the server and throw an error */
-  _reportErrorAndThrow(error: string): never {
-    this._reportError(error)
-    throw new Error(error)
   }
 
   /********************/
