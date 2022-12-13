@@ -20,7 +20,6 @@ export const Web3Buttons = () => {
 
   const onConnectWalletClicked = async (givenConnector: Connector, chainId?: number) => {
     try {
-      console.log({ givenConnector: givenConnector, provider: givenConnector.provider })
       if (givenConnector === metamask) {
         await givenConnector.activate(chainId)
         setConnectedWallet('metamask')
