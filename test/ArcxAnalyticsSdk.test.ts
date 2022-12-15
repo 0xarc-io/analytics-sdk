@@ -436,7 +436,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(postRequestStub).calledOnceWith(
           DEFAULT_SDK_CONFIG.url,
           TEST_API_KEY,
-          '/sdk-log',
+          '/log-sdk',
           {
             logLevel: 'error',
             data: {
@@ -453,7 +453,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(postRequestStub).calledOnceWith(
           DEFAULT_SDK_CONFIG.url,
           TEST_API_KEY,
-          '/sdk-log',
+          '/log-sdk',
           {
             logLevel: 'warning',
             data: {

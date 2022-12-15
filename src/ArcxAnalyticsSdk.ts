@@ -319,7 +319,7 @@ export class ArcxAnalyticsSdk {
 
   /** Report error to the server in order to better understand edge cases which can appear */
   _report(logLevel: 'error' | 'log' | 'warning', content: string): Promise<string> {
-    return postRequest(this.sdkConfig.url, this.apiKey, '/sdk-log', {
+    return postRequest(this.sdkConfig.url, this.apiKey, '/log-sdk', {
       logLevel,
       data: {
         identityId: this.identityId,
