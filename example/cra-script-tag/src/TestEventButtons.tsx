@@ -17,6 +17,12 @@ export const TestEventButtons = () => {
         >
           Test event: red button
         </button>
+        <button
+          className="rounded-full bg-red-500 px-4 py-2 hover:bg-red-300 font-bold"
+          onClick={() => sdk?.["_report"!]('warning', 'Example report')}
+        >
+          Report example warning
+        </button>
       </div>
     </>
   )

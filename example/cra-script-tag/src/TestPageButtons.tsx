@@ -30,6 +30,12 @@ export const TestPageButtons = () => {
         >
           Go to {location.pathname === '/page-3' ? 'Home' : '/page-3'}
         </button>
+        <button
+          className="rounded-full bg-red-500 px-4 py-2 hover:bg-red-300 font-bold"
+          onClick={() => sdk?.["_report"]('warning', 'Example report')}
+        >
+          Report example warning
+        </button>
       </div>
     </>
   )
