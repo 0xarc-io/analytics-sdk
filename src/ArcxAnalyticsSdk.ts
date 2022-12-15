@@ -431,7 +431,7 @@ function getElementIdentifier(clickedElement: Element): string {
   }
 
   if (clickedElement.classList.length > 0) {
-    identifier = `${identifier}.${clickedElement.className.replace(/ /g, '.')}`
+    identifier = `${identifier}.${clickedElement.classList.value.replace(/ /g, '.')}`
   }
   return identifier
 }
