@@ -141,16 +141,18 @@ in a collection of configuration options.  The defaults the SDK picks are sensib
 
 The configuration options are:
 
-| Config key               | Type    | Description                                                  | Default |
-| ------------------------ | ------- | ------------------------------------------------------------ | ------- |
-| `cacheIdentity`          | boolean | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`  |
-| `trackReferrer`          | boolean | Whether or not to emit an initial `REFERRER` event containing the referrer attribute | `true`  |
-| `trackPages`             | boolean | Tracks whenever there is a URL change during the session and logs it automatically. | `true`  |
-| `trackUTM`               | boolean | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`  |
-| `trackWalletConnections` | boolean | Automatically track wallet connections. Currently only supporting Metamask. | `true`  |
-| `trackChainChanges`      | boolean | Automatically track chain ID changes. Currently only supporting Metamask | `true`  |
-| `trackTransactions`      | boolean | Automatically track transaction requests before they are sent to Metamask. Currently only supporting Metamask | `true`  |
-| `trackSigning`           | boolean | Automatically track signing requests before they are signed in Metamask. Currently only supporting Metamask. | `true`  |
+| Config key               | Type            | Description                                                  | Default           |
+| ------------------------ | --------------- | ------------------------------------------------------------ | ----------------- |
+| `cacheIdentity`          | boolean         | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`            |
+| `initialProvider`        | EIP1193Provider | The provider to use for the web3 tracking events             | `window.ethereum` |
+| `trackReferrer`          | boolean         | Whether or not to emit an initial `REFERRER` event containing the referrer attribute | `true`            |
+| `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically. | `true`            |
+| `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`            |
+| `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`. | `true`            |
+| `trackChainChanges`      | boolean         | Automatically track chain ID changes on the provider passed to `initialProvider` or `setProvider`. | `true`            |
+| `trackTransactions`      | boolean         | Automatically track transaction requests  on the provider passed to `initialProvider` or `setProvider`. | `true`            |
+| `trackSigning`           | boolean         | Automatically track signing requests  on the provider passed to `initialProvider` or `setProvider`. | `true`            |
+| `trackClicks`            | boolean         | Automatically track click events                             | `true`            |
 
 ## API
 
@@ -164,10 +166,7 @@ options.
 **Parameters:**
 
 - `apiKey` **(string)** - the ARCx-provided API key.
-- `config` **(object)** - overrides of SDK configuration
-  - `trackPages` **(boolean)** - automatically logs page visit events.
-  - `cacheIdentity` **(boolean)** - captures cross-session behaviours.
-  - `trackTransactions` **(boolean)** - captures initiated (even not submitted yet) transaction.
+- `config` **(object)** - overrides of the SDK configuration [above](#sdk-configuration).
 
 ```js
 await analytics = await ArcxAnalyticsSdk.init(
@@ -182,7 +181,16 @@ await analytics = await ArcxAnalyticsSdk.init(
 )
 ```
 
+### `setProvider`
+
+Sets the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) to use. If automatic EVM events tracking is enabled, the registered listeners will be removed from the old provider and added to the new one.
+
+**Parameters:**
+
+- `provider` **(EIP1193Provider)** - the provider to use
+
 ### `event`
+
 A generic, catch-all `event` log. Use this method when no existing methods 
 satisfy your requirements.
 
