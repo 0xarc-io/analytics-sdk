@@ -441,7 +441,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             logLevel: 'error',
             data: {
               identityId: TEST_IDENTITY,
-              msg: errorMsg
+              msg: errorMsg,
             },
           },
         )
@@ -458,7 +458,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             logLevel: 'warning',
             data: {
               identityId: TEST_IDENTITY,
-              msg: errorMsg
+              msg: errorMsg,
             },
           },
         )
@@ -656,11 +656,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(eventStub).to.not.have.been.called
       })
 
-      xit('report warning if event target is not element', () => {
+      it('report warning if event target is not element', () => {
         analyticsSdk['_trackClicks']()
+        const reportStub = sinon.stub(analyticsSdk, '_report')
         window.dispatchEvent(new window.Event('click'))
-
-        // expect warning is fired
+        expect(reportStub).is.calledOnceWithExactly(
+          'warning',
+          'ArcxAnalyticsSdk::_trackClicks: event target is not Element',
+        )
       })
     })
 
