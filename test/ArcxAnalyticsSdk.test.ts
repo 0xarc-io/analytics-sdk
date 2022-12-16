@@ -184,6 +184,15 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(trackClicksStub).to.be.calledOnce
     })
 
+    it('does not throw if window.ethereum.request is read-only', async () => {
+      Object.defineProperty(window.ethereum, 'request', {
+        value: () => console.log('modified request'),
+        writable: false,
+      })
+
+      await ArcxAnalyticsSdk.init(TEST_API_KEY)
+    })
+
     describe('initialProvider', () => {
       it('sets window.ethereum to the _provider if no initialProvider is passed', async () => {
         window.ethereum = new MockEthereum()
@@ -433,35 +442,25 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('calls postRequest with error message', async () => {
         const errorMsg = 'TestError: this should not happen'
         await analyticsSdk['_report']('error', errorMsg)
-        expect(postRequestStub).calledOnceWith(
-          DEFAULT_SDK_CONFIG.url,
-          TEST_API_KEY,
-          '/log-sdk',
-          {
-            logLevel: 'error',
-            data: {
-              identityId: TEST_IDENTITY,
-              msg: errorMsg,
-            },
+        expect(postRequestStub).calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/log-sdk', {
+          logLevel: 'error',
+          data: {
+            identityId: TEST_IDENTITY,
+            msg: errorMsg,
           },
-        )
+        })
       })
 
       it('calls postRequest with warning message', async () => {
         const errorMsg = 'TestError: this should not happen'
         await analyticsSdk['_report']('warning', errorMsg)
-        expect(postRequestStub).calledOnceWith(
-          DEFAULT_SDK_CONFIG.url,
-          TEST_API_KEY,
-          '/log-sdk',
-          {
-            logLevel: 'warning',
-            data: {
-              identityId: TEST_IDENTITY,
-              msg: errorMsg,
-            },
+        expect(postRequestStub).calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/log-sdk', {
+          logLevel: 'warning',
+          data: {
+            identityId: TEST_IDENTITY,
+            msg: errorMsg,
           },
-        )
+        })
       })
     })
 

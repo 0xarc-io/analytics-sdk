@@ -231,6 +231,14 @@ export class ArcxAnalyticsSdk {
       return false
     }
 
+    if (Object.getOwnPropertyDescriptor(provider, 'request')?.writable === false) {
+      this._report(
+        'warning',
+        'ArcxAnalyticsSdk::_trackTransactions: provider.request is not writable',
+      )
+      return false
+    }
+
     // Deliberately not using this._original request to not intefere with the signature tracking's
     // request modification
     const request = provider.request.bind(provider)
@@ -256,6 +264,14 @@ export class ArcxAnalyticsSdk {
   private _trackSigning() {
     if (!this.provider) {
       this._report('error', 'ArcxAnalyticsSdk::_trackTransactions: provider not found')
+      return false
+    }
+
+    if (Object.getOwnPropertyDescriptor(this.provider, 'request')?.writable === false) {
+      this._report(
+        'warning',
+        'ArcxAnalyticsSdk::_trackTransactions: provider.request is not writable',
+      )
       return false
     }
 
@@ -358,7 +374,10 @@ export class ArcxAnalyticsSdk {
       }
 
       // Restore original request
-      if (this._originalRequest) {
+      if (
+        this._originalRequest &&
+        Object.getOwnPropertyDescriptor(this._provider, 'request')?.writable !== false
+      ) {
         this._provider.request = this._originalRequest
       }
     }
