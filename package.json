@@ -10,6 +10,12 @@
   "types": "dist/esm/src/index.d.ts",
   "module": "dist/esm/src/index.ts",
   "unpkg": "dist/index.umd.min.js",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/src/index.js",
+      "require": "./dist/cjs/src/index.js"
+    }
+  },
   "private": false,
   "license": "MIT",
   "dependencies": {
