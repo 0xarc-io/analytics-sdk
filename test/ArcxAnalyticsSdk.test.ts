@@ -446,7 +446,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           logLevel: 'error',
           data: {
             identityId: TEST_IDENTITY,
-            msg: errorMsg,
+            msg: errorMsg + ` - Identity: ${TEST_IDENTITY}, API key: ${TEST_API_KEY}`,
           },
         })
       })
