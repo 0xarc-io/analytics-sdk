@@ -867,6 +867,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         analyticsSdk = await ArcxAnalyticsSdk.init('', {
           ...ALL_FALSE_CONFIG,
           trackTransactions: true,
+          initialProvider: window.web3.currentProvider,
         })
         const eventStub = sinon.stub(analyticsSdk, 'event')
 

@@ -44,7 +44,7 @@ export class ArcxAnalyticsSdk {
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
   ) {
-    this.setProvider(sdkConfig.initialProvider || window.web3?.currentProvider || window?.ethereum)
+    this.setProvider(sdkConfig.initialProvider || window?.ethereum || window.web3?.currentProvider)
 
     if (sdkConfig.trackPages || sdkConfig.trackReferrer || sdkConfig.trackUTM) {
       this._trackFirstPageVisit()
