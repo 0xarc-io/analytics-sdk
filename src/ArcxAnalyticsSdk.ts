@@ -339,7 +339,7 @@ export class ArcxAnalyticsSdk {
       logLevel,
       data: {
         identityId: this.identityId,
-        msg: content + ` Identity: ${this.identityId}, API key: ${this.apiKey}`,
+        msg: content + ` - Identity: ${this.identityId}, API key: ${this.apiKey}`,
       },
     })
   }
