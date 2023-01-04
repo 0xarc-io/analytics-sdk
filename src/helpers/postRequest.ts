@@ -15,5 +15,10 @@ export async function postRequest(
     body: JSON.stringify(data),
   })
   const body = await response.json()
-  return cast(body, asString)
+
+  if (response.ok) {
+    return cast(body, asString)
+  } else {
+    throw new Error(`Cannot fetch ${base}${path} with code ${response.status}`)
+  }
 }
