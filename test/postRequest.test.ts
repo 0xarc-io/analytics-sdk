@@ -6,6 +6,7 @@ import { TEST_API_KEY } from './constants'
 describe('(unit) postRequest', () => {
   it('calls fetch with the given arguments', async () => {
     global.fetch = sinon.stub().resolves({
+      ok: true,
       async json() {
         return 'test response'
       },
