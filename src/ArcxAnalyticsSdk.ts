@@ -392,7 +392,7 @@ export class ArcxAnalyticsSdk {
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
     /*
-      TODO: Remove this if statement aproximately in February.
+      TODO: Remove this if statement aproximately in February 2023 (https://github.com/arcxmoney/analytics-sdk/issues/96).
       Clean local storage in case if users with previous versions saved wrong indentity_id when ARCX_ANALYTIC_API_KEY was incorrect
     */
     if (
