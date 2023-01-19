@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 export const TestPageButtons = () => {
   const location = useLocation()
   const navigate = useNavigate()
+  const sdk = window.arcx
 
   const getRedirectUrl = (path: string) => {
     return location.pathname === path ? '/' : path
@@ -32,7 +33,7 @@ export const TestPageButtons = () => {
         </button>
         <button
           className="rounded-full bg-red-500 px-4 py-2 hover:bg-red-300 font-bold"
-          onClick={() => sdk?.["_report"]('warning', 'Example report')}
+          onClick={() => sdk?.['_report']('warning', 'Example report')}
         >
           Report example warning
         </button>
