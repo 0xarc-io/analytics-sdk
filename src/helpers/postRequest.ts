@@ -11,6 +11,7 @@ export async function postRequest(
     headers: {
       'Content-Type': 'application/json; charset=UTF-8',
       'x-api-key': apiKey,
+      'x-sdk-version': 'local',
     },
     body: JSON.stringify(data),
   })
