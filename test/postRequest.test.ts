@@ -30,6 +30,7 @@ describe('(unit) postRequest', () => {
       headers: {
         'Content-Type': 'application/json; charset=UTF-8',
         'x-api-key': TEST_API_KEY,
+        'x-sdk-version': 'local',
       },
       body: JSON.stringify(data),
     })
