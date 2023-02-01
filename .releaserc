@@ -1,4 +1,4 @@
 {
-    "branches": ['main', 'feat/add-sdk-version'],
+    "branches": ['main'],
     "plugins": ["semantic-release-export-data"]
 }
