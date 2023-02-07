@@ -19,7 +19,8 @@
   "private": false,
   "license": "MIT",
   "dependencies": {
-    "@restless/sanitizers": "^0.2.5"
+    "@restless/sanitizers": "^0.2.5",
+    "socket.io-client": "^4.5.4"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-0",
@@ -53,6 +54,7 @@
     "semantic-release-export-data": "^1.0.1",
     "sinon": "^14.0.0",
     "sinon-chai": "^3.7.0",
+    "socket.io": "^4.5.4",
     "ts-loader": "^9.3.1",
     "ts-node": "^10.8.2",
     "typescript": "~4.8.0",
@@ -69,7 +71,7 @@
     "clean": "rm -rf dist",
     "lint": "eslint '{src,test}/**/*.{ts,tsx}'",
     "test": "nyc mocha",
-    "test-watch": "mocha --config .mocharc-watch.yaml",
+    "test-watch": "nodemon --config test.nodemon.json",
     "prepare": "husky install",
     "commit": "git add . && cz"
   },
