@@ -22,8 +22,10 @@ import {
   TRANSACTION_EVENT,
   SIGNING_EVENT,
   CLICK_EVENT,
+  SDK_VERSION,
 } from './constants'
-import { postRequest } from './helpers'
+import { createClientSocket, postRequest } from './helpers'
+import { Socket } from 'socket.io-client'
 
 export class ArcxAnalyticsSdk {
   /* --------------------------- Private properties --------------------------- */
@@ -43,12 +45,9 @@ export class ArcxAnalyticsSdk {
     public readonly apiKey: string,
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
+    private readonly socket: Socket,
   ) {
     this.setProvider(sdkConfig.initialProvider || window?.ethereum || window.web3?.currentProvider)
-
-    if (sdkConfig.trackPages || sdkConfig.trackReferrer || sdkConfig.trackUTM) {
-      this._trackFirstPageVisit()
-    }
 
     if (this.sdkConfig.trackPages) {
       this._trackPagesChange()
@@ -57,11 +56,25 @@ export class ArcxAnalyticsSdk {
     if (this.sdkConfig.trackClicks) {
       this._trackClicks()
     }
+
+    this._registerSocketListeners(socket)
   }
 
   /**********************/
   /** INTERNAL METHODS **/
   /**********************/
+
+  private _registerSocketListeners(socket: Socket) {
+    socket.on('connect', this._trackFirstPageVisit)
+
+    socket.on('disconnect', () => {
+      console.log('Socket disconnected')
+    })
+
+    socket.on('error', (error) => {
+      console.error('error event received from socket', error)
+    })
+  }
 
   private _registerAccountsChangedListener() {
     const listener = (...args: unknown[]) => this._onAccountsChanged(args[0] as string[])
@@ -81,6 +94,10 @@ export class ArcxAnalyticsSdk {
   }
 
   private _trackFirstPageVisit() {
+    if (!this.sdkConfig.trackPages && !this.sdkConfig.trackReferrer && !this.sdkConfig.trackUTM) {
+      return
+    }
+
     const attributes: FirstVisitPageType = {}
 
     if (this.sdkConfig.trackPages) {
@@ -397,16 +414,25 @@ export class ArcxAnalyticsSdk {
       (await postRequest(sdkConfig.url, apiKey, '/identify'))
     sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
 
-    return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig)
+    const websocket = createClientSocket(sdkConfig.url, {
+      apiKey,
+      identityId,
+      sdkVersion: SDK_VERSION,
+    })
+
+    return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket)
   }
 
   /** Generic event logging method. Allows arbitrary events to be logged. */
-  event(event: string, attributes?: Attributes): Promise<string> {
-    return postRequest(this.sdkConfig.url, this.apiKey, '/submit-event', {
-      identityId: this.identityId,
-      event,
-      attributes: { ...attributes },
-    })
+  event(event: string, attributes?: Attributes) {
+    if (this.socket.connected) {
+      this.socket.emit('submit-event', {
+        event,
+        attributes,
+      })
+    } else {
+      this._report('error', 'ArcxAnalyticsSdk::event: socket is not connected')
+    }
   }
 
   /**
@@ -425,17 +451,17 @@ export class ArcxAnalyticsSdk {
     medium?: string
     campaign?: string
     [key: string]: unknown
-  }): Promise<string> {
+  }): void {
     return this.event(ATTRIBUTION_EVENT, attributes)
   }
 
   /** Logs page visit events. Only use this method is `trackPages` is set to `false`. */
-  page(attributes: { url: string }): Promise<string> {
+  page(attributes: { url: string }): void {
     return this.event(PAGE_EVENT, attributes)
   }
 
   /** Logs a wallet connect event. */
-  connectWallet(attributes: { chain: ChainID; account: Account }): Promise<string> {
+  connectWallet(attributes: { chain: ChainID; account: Account }): void {
     return this.event(CONNECT_EVENT, attributes)
   }
 
