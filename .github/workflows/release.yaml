@@ -29,7 +29,7 @@ jobs:
 
       - name: Set version in postRequest.ts
         run: |
-          sed -i '' -e "s/'x-sdk-version': 'local'/'x-sdk-version': '${{ steps.semantic_next_version.outputs.new-release-version }}'/g" src/helpers/postRequest.ts
+          sed -i '' -e "s/SDK_VERSION = 'local'/SDK_VERSION = '${{ steps.semantic_next_version.outputs.new-release-version }}'/g" src/constants/config.ts
 
       - run: yarn build
 

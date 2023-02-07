@@ -15,3 +15,4 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
 
 export const IDENTITY_KEY = 'identity'
 export const CURRENT_URL_KEY = 'arcx-analytics-current-url'
+export const SDK_VERSION = 'local'
