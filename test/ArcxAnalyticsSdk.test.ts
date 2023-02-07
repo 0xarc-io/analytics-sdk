@@ -266,8 +266,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const attributes = {
           url: TEST_JSDOM_URL,
         }
-        await analyticsSdk.page(attributes)
+        analyticsSdk.page(attributes)
         expect(eventStub).calledOnceWithExactly(PAGE_EVENT, attributes)
+      })
+
+      it('fails if page value is not provided', async () => {
+        expect(() => analyticsSdk.page({ url: '' })).throws(
+          'ArcxAnalyticsSdk::page: url cannot be empty',
+        )
       })
     })
 
