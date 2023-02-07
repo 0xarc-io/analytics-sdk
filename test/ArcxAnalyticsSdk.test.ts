@@ -31,6 +31,8 @@ import {
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
 import EventEmitter from 'events'
+import * as SocketClientModule from '../src/helpers/createClientSocket'
+import { Socket } from 'socket.io-client'
 
 const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   cacheIdentity: false,
@@ -47,6 +49,7 @@ const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
 describe('(unit) ArcxAnalyticsSdk', () => {
   let cleanup: () => void
   let postRequestStub: sinon.SinonStub
+  let socketStub: sinon.SinonStubbedInstance<Socket>
 
   beforeEach(() => {
     cleanup = globalJsdom(undefined, {
@@ -56,6 +59,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     window.ethereum = sinon.createStubInstance(MockEthereum)
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
+    socketStub = sinon.createStubInstance(Socket) as any
+    socketStub.connected = true
+    sinon.stub(SocketClientModule, 'createClientSocket').returns(socketStub as any)
   })
 
   afterEach(() => {
@@ -95,14 +101,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
-      const trackFirstPageVisitStub = sinon.stub(
-        ArcxAnalyticsSdk.prototype,
-        <any>'_trackFirstPageVisit',
-      )
+      const sdk = await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
 
-      await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
-
-      expect(trackFirstPageVisitStub).to.be.calledOnce
+      expect(socketStub.on.firstCall.calledWithExactly('connect', sdk['_trackFirstPageVisit'])).to
+        .be.true
     })
 
     it('does not make a FIRST_PAGE_VISIT call if trackPages, referrer and UTM configs are set to false', async () => {
@@ -116,18 +118,17 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('does not include the UTM object if trackUTM is set to false', async () => {
-      await ArcxAnalyticsSdk.init('', {
+      const sdk = await ArcxAnalyticsSdk.init('', {
         ...ALL_FALSE_CONFIG,
         trackPages: true,
       })
+      await sdk['_trackFirstPageVisit']()
+
       expect(postRequestStub.getCall(0)).calledWithExactly(DEFAULT_SDK_CONFIG.url, '', '/identify')
-      expect(postRequestStub.getCall(1)).calledWith(DEFAULT_SDK_CONFIG.url, '', '/submit-event', {
-        identityId: TEST_IDENTITY,
-        event: FIRST_PAGE_VISIT,
-        attributes: {
-          url: TEST_JSDOM_URL,
-        },
-      })
+      expect(socketStub.emit).calledOnceWith(
+        'submit-event',
+        getAnalyticsData(FIRST_PAGE_VISIT, { url: TEST_JSDOM_URL }),
+      )
     })
 
     describe('trackWalletConnections', () => {
@@ -193,6 +194,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       await ArcxAnalyticsSdk.init(TEST_API_KEY)
     })
 
+    it('creates a websocket instance', async () => {
+      const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY)
+
+      expect(sdk['socket']).to.be.eq(socketStub)
+    })
+
     describe('initialProvider', () => {
       it('sets window.ethereum to the _provider if no initialProvider is passed', async () => {
         window.ethereum = new MockEthereum()
@@ -222,17 +229,18 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#event', () => {
-      it('calls postRequest with the correct params', async () => {
+      it('emits an event with the correct params if the socket is connected', () => {
         const attributes = {
-          a: 'value',
-          b: 'second value',
+          a: 'a',
+          b: 'b',
+          c: {
+            d: 'd',
+            e: 21,
+          },
         }
-
-        await analyticsSdk.event('TEST_EVENT', attributes)
-        expect(postRequestStub).calledOnceWith(
-          DEFAULT_SDK_CONFIG.url,
-          TEST_API_KEY,
-          '/submit-event',
+        analyticsSdk.event('TEST_EVENT', attributes)
+        expect(socketStub.emit).calledOnceWithExactly(
+          'submit-event',
           getAnalyticsData('TEST_EVENT', attributes),
         )
       })
@@ -241,10 +249,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const attributes = { layer1: { layer2: { layer3: { layer4: 'hello!' } } } }
 
         await analyticsSdk.event('TEST_EVENT', attributes)
-        expect(postRequestStub).calledOnceWithExactly(
-          DEFAULT_SDK_CONFIG.url,
-          TEST_API_KEY,
-          '/submit-event',
+        expect(socketStub.emit).calledOnceWithExactly(
+          'submit-event',
           getAnalyticsData('TEST_EVENT', attributes),
         )
       })
@@ -724,6 +730,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('clears the current chain id and account', () => {
+        sinon.stub(analyticsSdk, 'event')
         analyticsSdk.currentChainId = TEST_CHAIN_ID
         analyticsSdk.currentConnectedAccount = TEST_ACCOUNT
 
@@ -973,7 +980,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
 function getAnalyticsData(event: string, attributes: any) {
   return {
-    identityId: TEST_IDENTITY,
     event,
     attributes,
   }
