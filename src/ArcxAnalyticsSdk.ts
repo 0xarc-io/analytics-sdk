@@ -454,6 +454,9 @@ export class ArcxAnalyticsSdk {
 
   /** Logs page visit events. Only use this method is `trackPages` is set to `false`. */
   page(attributes: { url: string }): void {
+    if (!attributes.url) {
+      throw new Error('ArcxAnalyticsSdk::page: url cannot be empty')
+    }
     return this.event(PAGE_EVENT, attributes)
   }
 
