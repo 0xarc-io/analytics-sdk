@@ -307,7 +307,6 @@
     ],
     "prefer-promise-reject-errors": "error",
     "quote-props": ["error", "as-needed"],
-    "quotes": ["error", "single"],
     "rest-spread-spacing": ["error", "never"],
     "semi": ["error", "never"],
     "semi-spacing": [
