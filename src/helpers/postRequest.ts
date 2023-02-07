@@ -1,4 +1,5 @@
 import { asString, cast } from '@restless/sanitizers'
+import { SDK_VERSION } from '../constants'
 
 export async function postRequest(
   base: string,
@@ -11,7 +12,7 @@ export async function postRequest(
     headers: {
       'Content-Type': 'application/json; charset=UTF-8',
       'x-api-key': apiKey,
-      'x-sdk-version': 'local',
+      'x-sdk-version': SDK_VERSION,
     },
     body: JSON.stringify(data),
   })
