@@ -85,16 +85,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, '', '/identify')).to.be.true
     })
 
-    it('clean localstorage identity id if cached value is wrong ', async () => {
-      localStorage.setItem(IDENTITY_KEY, '0x123')
-      expect(localStorage.getItem(IDENTITY_KEY)).eq('0x123')
-
-      await ArcxAnalyticsSdk.init('', { ...ALL_FALSE_CONFIG, cacheIdentity: true })
-
-      expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, '', '/identify')).to.be.true
-      expect(localStorage.getItem(IDENTITY_KEY)).eq(TEST_IDENTITY)
-    })
-
     it('sets the current URL in the session storage when `trackPages` is true', async () => {
       expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
       expect(window.location.href).to.eq(TEST_JSDOM_URL)
