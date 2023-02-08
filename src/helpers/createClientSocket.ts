@@ -7,6 +7,7 @@ interface IQueryParams {
 }
 
 export const createClientSocket = (url: string, queryParams: IQueryParams) => {
+  console.log('creating socket :>>>>>>>')
   return io(url, {
     query: queryParams,
   })
