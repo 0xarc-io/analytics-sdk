@@ -29,9 +29,9 @@ import {
 } from './constants'
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
-import { Socket } from 'socket.io-client'
 import * as SocketClientModule from '../src/helpers/createClientSocket'
 import { fail } from 'assert'
+import { Socket } from 'socket.io-client'
 
 const TEST_API_KEY = 'test-api-key'
 const TRACK_PAGES_CONFIG: SdkConfig = {
@@ -91,23 +91,17 @@ const ChildTest = () => {
   )
 }
 
-describe.only('(int) ArcxAnalyticxProvider', () => {
+describe('(int) ArcxAnalyticxProvider', () => {
   let cleanup: () => void
   let postRequestStub: sinon.SinonStub
   let socketStub: sinon.SinonStubbedInstance<Socket>
 
-  before(() => {
+  beforeEach(async () => {
     cleanup = globalJsdom(undefined, {
       url: TEST_JSDOM_URL,
       referrer: TEST_REFERRER,
     })
-  })
 
-  after(() => {
-    cleanup()
-  })
-
-  beforeEach(async () => {
     socketStub = sinon.createStubInstance(Socket) as any
     socketStub.connected = true
     sinon.stub(SocketClientModule, 'createClientSocket').returns(socketStub as any)
@@ -122,6 +116,10 @@ describe.only('(int) ArcxAnalyticxProvider', () => {
   })
 
   afterEach(sinon.restore)
+
+  after(() => {
+    cleanup()
+  })
 
   describe('Initialization', () => {
     it('initializes the SDK', async () => {
@@ -148,7 +146,7 @@ describe.only('(int) ArcxAnalyticxProvider', () => {
       expect(postRequestStub.called).to.be.false
     })
 
-    xit('makes a FIRST_PAGE_VISIT call with the UTM parameters', async () => {
+    it.skip('makes a FIRST_PAGE_VISIT call with the UTM parameters', async () => {
       expect(window.location.href).to.eq(TEST_JSDOM_URL)
 
       const screen = render(
@@ -166,11 +164,8 @@ describe.only('(int) ArcxAnalyticxProvider', () => {
         '/identify',
       )
 
-      fail(
-        "TODO: need to test that FIRST_PAGE_VISIT was emitted, but it's emitted in the callback of the connect event",
-      )
-
-      expect(socketStub.on).calledOnceWith('connect', {
+      fail('how can we test the FIRST_PAGE_VISIT if it is in the callback of connect?')
+      expect(socketStub.on.firstCall).calledWith('connect', {
         event: FIRST_PAGE_VISIT,
         attributes: {
           utm: {
@@ -213,7 +208,7 @@ describe.only('(int) ArcxAnalyticxProvider', () => {
         postRequestStub.resetHistory()
       })
 
-      it('makes track clicks on element with defined classname and id', async () => {
+      it('track clicks on elements with defined classname and id', async () => {
         screen.getByTestId('track-click').click()
 
         expect(socketStub.emit).calledOnceWith(
@@ -222,7 +217,7 @@ describe.only('(int) ArcxAnalyticxProvider', () => {
         )
       })
 
-      it('makes track clicks on element without defined classname and id', async () => {
+      it('track clicks on elements that do not have defined class names or IDs', async () => {
         screen.getByText(`Identity: ${TEST_IDENTITY}`).click()
 
         expect(socketStub.emit).calledOnceWith(
