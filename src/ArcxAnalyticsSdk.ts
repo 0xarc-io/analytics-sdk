@@ -67,10 +67,6 @@ export class ArcxAnalyticsSdk {
   private _registerSocketListeners(socket: Socket) {
     socket.on('connect', this._trackFirstPageVisit)
 
-    socket.on('disconnect', () => {
-      console.log('Socket disconnected')
-    })
-
     socket.on('error', (error) => {
       console.error('error event received from socket', error)
     })
