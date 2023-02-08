@@ -14,7 +14,6 @@ import {
   ATTRIBUTION_EVENT,
   CLICK_EVENT,
   DEFAULT_SDK_CONFIG,
-  FIRST_PAGE_VISIT,
   PAGE_EVENT,
   REFERRER_EVENT,
 } from '../src/constants'
@@ -23,14 +22,10 @@ import {
   TEST_IDENTITY,
   TEST_JSDOM_URL,
   TEST_REFERRER,
-  TEST_UTM_CAMPAIGN,
-  TEST_UTM_MEDIUM,
-  TEST_UTM_SOURCE,
 } from './constants'
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
 import * as SocketClientModule from '../src/helpers/createClientSocket'
-import { fail } from 'assert'
 import { Socket } from 'socket.io-client'
 
 const TEST_API_KEY = 'test-api-key'
@@ -144,37 +139,6 @@ describe('(int) ArcxAnalyticxProvider', () => {
 
       rerender(<TestProvider providerOverrides={{ apiKey: 'new-api-key' }} />)
       expect(postRequestStub.called).to.be.false
-    })
-
-    it.skip('makes a FIRST_PAGE_VISIT call with the UTM parameters', async () => {
-      expect(window.location.href).to.eq(TEST_JSDOM_URL)
-
-      const screen = render(
-        <TestProvider
-          providerOverrides={{
-            config: { trackUTM: true, trackReferrer: false, trackPages: false, trackClicks: false },
-          }}
-        />,
-      )
-      expect(await screen.findByText(`Identity: ${TEST_IDENTITY}`)).to.exist
-
-      expect(postRequestStub).calledOnceWithExactly(
-        DEFAULT_SDK_CONFIG.url,
-        TEST_API_KEY,
-        '/identify',
-      )
-
-      fail('how can we test the FIRST_PAGE_VISIT if it is in the callback of connect?')
-      expect(socketStub.on.firstCall).calledWith('connect', {
-        event: FIRST_PAGE_VISIT,
-        attributes: {
-          utm: {
-            source: TEST_UTM_SOURCE,
-            medium: TEST_UTM_MEDIUM,
-            campaign: TEST_UTM_CAMPAIGN,
-          },
-        },
-      })
     })
 
     describe('#trackClicks', () => {

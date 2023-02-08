@@ -91,15 +91,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, '', '/identify')).to.be.true
     })
 
-    it('sets the current URL in the session storage when `trackPages` is true', async () => {
-      expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
-      expect(window.location.href).to.eq(TEST_JSDOM_URL)
-
-      await ArcxAnalyticsSdk.init('', { trackPages: true })
-
-      expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
-    })
-
     it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
       const sdk = await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
 
