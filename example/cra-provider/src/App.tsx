@@ -92,12 +92,6 @@ function App() {
             <EthereumEventsButtons />
           </div>
           <ConsoleView capturedRequests={capturedRequests} />
-          <button
-            className="rounded-full bg-white px-4 py-2 mb-4 hover:bg-gray-100 font-bold text-black"
-            onClick={() => setCapturedRequests([])}
-          >
-            Clear console
-          </button>
         </div>
       </div>
     </div>
