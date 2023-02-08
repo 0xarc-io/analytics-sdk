@@ -422,14 +422,11 @@ export class ArcxAnalyticsSdk {
 
   /** Generic event logging method. Allows arbitrary events to be logged. */
   event(event: string, attributes?: Attributes) {
-    if (this.socket.connected) {
-      this.socket.emit('submit-event', {
-        event,
-        attributes,
-      })
-    } else {
-      this._report('error', 'ArcxAnalyticsSdk::event: socket is not connected')
-    }
+    // If the socket is not connected, the event will be buffered until reconnection and sent then
+    this.socket.emit('submit-event', {
+      event,
+      attributes,
+    })
   }
 
   /**
