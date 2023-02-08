@@ -65,6 +65,7 @@ export class ArcxAnalyticsSdk {
   /**********************/
 
   private _registerSocketListeners(socket: Socket) {
+    this._trackFirstPageVisit = this._trackFirstPageVisit.bind(this)
     socket.on('connect', this._trackFirstPageVisit)
 
     socket.on('error', (error) => {
