@@ -24,6 +24,9 @@ jobs:
 
       - name: Tree
         run: tree -I node_modules
+        
+      - name: ls config file
+        run: ls -al src/constants/config.ts
 
       - name: Set version in postRequest.ts
         run: |
