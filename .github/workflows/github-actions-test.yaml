@@ -14,24 +14,6 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Run linter
         run: yarn lint
-      
-      - name: Get next version
-        id: semantic_next_version
-        run: npx semantic-release --dry-run
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Tree
-        run: tree -I node_modules
-        
-      - name: ls config file
-        run: ls -al src/constants/config.ts
-
-      - name: Set version in postRequest.ts
-        run: |
-          sed "s/SDK_VERSION = 'local'/SDK_VERSION = '${{ steps.semantic_next_version.outputs.new-release-version }}'/g" src/constants/config.ts > src/constants/config.ts.tmp && mv src/constants/config.ts.tmp src/constants/config.ts
-
       - name: Run build
         run: yarn build
       - name: Test codebase
