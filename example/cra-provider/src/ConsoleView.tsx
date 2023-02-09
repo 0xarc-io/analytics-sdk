@@ -1,7 +1,6 @@
 import { Attributes, useArcxAnalytics } from '@arcxmoney/analytics'
 import { useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
-import { CLIENT_RENEG_LIMIT } from 'tls'
 import { CustomRequest } from './types'
 
 export const ConsoleView = ({ capturedRequests }: { capturedRequests: CustomRequest[] }) => {
@@ -38,7 +37,6 @@ export const ConsoleView = ({ capturedRequests }: { capturedRequests: CustomRequ
     }`
   }
 
-  console.log('🚀 ~ file: ConsoleView.tsx:9 ~ ConsoleView ~ events', events, events.length)
   return (
     <>
       <div className="mt-8 h-[30rem] overflow-auto scroll-smooth w-full bg-slate-900 p-4 font-mono flex flex-col gap-4 text-yellow-500">

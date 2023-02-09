@@ -10,7 +10,7 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
   trackTransactions: true,
   trackSigning: true,
   trackClicks: true,
-  url: 'https://api.arcx.money/v1',
+  url: 'https://prod.analytics.api.arcx.money/v1',
 }
 
 export const IDENTITY_KEY = 'identity'
