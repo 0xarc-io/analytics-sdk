@@ -109,7 +109,9 @@ export class ArcxAnalyticsSdk {
     }
 
     if (this.sdkConfig.trackUTM) {
-      const searchParams = new URLSearchParams(window.location.search)
+      const searchParams = new URLSearchParams(
+        window.location.search || window.location.hash.split('?')[1],
+      )
 
       attributes.utm = {
         source: searchParams.get('utm_source'),
