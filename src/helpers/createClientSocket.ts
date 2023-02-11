@@ -9,5 +9,6 @@ interface IQueryParams {
 export const createClientSocket = (url: string, queryParams: IQueryParams) => {
   return io(url, {
     query: queryParams,
+    transports: ['websocket'],
   })
 }
