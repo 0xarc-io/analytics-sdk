@@ -1,8 +1,8 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
-import { SDK_VERSION } from '../src/constants'
-import { postRequest } from '../src/utils'
-import { TEST_API_KEY } from './constants'
+import { SDK_VERSION } from '../../src/constants'
+import { postRequest } from '../../src/utils'
+import { TEST_API_KEY } from '../constants'
 
 describe('(unit) postRequest', () => {
   it('calls fetch with the given arguments', async () => {
