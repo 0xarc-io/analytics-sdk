@@ -18,11 +18,7 @@ import {
   REFERRER_EVENT,
 } from '../src/constants'
 import React from 'react'
-import {
-  TEST_IDENTITY,
-  TEST_JSDOM_URL,
-  TEST_REFERRER,
-} from './constants'
+import { TEST_IDENTITY, TEST_JSDOM_URL, TEST_REFERRER } from './constants'
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
 import * as SocketClientModule from '../src/utils/createClientSocket'
@@ -177,7 +173,10 @@ describe('(int) ArcxAnalyticxProvider', () => {
 
         expect(socketStub.emit).calledOnceWith(
           'submit-event',
-          getClickEventBody('div#id-for-click.test-classname-1.test-classname-2', 'Text to click'),
+          getClickEventBody(
+            'div#id-for-click.test-classname-1.test-classname-2 [data-testid=track-click] [class=test-classname-1 test-classname-2]',
+            'Text to click',
+          ),
         )
       })
 

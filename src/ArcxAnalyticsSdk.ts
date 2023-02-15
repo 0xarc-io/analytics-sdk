@@ -24,7 +24,7 @@ import {
   CLICK_EVENT,
   SDK_VERSION,
 } from './constants'
-import { createClientSocket, postRequest } from './helpers'
+import { createClientSocket, getElementFullInfo, postRequest } from './utils'
 import { Socket } from 'socket.io-client'
 
 export class ArcxAnalyticsSdk {
@@ -319,7 +319,7 @@ export class ArcxAnalyticsSdk {
     window.addEventListener('click', (event: MouseEvent) => {
       if (event.target instanceof Element) {
         this.event(CLICK_EVENT, {
-          elementId: getElementIdentifier(event.target),
+          elementId: getElementFullInfo(event.target),
           content: event.target.textContent,
         })
       } else {
@@ -491,16 +491,4 @@ type FirstVisitPageType = {
     medium: string | null
     campaign: string | null
   }
-}
-
-function getElementIdentifier(clickedElement: Element): string {
-  let identifier = clickedElement.tagName.toLowerCase()
-  if (clickedElement.id) {
-    identifier = `${identifier}#${clickedElement.id}`
-  }
-
-  if (clickedElement.classList.length > 0) {
-    identifier = `${identifier}.${clickedElement.classList.value.replace(/ /g, '.')}`
-  }
-  return identifier
 }
