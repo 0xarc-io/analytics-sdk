@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import sinon from 'sinon'
 import { SDK_VERSION } from '../src/constants'
-import { postRequest } from '../src/helpers'
+import { postRequest } from '../src/utils'
 import { TEST_API_KEY } from './constants'
 
 describe('(unit) postRequest', () => {

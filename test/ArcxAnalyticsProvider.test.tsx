@@ -9,7 +9,7 @@ import {
 } from '../src'
 import { expect } from 'chai'
 import sinon from 'sinon'
-import * as postRequestModule from '../src/helpers/postRequest'
+import * as postRequestModule from '../src/utils/postRequest'
 import {
   ATTRIBUTION_EVENT,
   CLICK_EVENT,
@@ -25,7 +25,7 @@ import {
 } from './constants'
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
-import * as SocketClientModule from '../src/helpers/createClientSocket'
+import * as SocketClientModule from '../src/utils/createClientSocket'
 import { Socket } from 'socket.io-client'
 
 const TEST_API_KEY = 'test-api-key'
