@@ -178,7 +178,7 @@ export class ArcxAnalyticsSdk {
   private _handleAccountDisconnected() {
     if (!this.currentChainId || !this.currentConnectedAccount) {
       this._report(
-        'error',
+        'warning',
         'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set',
       )
       /**
