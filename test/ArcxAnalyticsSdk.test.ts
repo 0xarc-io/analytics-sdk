@@ -16,7 +16,7 @@ import {
   TRANSACTION_EVENT,
   TRANSACTION_TRIGGERED,
 } from '../src/constants'
-import * as postRequestModule from '../src/helpers/postRequest'
+import * as postRequestModule from '../src/utils/postRequest'
 import {
   TEST_ACCOUNT,
   TEST_API_KEY,
@@ -31,7 +31,7 @@ import {
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
 import EventEmitter from 'events'
-import * as SocketClientModule from '../src/helpers/createClientSocket'
+import * as SocketClientModule from '../src/utils/createClientSocket'
 import { Socket } from 'socket.io-client'
 
 const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
