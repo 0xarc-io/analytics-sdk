@@ -187,6 +187,8 @@ export class ArcxAnalyticsSdk {
        * 1. Initialize ArcxAnalyticsProvider with the default config (sets MM as the initial provider)
        * 2. Connect WalletConnect
        * 3. Disconnect
+       *
+       * TODO: solve this case in https://github.com/arcxmoney/analytics-sdk/issues/124
        */
       return
     }
