@@ -23,7 +23,7 @@ describe('(unit) getElementFullInfo', () => {
   })
 
   it('returns tag', () => {
-    expect(getElementFullInfo(element)).eq(htmlTag)
+    expect(getElementFullInfo(element)).eq('@' + htmlTag + ';')
   })
 
   it('identifier and attributes without spaces', () => {
@@ -31,7 +31,9 @@ describe('(unit) getElementFullInfo', () => {
     element.setAttribute('prop-2', 'value.2')
     element.setAttribute('class', 'style-1 style-2')
     element.id = 'element-id'
-    expect(getElementFullInfo(element)).eq(`${htmlTag}#element-id.style-1.style-2[prop=value.1][prop-2=value.2]`)
+    expect(getElementFullInfo(element)).eq(
+      `@${htmlTag};#element-id;.style-1;.style-2;[prop=value.1];[prop-2=value.2];`,
+    )
   })
 
   describe('getElementAttributes', () => {
@@ -41,57 +43,55 @@ describe('(unit) getElementFullInfo', () => {
 
     it('element with attribute', () => {
       element.setAttribute('prop', 'my-value')
-      expect(getElementAttributes(element)).eq('[prop=my-value]')
+      expect(getElementAttributes(element)).eq('[prop=my-value];')
     })
 
     it('element with attributes exludes id', () => {
       element.setAttribute('prop', 'my-value')
       element.id = 'element-id'
-      expect(getElementAttributes(element)).eq('[prop=my-value]')
+      expect(getElementAttributes(element)).eq('[prop=my-value];')
     })
 
     it('element with multiple attributes', () => {
       element.setAttribute('prop', 'value.1')
       element.setAttribute('prop-2', 'value.2')
       element.id = 'element-id'
-      expect(getElementAttributes(element)).eq('[prop=value.1][prop-2=value.2]')
+      expect(getElementAttributes(element)).eq('[prop=value.1];[prop-2=value.2];')
     })
 
     it('ignores class', () => {
       element.setAttribute('prop', 'value.1')
       element.setAttribute('prop-2', 'value.2')
       element.id = 'element-id'
-      expect(getElementAttributes(element)).eq('[prop=value.1][prop-2=value.2]')
+      expect(getElementAttributes(element)).eq('[prop=value.1];[prop-2=value.2];')
     })
   })
 
   describe('getElementIdentifier', () => {
     it('returns just tag', () => {
-      expect(getElementIdentifier(element)).eq(htmlTag)
+      expect(getElementIdentifier(element)).eq(htmlTag + ';')
     })
 
     it('does not involve attribute', () => {
       element.setAttribute('prop', 'my-value')
-      expect(getElementIdentifier(element)).eq(htmlTag)
+      expect(getElementIdentifier(element)).eq(htmlTag + ';')
     })
 
     it('adds id', () => {
       element.id = 'element-id'
-      expect(getElementIdentifier(element)).eq(`${htmlTag}#${'element-id'}`)
+      expect(getElementIdentifier(element)).eq(`${htmlTag};#element-id;`)
     })
 
     it('adds classname', () => {
       element.classList.add('my-style')
-      expect(getElementIdentifier(element)).eq(`${htmlTag}.${'my-style'}`)
+      expect(getElementIdentifier(element)).eq(`${htmlTag};.my-style;`)
     })
 
     it('adds id and 2 different classnames', () => {
       element.id = 'element-id'
       element.classList.add('my-style')
       element.classList.add('my-second-style')
-      expect(getElementIdentifier(element)).eq(
-        `${htmlTag}#${'element-id'}.${'my-style'}.${'my-second-style'}`,
-      )
+      expect(getElementIdentifier(element)).eq(`${htmlTag};#element-id;.my-style;.my-second-style;`)
     })
   })
 })
