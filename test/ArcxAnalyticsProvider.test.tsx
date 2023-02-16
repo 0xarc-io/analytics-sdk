@@ -174,7 +174,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
         expect(socketStub.emit).calledOnceWith(
           'submit-event',
           getClickEventBody(
-            '@div;#id-for-click;.test-classname-1;.test-classname-2;[data-testid=track-click];',
+            '@body; @div; @div; @div;#id-for-click;.test-classname-1;.test-classname-2;[data-testid=track-click];',
             'Text to click',
           ),
         )
@@ -185,7 +185,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
 
         expect(socketStub.emit).calledOnceWith(
           'submit-event',
-          getClickEventBody('@div;', 'Identity: test-identity'),
+          getClickEventBody('@body; @div; @div; @div;', 'Identity: test-identity'),
         )
       })
     })
