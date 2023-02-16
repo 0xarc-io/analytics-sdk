@@ -174,7 +174,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
         expect(socketStub.emit).calledOnceWith(
           'submit-event',
           getClickEventBody(
-            'div#id-for-click.test-classname-1.test-classname-2 [data-testid=track-click] [class=test-classname-1 test-classname-2]',
+            'div#id-for-click.test-classname-1.test-classname-2[data-testid=track-click]',
             'Text to click',
           ),
         )
