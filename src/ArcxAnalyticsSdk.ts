@@ -356,8 +356,9 @@ export class ArcxAnalyticsSdk {
     return postRequest(this.sdkConfig.url, this.apiKey, '/log-sdk', {
       logLevel,
       data: {
+        msg: content,
         identityId: this.identityId,
-        msg: content + ` - Identity: ${this.identityId}, API key: ${this.apiKey}`,
+        apiKey: this.apiKey,
       },
     })
   }
