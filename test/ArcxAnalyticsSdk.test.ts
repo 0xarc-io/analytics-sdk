@@ -449,7 +449,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           logLevel: 'error',
           data: {
             identityId: TEST_IDENTITY,
-            msg: errorMsg + ` - Identity: ${TEST_IDENTITY}, API key: ${TEST_API_KEY}`,
+            msg: errorMsg,
+            apiKey: TEST_API_KEY,
           },
         })
       })
@@ -461,7 +462,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           logLevel: 'warning',
           data: {
             identityId: TEST_IDENTITY,
-            msg: errorMsg + ` - Identity: ${TEST_IDENTITY}, API key: ${TEST_API_KEY}`,
+            msg: errorMsg,
+            apiKey: TEST_API_KEY,
           },
         })
       })
