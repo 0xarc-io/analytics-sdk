@@ -6,15 +6,16 @@ export const getElementFullInfo = (element: Element): string => {
 }
 
 export const getElementIdentifier = (clickedElement: Element): string => {
-  let identifier = clickedElement.tagName.toLowerCase()
+  let identifier = clickedElement.tagName.toLowerCase() + ';'
   if (clickedElement.id) {
-    identifier = `${identifier};#${clickedElement.id}`
+    identifier += `#${clickedElement.id};`
   }
 
   if (clickedElement.classList.length > 0) {
-    identifier = `${identifier};.${clickedElement.classList.value.replace(/ /g, ';.')}`
+    identifier += `.${clickedElement.classList.value.replace(/ /g, ';.')};`
   }
-  return identifier + ';'
+
+  return identifier
 }
 
 export const getElementAttributes = (element: Element): string => {
