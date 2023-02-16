@@ -2,8 +2,7 @@ export const getElementFullInfo = (element: Element): string => {
   const attributes = getElementAttributes(element)
   const identifier = getElementIdentifier(element)
 
-  if (!attributes) return identifier
-  return `${identifier} ${attributes}`
+  return identifier + attributes
 }
 
 export const getElementIdentifier = (clickedElement: Element): string => {
@@ -22,8 +21,8 @@ export const getElementAttributes = (element: Element): string => {
   const elementAttributes: string[] = []
   for (let length = element.attributes.length, i = 0; i < length; i++) {
     const { nodeName, nodeValue } = element.attributes[i]
-    if (nodeName === 'id') continue
+    if (nodeName === 'id' || nodeName === 'class') continue
     elementAttributes.push(`[${nodeName}=${nodeValue}]`)
   }
-  return elementAttributes.join(' ')
+  return elementAttributes.join('')
 }

@@ -26,6 +26,14 @@ describe('(unit) getElementFullInfo', () => {
     expect(getElementFullInfo(element)).eq(htmlTag)
   })
 
+  it('identifier and attributes without spaces', () => {
+    element.setAttribute('prop', 'value.1')
+    element.setAttribute('prop-2', 'value.2')
+    element.setAttribute('class', 'style-1 style-2')
+    element.id = 'element-id'
+    expect(getElementFullInfo(element)).eq(`${htmlTag}#element-id.style-1.style-2[prop=value.1][prop-2=value.2]`)
+  })
+
   describe('getElementAttributes', () => {
     it('element without any attributes', () => {
       expect(getElementAttributes(element)).eq('')
@@ -40,6 +48,20 @@ describe('(unit) getElementFullInfo', () => {
       element.setAttribute('prop', 'my-value')
       element.id = 'element-id'
       expect(getElementAttributes(element)).eq('[prop=my-value]')
+    })
+
+    it('element with multiple attributes', () => {
+      element.setAttribute('prop', 'value.1')
+      element.setAttribute('prop-2', 'value.2')
+      element.id = 'element-id'
+      expect(getElementAttributes(element)).eq('[prop=value.1][prop-2=value.2]')
+    })
+
+    it('ignores class', () => {
+      element.setAttribute('prop', 'value.1')
+      element.setAttribute('prop-2', 'value.2')
+      element.id = 'element-id'
+      expect(getElementAttributes(element)).eq('[prop=value.1][prop-2=value.2]')
     })
   })
 
