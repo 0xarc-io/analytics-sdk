@@ -1,6 +1,11 @@
 import { expect } from 'chai'
 import { describe } from 'mocha'
-import { getElementAttributes, getElementIdentifier, getElementFullInfo } from '../../src/utils'
+import {
+  getElementAttributes,
+  getElementIdentifier,
+  getElementFullInfo,
+  getElementsFullInfo,
+} from '../../src/utils'
 import { JSDOM } from 'jsdom'
 
 const htmlTag = 'div'
@@ -34,6 +39,38 @@ describe('(unit) getElementFullInfo', () => {
     expect(getElementFullInfo(element)).eq(
       `@${htmlTag};#element-id;.style-1;.style-2;[prop=value.1];[prop-2=value.2];`,
     )
+  })
+
+  describe('getElementsFullInfo', () => {
+    it('body > element', () => {
+      element.setAttribute('prop', 'value.1')
+      element.setAttribute('prop-2', 'value.2')
+      element.setAttribute('class', 'style-1 style-2')
+      element.id = 'element-id'
+
+      dom.window.document.body.appendChild(element)
+
+      expect(getElementsFullInfo(element)).eq(
+        `@body; @${htmlTag};#element-id;.style-1;.style-2;[prop=value.1];[prop-2=value.2];`,
+      )
+    })
+
+    it('body > div with class > element', () => {
+      element.setAttribute('prop', 'value.1')
+      element.setAttribute('prop-2', 'value.2')
+      element.setAttribute('class', 'style-1 style-2')
+      element.id = 'element-id'
+
+      const parent = dom.window.document.createElement('div')
+      parent.setAttribute('class', 'parent-style-1')
+
+      dom.window.document.body.appendChild(parent)
+      parent.appendChild(element)
+
+      expect(getElementsFullInfo(element)).eq(
+        `@body; @div;.parent-style-1; @${htmlTag};#element-id;.style-1;.style-2;[prop=value.1];[prop-2=value.2];`,
+      )
+    })
   })
 
   describe('getElementAttributes', () => {

@@ -1,3 +1,15 @@
+export const getElementsFullInfo = (element: Element): string => {
+  const elementsInfo: string[] = []
+  let node: Element = element
+  while (node.tagName.toLowerCase() !== 'html') {
+    elementsInfo.unshift(getElementFullInfo(node))
+    const parentElement = node.parentElement
+    if (parentElement === null) break
+    node = parentElement
+  }
+  return elementsInfo.join(' ')
+}
+
 export const getElementFullInfo = (element: Element): string => {
   const attributes = getElementAttributes(element)
   const identifier = getElementIdentifier(element)

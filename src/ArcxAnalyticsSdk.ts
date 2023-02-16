@@ -24,7 +24,7 @@ import {
   CLICK_EVENT,
   SDK_VERSION,
 } from './constants'
-import { createClientSocket, getElementFullInfo, postRequest } from './utils'
+import { createClientSocket, getElementsFullInfo, postRequest } from './utils'
 import { Socket } from 'socket.io-client'
 
 export class ArcxAnalyticsSdk {
@@ -321,7 +321,7 @@ export class ArcxAnalyticsSdk {
     window.addEventListener('click', (event: MouseEvent) => {
       if (event.target instanceof Element) {
         this.event(CLICK_EVENT, {
-          elementId: getElementFullInfo(event.target),
+          elementId: getElementsFullInfo(event.target),
           content: event.target.textContent,
         })
       } else {
