@@ -2,19 +2,19 @@ export const getElementFullInfo = (element: Element): string => {
   const attributes = getElementAttributes(element)
   const identifier = getElementIdentifier(element)
 
-  return identifier + attributes
+  return '@' + identifier + attributes
 }
 
 export const getElementIdentifier = (clickedElement: Element): string => {
   let identifier = clickedElement.tagName.toLowerCase()
   if (clickedElement.id) {
-    identifier = `${identifier}#${clickedElement.id}`
+    identifier = `${identifier};#${clickedElement.id}`
   }
 
   if (clickedElement.classList.length > 0) {
-    identifier = `${identifier}.${clickedElement.classList.value.replace(/ /g, '.')}`
+    identifier = `${identifier};.${clickedElement.classList.value.replace(/ /g, ';.')}`
   }
-  return identifier
+  return identifier + ';'
 }
 
 export const getElementAttributes = (element: Element): string => {
@@ -24,5 +24,7 @@ export const getElementAttributes = (element: Element): string => {
     if (nodeName === 'id' || nodeName === 'class') continue
     elementAttributes.push(`[${nodeName}=${nodeValue}]`)
   }
-  return elementAttributes.join('')
+
+  if (elementAttributes.length === 0) return ''
+  return elementAttributes.join(';') + ';'
 }
