@@ -1,49 +1,44 @@
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![npm version](https://badge.fury.io/js/@arcxmoney%2Fanalytics.svg)](https://badge.fury.io/js/@arcxmoney%2Fanalytics) [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
+> The ARCx Analytics SDK is a simple SDK that helps provide higher fidelity analytics by merging on-chain data with off-chain data from front-ends. We value user privacy and do not collect IP addresses or scrape any information without your permission.
 
-# ARCx Analytics SDK
+# Installation Guide
 
-The ARCx Analytics SDK is a utility that wraps around the 
-[ARCx Analytics API](https://docs.arcx.money/#tag--analytics). It provides a
-simple and seamless installation experience for partners looking to integrate
-into ARCx.
+## Option 1 - via script tag (preferred)
 
-Please contact us via [Discord](https://discord.gg/hfrbGzPyK8) to be issued an API key.
+------
 
-## Quickstart
+This is the simplest option to get started with ARCx Analytics, all you need to do is add this to the `HEAD` of your `index.html` file:
 
-There are 2 ways to install the SDK. You can pick the one that you prefer most:
+```html
+<script>
+  const script = document.createElement('script');
+  const apiKey = YOUR_API_KEY
+  const config = {} // Add any configuration parameters you'd like here
+  script.src = '<https://unpkg.com/@arcxmoney/analytics>'
+  script.onload = function () {
+    ArcxAnalyticsSdk.init(apiKey, config).then(function (sdk) {
+      window.arcx = sdk
+    })
+  }
 
-<details>
-
-<summary>With NPM/Yarn</summary>
-<blockquote>
-
-### Installation
-
-To install with `npm`:
-
-```
-npm install @arcxmoney/analytics --save
-```
-
-To install with `yarn`:
-
-```
-yarn add @arcxmoney/analytics
+  document.head.appendChild(script)
+</script>
 ```
 
-### Usage
+That’s it! The ARCx SDK will automatically detect wallet connections, referrer data, button clicks, page tracks and transactions that occur on your front-end.
 
-There are 2 ways of instantiating the SDK: using the React provider, or manually.
-  
-<details>
-<summary>Using `ArcxAnalyticsProvider`</summary>
-<blockquote>
+You will now have access to the ARCx SDK instance via `window.arcx` anywhere in the app, in case you want to use any specific functionality described in the [API section below](#api).
 
-Put the `ArcxAnalyticsProvider` anywhere at top of your component tree.
+## Option 2 (via React Component)
 
-```jsx
+------
+
+To get started, simply install the SDK into your Typescript/Javascript project by running `npm add @arcxmoney/analytics` or `yarn add @arcxmoney/analytics` (whatever you prefer) ⭐️
+
+Then, put the `ArcxAnalyticsProvider` anywhere at top of your component tree.
+
+```html
 // App.jsx
 import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
 
@@ -54,9 +49,9 @@ export default App = () => (
 )
 ```
 
-Then you can use the `useArcxAnalytics()` hook in all of its child components.
+Now, you can use the `useArcxAnalytics()` hook in all of its child components to access the `sdk` object to log custom events or data.
 
-```jsx
+```html
 // ChildComponent.jsx
 import { useArcxAnalytics } from '@arcxmoney/analytics'
 
@@ -73,71 +68,85 @@ export const ChildComponent = () => {
 }
 ```
 
-An example of how this is used can be found in the [example folder](https://github.com/arcxmoney/analytics-sdk/tree/main/example/cra-provider).
+If you want to disable any of the default features, you can pass an optional `config` prop to the `ArcxAnalyticsProvider` component.
 
-</blockquote>
-</details>
-  
-<details>
-<summary>Manually instantiating the SDK</summary>
-  
-<blockquote>
-  
-```js
-const analytics = await ArcxAnalyticsSdk.init(YOUR_API_KEY)
+## Option 3 (via manual instantiation)
 
-await analytics.attribute({ channel: 'twitter' })
-await analytics.connectWallet({ account: '0x123', chain: 1 })
-await analytics.transaction({
-  chain: 1, 
-  transactionHash: '0xABC123', 
-  metadata: {
-    usedSuggestedExchange: true
-  }
+------
+
+This is for those that would like to have very granular control over what is sent and how tracking is implemented.
+
+To get started, simply install the SDK into your Typescript/Javascript project by running `npm add @arcxmoney/analytics` or `yarn add @arcxmoney/analytics` (whatever you prefer) ⭐️
+
+Once you’ve done that, you’ll need to initialise the SDK and keep an instance of it ready to reference in other parts of your app. In order to do this, add the following code on your app’s load:
+
+```jsx
+import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
+
+let arcx = await ArcxAnalyticsSdk.init(API_KEY, {
+  // list any features you'd like to disable here
+  trackPages: false,
+  trackWalletConnections: false,
 })
 ```
-</blockquote>
-</details>
-</blockquote>
-</details>
 
-<details>
-<summary>With a script tag</summary>
+### Manual event tracking
 
-<blockquote>
+#### 1. Wallet Connects
 
-Simply add the following script in the header of your application:
+------
 
-```html
-<script>
-  const script = document.createElement('script');
-  const apiKey = YOUR_API_KEY
-  const config = {} // Add any configuration parameters you'd like here
-  script.src = 'https://unpkg.com/@arcxmoney/analytics'
-  script.onload = function () {
-    ArcxAnalyticsSdk.init(apiKey, config).then(function (sdk) {
-      window.arcx = sdk
-    })
-  }
+A critical part of the ARCx analytics product is associating off-chain behaviour with on-chain wallet activity. In order to do this, we need to be able to link your wallet to the currently active session and the chain that the user is connected to. The chain field should contain the numeric chain ID passed as a string.
 
-  document.head.appendChild(script)
-</script>
+```jsx
+await arcx.connectWallet({ account: '0x1234', chain: '1' })
 ```
 
-You must replace `YOUR_API_KEY` with your API key as specified in the [SDK's documentation](https://github.com/arcxmoney/analytics-sdk) and, optionally, pass a `config` object. This is the same `config` as described [here](https://github.com/arcxmoney/analytics-sdk#init).
+#### 2. Transactions
 
-Then, you will have access to the `window.arcx` which is an instance of the SDK. Its API is described [below](#api).
+------
 
-An example of how this is used can be found in the [example folder](https://github.com/arcxmoney/analytics-sdk/tree/main/example/cra-script-tag).
+The final piece for a bare-bone installation of ARCx analytics is registering transactions that occur on-chain. In addition to passing the transaction hash, we need the ID of the chain the transaction is occurring on and optionally, any attributes you’d like to pass to further segment the event.
 
-</blockquote>
+```jsx
+await arcx.transaction({
+  chain, // required(string) - chain ID that the transaction is taking place on
+  transactionHash, // required(string) - hash of the transaction
+  metadata, // optional(object) - additional information about the transaction
+})
+```
 
-</details>
+> 🔥 Hurray! You’ve completed the bare-bone installation of the ARCx analytics SDK. The following steps beyond this are optional but can given greater resolution and insights if implemented.
 
-## SDK Configuration
+#### 3. Events & Attribution (optional)
 
-When the SDK is initialized via the `init` method, it can be optionally passed 
-in a collection of configuration options.  The defaults the SDK picks are sensible for most use cases.
+------
+
+Tracking key events inside your app allows the product to provide detailed information such as what percentage of whales convert through your product funnel relative to new users. The more event data we have, the more insights we can provide to help improve your product.
+
+```jsx
+await arcx.event(
+  eventName, // required(string) - the name of the event (eg. "clicked-tab")
+  attributes, // optional(object) - additional information about the event
+)
+```
+
+In addition to events, tracking attribution allows you to understand which marketing campaigns are successful through wallet tagging.
+
+```jsx
+await arcx.attribute({
+  source, // optional(string) - the origin of the web traffic (eg. discord, twitter etc)
+  campaignId, // optional(string) - a specific identifier of the campaign (eg. bankless-5)
+})
+```
+
+> ✅ That’s all there is to it. Leave all the magic on-chain wizardry to us from beyond here.
+
+
+
+# SDK Configuration
+
+Regardless of which installation method you choose, you can disable any automatic tracking feature you want by passing an optional `config` parameter either to the `init` function or to the React provider.
 
 The configuration options are:
 
@@ -154,7 +163,9 @@ The configuration options are:
 | `trackSigning`           | boolean         | Automatically track signing requests  on the provider passed to `initialProvider` or `setProvider`. | `true`            |
 | `trackClicks`            | boolean         | Automatically track click events                             | `true`            |
 
-## API
+
+
+# API
 
 ### `init`
 To initialize the Analytics SDK one should invoke the `init` method on the 
@@ -283,3 +294,9 @@ await analytics.attribute({
   campaign: "ama--2022-10-10",
 })
 ```
+
+# Important Note
+
+We do not support automatic wallet activity tracking with wallets other than Metamask. 
+
+To fix this, you must pass the newly connected provider to the `sdk.setProvider(newProvider)` instance. Doing so will tell the SDK to watch that provider and fire any wallet connections/transactions/signature requests that wallet will be doing on your dApp! ✅
