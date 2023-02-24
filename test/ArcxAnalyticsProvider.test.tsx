@@ -199,6 +199,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(await screen.findByText(`Identity: ${TEST_IDENTITY}`)).to.exist
 
       postRequestStub.resetHistory()
+      socketStub.emit.resetHistory()
     })
 
     it('posts a custom event', async () => {

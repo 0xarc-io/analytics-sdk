@@ -92,10 +92,20 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
-      const sdk = await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
+      await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
 
-      expect(socketStub.on.firstCall.calledWithExactly('connect', sdk['_trackFirstPageVisit'])).to
-        .be.true
+      expect(socketStub.emit.firstCall).calledWith(
+        'submit-event',
+        getAnalyticsData(FIRST_PAGE_VISIT, {
+          url: TEST_JSDOM_URL,
+          referrer: TEST_REFERRER,
+          utm: {
+            source: TEST_UTM_SOURCE,
+            medium: TEST_UTM_MEDIUM,
+            campaign: TEST_UTM_CAMPAIGN,
+          },
+        }),
+      )
     })
 
     it('does not make a FIRST_PAGE_VISIT call if trackPages, referrer and UTM configs are set to false', async () => {
@@ -109,11 +119,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('does not include the UTM object if trackUTM is set to false', async () => {
-      const sdk = await ArcxAnalyticsSdk.init('', {
+      await ArcxAnalyticsSdk.init('', {
         ...ALL_FALSE_CONFIG,
         trackPages: true,
       })
-      await sdk['_trackFirstPageVisit']()
 
       expect(postRequestStub.getCall(0)).calledWithExactly(DEFAULT_SDK_CONFIG.url, '', '/identify')
       expect(socketStub.emit).calledOnceWith(
