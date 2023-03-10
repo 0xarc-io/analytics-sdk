@@ -26,6 +26,7 @@ import {
 } from './constants'
 import { createClientSocket, getElementsFullInfo, postRequest } from './utils'
 import { Socket } from 'socket.io-client'
+import { inspect } from 'util'
 
 export class ArcxAnalyticsSdk {
   /* --------------------------- Private properties --------------------------- */
@@ -252,6 +253,7 @@ export class ArcxAnalyticsSdk {
       this._report(
         'warning',
         'ArcxAnalyticsSdk::_trackTransactions: provider.request is not writable',
+        { provider: inspect(this.provider) },
       )
       return false
     }
@@ -288,6 +290,7 @@ export class ArcxAnalyticsSdk {
       this._report(
         'warning',
         'ArcxAnalyticsSdk::_trackTransactions: provider.request is not writable',
+        { provider: inspect(this.provider) },
       )
       return false
     }
@@ -351,13 +354,18 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Report error to the server in order to better understand edge cases which can appear */
-  _report(logLevel: 'error' | 'log' | 'warning', content: string): Promise<string> {
+  _report(
+    logLevel: 'error' | 'log' | 'warning',
+    msg: string,
+    additionalInfo?: Record<string, unknown>,
+  ): Promise<string> {
     return postRequest(this.sdkConfig.url, this.apiKey, '/log-sdk', {
       logLevel,
       data: {
-        msg: content,
+        msg,
         identityId: this.identityId,
         apiKey: this.apiKey,
+        ...(additionalInfo ? { additionalInfo } : {}),
       },
     })
   }
