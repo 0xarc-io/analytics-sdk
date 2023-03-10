@@ -189,11 +189,7 @@ export class ArcxAnalyticsSdk {
   }
 
   private _handleAccountDisconnected() {
-    if (!this.currentChainId || !this.currentConnectedAccount) {
-      this._report(
-        'warning',
-        'ArcxAnalyticsSdk::_handleAccountDisconnected: previousChainId or previousConnectedAccount is not set',
-      )
+    if (!this.currentChainId && !this.currentConnectedAccount) {
       /**
        * It is possible that this function has already been called once and the cached values
        * have been cleared. This can happen in the following scenario:
@@ -201,7 +197,8 @@ export class ArcxAnalyticsSdk {
        * 2. Connect WalletConnect
        * 3. Disconnect
        *
-       * TODO: solve this case in https://github.com/arcxmoney/analytics-sdk/issues/124
+       * Another scenario is if the `disconnect` event is fired before or after the
+       * `accountsChanged` event
        */
       return
     }
