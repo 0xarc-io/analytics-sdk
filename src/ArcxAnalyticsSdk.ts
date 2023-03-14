@@ -45,7 +45,7 @@ export class ArcxAnalyticsSdk {
     public readonly apiKey: string,
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
-    private readonly socket: Socket,
+    private socket: Socket,
   ) {
     this.setProvider(sdkConfig.initialProvider || window?.ethereum || window.web3?.currentProvider)
 
@@ -59,6 +59,19 @@ export class ArcxAnalyticsSdk {
 
     this._registerSocketListeners(socket)
 
+    socket.once('error', (error) => {
+      if (error.name === 'InternalServerError') {
+        window.localStorage.removeItem(IDENTITY_KEY)
+        ArcxAnalyticsSdk.getIdentitityId(this.sdkConfig, this.apiKey).then(() => {
+          this.socket = createClientSocket(this.sdkConfig.url, {
+            apiKey: this.apiKey,
+            identityId: this.identityId,
+            sdkVersion: SDK_VERSION,
+          })
+          this._registerSocketListeners(this.socket)
+        })
+      }
+    })
     this._trackFirstPageVisit()
   }
 
@@ -69,6 +82,7 @@ export class ArcxAnalyticsSdk {
   private _registerSocketListeners(socket: Socket) {
     socket.on('error', (error) => {
       console.error('error event received from socket', error)
+      this._report('error', `Socket error: ${error}`)
     })
   }
 
@@ -410,10 +424,7 @@ export class ArcxAnalyticsSdk {
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId =
-      (sdkConfig?.cacheIdentity && window.localStorage.getItem(IDENTITY_KEY)) ||
-      (await postRequest(sdkConfig.url, apiKey, '/identify'))
-    sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
+    const identityId = await ArcxAnalyticsSdk.getIdentitityId(sdkConfig, apiKey)
 
     const websocket = createClientSocket(sdkConfig.url, {
       apiKey,
@@ -422,6 +433,14 @@ export class ArcxAnalyticsSdk {
     })
 
     return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket)
+  }
+
+  private static async getIdentitityId(sdkConfig: SdkConfig, apiKey: string) {
+    const identityId =
+      (sdkConfig?.cacheIdentity && window.localStorage.getItem(IDENTITY_KEY)) ||
+      (await postRequest(sdkConfig.url, apiKey, '/identify'))
+    sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
+    return identityId
   }
 
   /** Generic event logging method. Allows arbitrary events to be logged. */
