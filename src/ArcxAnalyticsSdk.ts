@@ -60,7 +60,7 @@ export class ArcxAnalyticsSdk {
     this._registerSocketListeners(socket)
 
     socket.once('error', (error) => {
-      if (error.name === 'InternalServerError') {
+      if (['InternalServerError', 'BadRequestError'].includes(error.name)) {
         window.localStorage.removeItem(IDENTITY_KEY)
         ArcxAnalyticsSdk.getIdentitityId(this.sdkConfig, this.apiKey).then((identityId) => {
           this.socket = createClientSocket(this.sdkConfig.url, {
