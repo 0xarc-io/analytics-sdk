@@ -4380,9 +4380,9 @@ global-dirs@^0.1.1:
     ini "^1.3.4"
 
 global-jsdom@^8.6.0:
-  version "8.6.0"
-  resolved "https://registry.yarnpkg.com/global-jsdom/-/global-jsdom-8.6.0.tgz#9fb438a7bf39f8e6665a7ed208ad0c85f34bd3bc"
-  integrity sha512-eSxfleEMJILNCq1r8ay8tEWpTzRFlWExWEj/1m3pqo9AsNU3JaOCZLH2yynI8JALSY5hU0+Yw5ZzOzTacbw1pg==
+  version "8.7.0"
+  resolved "https://registry.yarnpkg.com/global-jsdom/-/global-jsdom-8.7.0.tgz#1557d12a3c124e30100483957adc265db5c936a9"
+  integrity sha512-4k0/8VSY75UgchV48rzaexFfK0k4L6DxkTiyISFobiOiqOFh4IL2Ju3WiLqlT43xh6L1LqKoS2LvDu5Wkr5Bkw==
 
 global-modules@^1.0.0:
   version "1.0.0"
