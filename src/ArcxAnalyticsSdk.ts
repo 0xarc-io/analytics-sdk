@@ -82,7 +82,7 @@ export class ArcxAnalyticsSdk {
   private _registerSocketListeners(socket: Socket) {
     socket.on('error', (error) => {
       console.error('error event received from socket', error)
-      this._report('error', `Socket error: ${error}`)
+      this._report('error', `Error event received from socket`, error)
     })
   }
 
@@ -272,7 +272,7 @@ export class ArcxAnalyticsSdk {
     const request = provider.request.bind(provider)
     provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params) && method === 'eth_sendTransaction') {
-        const transactionParams = params[0]
+        const transactionParams = params[0] as Record<string, unknown>
         const nonce = await provider.request({
           method: 'eth_getTransactionCount',
           params: [transactionParams.from, 'latest'],
@@ -362,13 +362,14 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Report error to the server in order to better understand edge cases which can appear */
-  _report(logLevel: 'error' | 'log' | 'warning', content: string): Promise<string> {
+  _report(logLevel: 'error' | 'log' | 'warning', content: string, error?: object): Promise<string> {
     return postRequest(this.sdkConfig.url, this.apiKey, '/log-sdk', {
       logLevel,
       data: {
         msg: content,
         identityId: this.identityId,
         apiKey: this.apiKey,
+        ...(error && { error: error }),
       },
     })
   }
