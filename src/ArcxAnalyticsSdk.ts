@@ -130,6 +130,7 @@ export class ArcxAnalyticsSdk {
         source: searchParams.get('utm_source'),
         medium: searchParams.get('utm_medium'),
         campaign: searchParams.get('utm_campaign'),
+        content: searchParams.get('utm_content'),
       }
     }
 
@@ -465,6 +466,7 @@ export class ArcxAnalyticsSdk {
     source?: string
     medium?: string
     campaign?: string
+    content?: string
     [key: string]: unknown
   }): void {
     return this.event(ATTRIBUTION_EVENT, attributes)
@@ -509,5 +511,6 @@ type FirstVisitPageType = {
     source: string | null
     medium: string | null
     campaign: string | null
+    content: string | null
   }
 }
