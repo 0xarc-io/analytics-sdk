@@ -25,6 +25,7 @@ import {
   TEST_JSDOM_URL,
   TEST_REFERRER,
   TEST_UTM_CAMPAIGN,
+  TEST_UTM_CONTENT,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
 } from './constants'
@@ -103,6 +104,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             source: TEST_UTM_SOURCE,
             medium: TEST_UTM_MEDIUM,
             campaign: TEST_UTM_CAMPAIGN,
+            content: TEST_UTM_CONTENT,
           },
         }),
       )
@@ -522,6 +524,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             source: TEST_UTM_SOURCE,
             medium: TEST_UTM_MEDIUM,
             campaign: TEST_UTM_CAMPAIGN,
+            content: TEST_UTM_CONTENT,
           },
         })
 
@@ -541,6 +544,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             source: TEST_UTM_SOURCE,
             medium: TEST_UTM_MEDIUM,
             campaign: TEST_UTM_CAMPAIGN,
+            content: TEST_UTM_CONTENT,
           },
         })
 
