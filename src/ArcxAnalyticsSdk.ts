@@ -371,6 +371,7 @@ export class ArcxAnalyticsSdk {
         identityId: this.identityId,
         apiKey: this.apiKey,
         ...(error && { error: error }),
+        url: window.location.href,
       },
     })
   }
