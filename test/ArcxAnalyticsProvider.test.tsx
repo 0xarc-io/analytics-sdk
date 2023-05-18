@@ -147,6 +147,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
             elementId,
             content,
           },
+          url: TEST_JSDOM_URL,
         }
       }
 
@@ -208,6 +209,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(socketStub.emit).calledOnceWith('submit-event', {
         event: 'test-event',
         attributes: { gm: 'gm' },
+        url: TEST_JSDOM_URL,
       })
     })
 
@@ -219,6 +221,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
         attributes: {
           url: '/test',
         },
+        url: TEST_JSDOM_URL,
       })
     })
 
@@ -228,6 +231,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(socketStub.emit).calledOnceWith('submit-event', {
         event: 'TRANSACTION_SUBMITTED',
         attributes: { chain: 1, transaction_hash: '0x123', metadata: {} },
+        url: TEST_JSDOM_URL,
       })
     })
 
@@ -237,6 +241,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(socketStub.emit).calledOnceWith('submit-event', {
         event: ATTRIBUTION_EVENT,
         attributes: { source: 'facebook', medium: 'social', campaign: 'ad-camp' },
+        url: TEST_JSDOM_URL,
       })
     })
 
@@ -246,6 +251,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(socketStub.emit).calledOnceWith('submit-event', {
         event: REFERRER_EVENT,
         attributes: { referrer: '/test' },
+        url: TEST_JSDOM_URL,
       })
     })
   })

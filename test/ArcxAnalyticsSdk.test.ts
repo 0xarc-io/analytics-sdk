@@ -994,5 +994,6 @@ function getAnalyticsData(event: string, attributes: any) {
   return {
     event,
     attributes,
+    url: TEST_JSDOM_URL,
   }
 }
