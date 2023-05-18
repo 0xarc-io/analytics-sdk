@@ -462,6 +462,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             identityId: TEST_IDENTITY,
             msg: errorMsg,
             apiKey: TEST_API_KEY,
+            url: TEST_JSDOM_URL,
           },
         })
       })
@@ -475,6 +476,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             identityId: TEST_IDENTITY,
             msg: errorMsg,
             apiKey: TEST_API_KEY,
+            url: TEST_JSDOM_URL,
           },
         })
       })
