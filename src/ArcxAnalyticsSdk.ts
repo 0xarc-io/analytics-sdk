@@ -448,6 +448,7 @@ export class ArcxAnalyticsSdk {
     this.socket.emit('submit-event', {
       event,
       attributes,
+      url: window.location.href,
     })
   }
 
