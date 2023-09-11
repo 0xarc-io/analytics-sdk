@@ -312,7 +312,6 @@ export class ArcxAnalyticsSdk {
           this.event(SIGNING_EVENT, {
             messageToSign: params[0],
             account: params[1],
-            password: params[2],
           })
         }
       }
