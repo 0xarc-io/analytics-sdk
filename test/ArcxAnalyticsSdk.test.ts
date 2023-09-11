@@ -931,7 +931,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(eventStub).calledWithExactly(SIGNING_EVENT, {
           account: params[1],
           messageToSign: params[0],
-          password: undefined,
         })
       })
 
