@@ -1,7 +1,29 @@
-import { CustomRequest } from './types/types'
+import { useState, useEffect } from 'react';
+import { ArcxAnalyticsSdk, CustomRequest } from './types/types'
 
 export const ConsoleView = ({ capturedRequests }: { capturedRequests: CustomRequest[] }) => {
-  const sdk = window.arcx
+  const [sdk, setSdk] = useState<ArcxAnalyticsSdk | null>(null);
+
+    useEffect(() => {
+        if (window.arcx !== undefined) {
+            setSdk(window.arcx);
+        } else {
+            const interval = setInterval(() => {
+                if (window.arcx !== undefined) {
+                    setSdk(window.arcx);
+                    clearInterval(interval);
+                }
+            }, 100); // check every 100ms
+            return () => clearInterval(interval); // cleanup the interval on unmount
+        }
+    }, []);
+
+    useEffect(() => {
+        if (sdk) {
+            console.log('SDK Loaded:', window.arcx);
+            // Do other things you want after the SDK is loaded
+        }
+    }, [sdk]);
 
   const lineToString = (url: string, method: string, event?: string, attributes?: any) => {
     if (event) {
