@@ -12,6 +12,7 @@ import {
   IDENTITY_KEY,
   PAGE_EVENT,
   REFERRER_EVENT,
+  SDK_VERSION,
   SIGNING_EVENT,
   TRANSACTION_EVENT,
   TRANSACTION_TRIGGERED,
@@ -24,10 +25,12 @@ import {
   TEST_IDENTITY,
   TEST_JSDOM_URL,
   TEST_REFERRER,
+  TEST_SCREEN,
   TEST_UTM_CAMPAIGN,
   TEST_UTM_CONTENT,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
+  TEST_VIEWPORT,
 } from './constants'
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
@@ -50,6 +53,7 @@ const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
 describe('(unit) ArcxAnalyticsSdk', () => {
   let cleanup: () => void
   let postRequestStub: sinon.SinonStub
+  let createClientSocketStub: sinon.SinonStub
   let socketStub: sinon.SinonStubbedInstance<Socket>
 
   beforeEach(() => {
@@ -62,7 +66,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
     socketStub = sinon.createStubInstance(Socket) as any
     socketStub.connected = true
-    sinon.stub(SocketClientModule, 'createClientSocket').returns(socketStub as any)
+    createClientSocketStub = sinon
+      .stub(SocketClientModule, 'createClientSocket')
+      .returns(socketStub as any)
+    sinon.stub(screen, 'height').value(TEST_SCREEN.height)
+    sinon.stub(screen, 'width').value(TEST_SCREEN.width)
+    sinon.stub(window, 'innerHeight').value(TEST_VIEWPORT.height)
+    sinon.stub(window, 'innerWidth').value(TEST_VIEWPORT.width)
   })
 
   afterEach(() => {
@@ -196,10 +206,17 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       await ArcxAnalyticsSdk.init(TEST_API_KEY)
     })
 
-    it('creates a websocket instance', async () => {
+    it('creates a websocket instance with query attributes', async () => {
       const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY)
 
       expect(sdk['socket']).to.be.eq(socketStub)
+      expect(createClientSocketStub).to.be.calledOnceWith(DEFAULT_SDK_CONFIG.url, {
+        apiKey: TEST_API_KEY,
+        identityId: TEST_IDENTITY,
+        sdkVersion: SDK_VERSION,
+        screen: TEST_SCREEN,
+        viewport: TEST_VIEWPORT,
+      })
     })
 
     describe('initialProvider', () => {
