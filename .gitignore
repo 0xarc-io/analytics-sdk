@@ -104,3 +104,6 @@ dist
 .tern-port
 
 .DS_Store
+
+# Ignore test build folder in the example site
+example/cra-script-tag/public/analytics-sdk

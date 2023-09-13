@@ -6,13 +6,13 @@
 
 ## Option 1 - via script tag (preferred)
 
-------
+---
 
 This is the simplest option to get started with ARCx Analytics, all you need to do is add this to the `HEAD` of your `index.html` file:
 
 ```html
 <script>
-  const script = document.createElement('script');
+  const script = document.createElement('script')
   const apiKey = YOUR_API_KEY
   const config = {} // Add any configuration parameters you'd like here
   script.src = '<https://unpkg.com/@arcxmoney/analytics>'
@@ -32,20 +32,17 @@ You will now have access to the ARCx SDK instance via `window.arcx` anywhere in 
 
 ## Option 2 (via React Component)
 
-------
+---
 
 To get started, simply install the SDK into your Typescript/Javascript project by running `npm add @arcxmoney/analytics` or `yarn add @arcxmoney/analytics` (whatever you prefer) ⭐️
 
 Then, put the `ArcxAnalyticsProvider` anywhere at top of your component tree.
 
 ```html
-// App.jsx
-import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
-
-export default App = () => (
-  <ArcxAnalyticsProvider apiKey={YOUR_APY_KEY}>
-    {/* Your other components here, such as <ChildComponent /> */}
-  </ArcxAnalyticsProvider>
+// App.jsx import { ArcxAnalyticsProvider } from '@arcxmoney/analytics' export default App = () => (
+<ArcxAnalyticsProvider apiKey="{YOUR_APY_KEY}">
+  {/* Your other components here, such as <ChildComponent /> */}
+</ArcxAnalyticsProvider>
 )
 ```
 
@@ -72,7 +69,7 @@ If you want to disable any of the default features, you can pass an optional `co
 
 ## Option 3 (via manual instantiation)
 
-------
+---
 
 This is for those that would like to have very granular control over what is sent and how tracking is implemented.
 
@@ -94,7 +91,7 @@ let arcx = await ArcxAnalyticsSdk.init(API_KEY, {
 
 #### 1. Wallet Connects
 
-------
+---
 
 A critical part of the ARCx analytics product is associating off-chain behaviour with on-chain wallet activity. In order to do this, we need to be able to link your wallet to the currently active session and the chain that the user is connected to. The chain field should contain the numeric chain ID passed as a string.
 
@@ -104,7 +101,7 @@ await arcx.connectWallet({ account: '0x1234', chain: '1' })
 
 #### 2. Transactions
 
-------
+---
 
 The final piece for a bare-bone installation of ARCx analytics is registering transactions that occur on-chain. In addition to passing the transaction hash, we need the ID of the chain the transaction is occurring on and optionally, any attributes you’d like to pass to further segment the event.
 
@@ -120,7 +117,7 @@ await arcx.transaction({
 
 #### 3. Events & Attribution (optional)
 
-------
+---
 
 Tracking key events inside your app allows the product to provide detailed information such as what percentage of whales convert through your product funnel relative to new users. The more event data we have, the more insights we can provide to help improve your product.
 
@@ -142,33 +139,30 @@ await arcx.attribute({
 
 > ✅ That’s all there is to it. Leave all the magic on-chain wizardry to us from beyond here.
 
-
-
 # SDK Configuration
 
 Regardless of which installation method you choose, you can disable any automatic tracking feature you want by passing an optional `config` parameter either to the `init` function or to the React provider.
 
 The configuration options are:
 
-| Config key               | Type            | Description                                                  | Default           |
-| ------------------------ | --------------- | ------------------------------------------------------------ | ----------------- |
-| `cacheIdentity`          | boolean         | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`            |
-| `initialProvider`        | EIP1193Provider | The provider to use for the web3 tracking events             | `window.ethereum` |
-| `trackReferrer`          | boolean         | Whether or not to emit an initial `REFERRER` event containing the referrer attribute | `true`            |
-| `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically. | `true`            |
-| `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`            |
-| `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`. | `true`            |
-| `trackChainChanges`      | boolean         | Automatically track chain ID changes on the provider passed to `initialProvider` or `setProvider`. | `true`            |
-| `trackTransactions`      | boolean         | Automatically track transaction requests  on the provider passed to `initialProvider` or `setProvider`. | `true`            |
-| `trackSigning`           | boolean         | Automatically track signing requests  on the provider passed to `initialProvider` or `setProvider`. | `true`            |
-| `trackClicks`            | boolean         | Automatically track click events                             | `true`            |
-
-
+| Config key               | Type            | Description                                                                                            | Default           |
+| ------------------------ | --------------- | ------------------------------------------------------------------------------------------------------ | ----------------- |
+| `cacheIdentity`          | boolean         | Caches the identity of users in the browser's local storage to capture cross-session behaviours        | `true`            |
+| `initialProvider`        | EIP1193Provider | The provider to use for the web3 tracking events                                                       | `window.ethereum` |
+| `trackReferrer`          | boolean         | Whether or not to emit an initial `REFERRER` event containing the referrer attribute                   | `true`            |
+| `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically.                    | `true`            |
+| `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit    | `true`            |
+| `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`.   | `true`            |
+| `trackChainChanges`      | boolean         | Automatically track chain ID changes on the provider passed to `initialProvider` or `setProvider`.     | `true`            |
+| `trackTransactions`      | boolean         | Automatically track transaction requests on the provider passed to `initialProvider` or `setProvider`. | `true`            |
+| `trackSigning`           | boolean         | Automatically track signing requests on the provider passed to `initialProvider` or `setProvider`.     | `true`            |
+| `trackClicks`            | boolean         | Automatically track click events                                                                       | `true`            |
 
 # API
 
 ### `init`
-To initialize the Analytics SDK one should invoke the `init` method on the 
+
+To initialize the Analytics SDK one should invoke the `init` method on the
 class. This configures the SDK with your API key and, optionally, configuration
 options.
 
@@ -202,7 +196,7 @@ Sets the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) to use. If automati
 
 ### `event`
 
-A generic, catch-all `event` log. Use this method when no existing methods 
+A generic, catch-all `event` log. Use this method when no existing methods
 satisfy your requirements.
 
 **Parameters:**
@@ -213,18 +207,16 @@ satisfy your requirements.
 **Example:**
 
 ```js
-await analytics.event(
-  'CHANGED_PFP',
-  {
-    oldPFP: 'dingo',
-    newPFP: 'unicorn', 
-  }
-)
+await analytics.event('CHANGED_PFP', {
+  oldPFP: 'dingo',
+  newPFP: 'unicorn',
+})
 ```
 
 ### `page`
-Allows manual logging page visit events. Only use this method when `trackPages` 
-is set to `false`. 
+
+Allows manual logging page visit events. Only use this method when `trackPages`
+is set to `false`.
 
 **Parameters:**
 
@@ -234,10 +226,11 @@ is set to `false`.
 **Example:**
 
 ```js
-await analytics.page({url: 'https://dapp.com/subpage/'})
+await analytics.page({ url: 'https://dapp.com/subpage/' })
 ```
 
 ### `connectWallet`
+
 Logs when a user connects their wallet to the dApp.
 
 **Parameters:**
@@ -256,7 +249,8 @@ await analytics.connectWallet({
 ```
 
 ### `transaction`
-Logs when a transaction is submitted by a user. 
+
+Logs when a transaction is submitted by a user.
 
 **Parameters:**
 
@@ -275,7 +269,8 @@ await analytics.transaction({
 ```
 
 ### `attribute`
-Attaches metadata about a session indicating the origination of the traffic. 
+
+Attaches metadata about a session indicating the origination of the traffic.
 Used for more advanced analytics.
 
 **Parameters:**
@@ -283,20 +278,33 @@ Used for more advanced analytics.
 - `attributes` **(object)**
   - `source` **optional(string)** - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
   - `medium` **optional(string)** - the `medium`, defining the medium your visitors arrived at your site
-   * (e.g. `social`, `email`)
+  * (e.g. `social`, `email`)
   - `campaign` **optional(string)** - the `campaign` if you wish to track a specific marketing campaign (e.g. `bankless-podcast-1`, `discord-15`)
 
 **Example:**
 
 ```js
 await analytics.attribute({
-  source: "discord",
-  campaign: "ama--2022-10-10",
+  source: 'discord',
+  campaign: 'ama--2022-10-10',
 })
 ```
 
 # Important Note
 
-We do not support automatic wallet activity tracking with wallets other than Metamask. 
+We do not support automatic wallet activity tracking with wallets other than Metamask.
 
 To fix this, you must pass the newly connected provider to the `sdk.setProvider(newProvider)` instance. Doing so will tell the SDK to watch that provider and fire any wallet connections/transactions/signature requests that wallet will be doing on your dApp! ✅
+
+# Development notes
+
+To run a local version of the script:
+
+1. `yarn build`
+2. Copy the `dist` folder to `example/cra-script-tag/public/analytics-sdk`:
+
+```
+cp -R dist example/cra-script-tag/public/analytics-sdk
+```
+
+3. Replace the unpkg link in `example/cra-scripttag/public/index.html` to `/analytics-sdk/index.umd.min.js`
