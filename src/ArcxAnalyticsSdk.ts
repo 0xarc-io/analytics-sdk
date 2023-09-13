@@ -67,14 +67,10 @@ export class ArcxAnalyticsSdk {
             apiKey: this.apiKey,
             identityId,
             sdkVersion: SDK_VERSION,
-            screen: {
-              width: screen.width,
-              height: screen.height,
-            },
-            viewport: {
-              width: window.innerWidth,
-              height: window.innerHeight,
-            },
+            screenHeight: screen.height,
+            screenWidth: screen.width,
+            viewportHeight: window.innerHeight,
+            viewportWidth: window.innerWidth,
           })
           this._registerSocketListeners(this.socket)
         })
@@ -438,14 +434,10 @@ export class ArcxAnalyticsSdk {
       apiKey,
       identityId,
       sdkVersion: SDK_VERSION,
-      screen: {
-        width: screen.width,
-        height: screen.height,
-      },
-      viewport: {
-        width: window.innerWidth,
-        height: window.innerHeight,
-      },
+      screenHeight: screen.height,
+      screenWidth: screen.width,
+      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth,
     })
 
     return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket)

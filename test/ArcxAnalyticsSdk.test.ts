@@ -214,8 +214,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         apiKey: TEST_API_KEY,
         identityId: TEST_IDENTITY,
         sdkVersion: SDK_VERSION,
-        screen: TEST_SCREEN,
-        viewport: TEST_VIEWPORT,
+        screenHeight: TEST_SCREEN.height,
+        screenWidth: TEST_SCREEN.width,
+        viewportHeight: TEST_VIEWPORT.height,
+        viewportWidth: TEST_VIEWPORT.width,
       })
     })
 
