@@ -1,16 +1,14 @@
 import { io } from 'socket.io-client'
 
-interface Dimensions {
-  width: number
-  height: number
-}
-
 interface IQueryParams {
   apiKey: string
   identityId: string
   sdkVersion: string
-  screen: Dimensions
-  viewport: Dimensions
+  // Can't put objects here
+  screenWidth: number
+  screenHeight: number
+  viewportWidth: number
+  viewportHeight: number
 }
 
 export const createClientSocket = (url: string, queryParams: IQueryParams) => {
