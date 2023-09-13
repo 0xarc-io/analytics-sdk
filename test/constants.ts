@@ -10,3 +10,11 @@ export const TEST_API_KEY = '01234'
 export const TEST_ACCOUNT = '0x1234567890123456789012345678901234567890'
 export const TEST_CHAIN_ID = '1'
 export const TEST_IDENTITY = 'test-identity'
+export const TEST_SCREEN = {
+  width: 1920,
+  height: 1080,
+}
+export const TEST_VIEWPORT = {
+  width: 1280,
+  height: 720,
+}
