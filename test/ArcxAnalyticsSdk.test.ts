@@ -218,6 +218,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         screenWidth: TEST_SCREEN.width,
         viewportHeight: TEST_VIEWPORT.height,
         viewportWidth: TEST_VIEWPORT.width,
+        url: TEST_JSDOM_URL,
       })
     })
 
