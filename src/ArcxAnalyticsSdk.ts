@@ -71,6 +71,7 @@ export class ArcxAnalyticsSdk {
             screenWidth: screen.width,
             viewportHeight: window.innerHeight,
             viewportWidth: window.innerWidth,
+            url: window.location.href,
           })
           this._registerSocketListeners(this.socket)
         })
@@ -438,6 +439,7 @@ export class ArcxAnalyticsSdk {
       screenWidth: screen.width,
       viewportHeight: window.innerHeight,
       viewportWidth: window.innerWidth,
+      url: window.location.href,
     })
 
     return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket)

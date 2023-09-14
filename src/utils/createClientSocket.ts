@@ -9,6 +9,7 @@ interface IQueryParams {
   screenHeight: number
   viewportWidth: number
   viewportHeight: number
+  url: string
 }
 
 export const createClientSocket = (url: string, queryParams: IQueryParams) => {
