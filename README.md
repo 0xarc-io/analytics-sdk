@@ -96,17 +96,17 @@ let arcx = await ArcxAnalyticsSdk.init(API_KEY, {
 A critical part of the ARCx analytics product is associating off-chain behaviour with on-chain wallet activity. In order to do this, we need to be able to link your wallet to the currently active session and the chain that the user is connected to. The chain field should contain the numeric chain ID passed as a string.
 
 ```jsx
-arcx.connectWallet({ account: '0x1234', chain: '1' })
+arcx.wallet({ account: '0x1234', chainId: '1' })
 ```
 
 #### 2. Chain changes
 
 ---
 
-To effectively track and log the changes in the blockchain that the wallet is connected to, the ARCx analytics SDK offers a `chainChanged` function. Utilize this function to note the alterations in the chain ID, fostering more substantial and dynamic analytics. Here is a breakdown of how you can employ this function in your SDK:
+To effectively track and log the changes in the blockchain that the wallet is connected to, the ARCx analytics SDK offers a `chain` function. Utilize this function to note the alterations in the chain ID, fostering more substantial and dynamic analytics. Here is a breakdown of how you can employ this function in your SDK:
 
 ```typescript
-arcx.chainChanged({ chainId, account })
+arcx.chain({ chainId: 1, account: '0x1234' })
 ```
 
 **Parameters:**
@@ -135,7 +135,7 @@ arcx.transaction({
 Signing events can occur when a user signs a message through their wallet. The ARCx analytics SDK allows tracking these events through the signedMessage function. Leveraging this function enables the capturing of intricate details surrounding signed messages, enhancing the granularity of analytics derived from user interactions. Here’s how to use the function:
 
 ```typescript
-arcx.signedMessage({
+arcx.signature({
   message,          // required(string) - The message that was signed
   signatureHash,    // optional(string) - The hash of the signature
   account,          // optional(string) - The account that signed the message. If not passed, the previously recorded account by the SDK will be utilized
@@ -261,26 +261,26 @@ is set to `false`.
 await analytics.page({ url: 'https://dapp.com/subpage/' })
 ```
 
-### `connectWallet`
+### `wallet`
 
 Logs when a user connects their wallet to the dApp.
 
 **Parameters:**
 
 - `attributes` **(object)**
-  - `chain` **(number)** - the chain ID which this address applied to.
+  - `chainId` **(number)** - the chain ID which this address applied to.
   - `account` **(string)** - the address of the connected wallet on the supplied chain.
 
 **Example:**
 
 ```js
-await analytics.connectWallet({
+await analytics.wallet({
   account: '0x123',
-  chain: 1,
+  chainId: 1,
 })
 ```
 
-### `chainChanged`
+### `chain`
 
 Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behavior associated with different chains, facilitating a richer analysis in your ARCx analytics setup.
 
@@ -303,7 +303,7 @@ Logs when a transaction is submitted by a user.
 **Parameters:**
 
 - `attributes` **(object)**
-  - `chain` **(string | number)** - the chain ID where the transaction took place.
+  - `chainId` **(string | number)** - the chain ID where the transaction took place.
   - `transactionHash` **(string)** - the transaction hash of the transaction.
   - `metadata` **(object)** - an optional collection of transaction metadata that you wish to capture.
 
@@ -311,7 +311,7 @@ Logs when a transaction is submitted by a user.
 
 ```js
 await analytics.transaction({
-  chain: 1,
+  chainId: 1,
   transactionHash: '0xABCabc123',
 })
 ```
