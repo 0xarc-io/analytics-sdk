@@ -488,6 +488,8 @@ export class ArcxAnalyticsSdk {
    *
    * @param chainId The new chain ID the wallet connected to.
    * Either in hexadeciaml or decimal format.
+   * @param account (optional) The connected account.
+   * If not passed, the previously recorded account by the SDK will be used.
    */
   chainChanged({ chainId, account }: { chainId: ChainID; account?: string }) {
     if (!chainId || Number(chainId) === 0) {
@@ -518,6 +520,39 @@ export class ArcxAnalyticsSdk {
       chain: attributes.chain,
       transaction_hash: attributes.transactionHash,
       metadata: attributes.metadata || {},
+    })
+  }
+
+  /**
+   * Logs a signing event.
+   * @param message Missage that was signed
+   * @param signatureHash (optional) The signature hash
+   * @param account (optional) The account that signed the message. If not passed, the previously
+   * recorded account by the SDK will be used.
+   */
+  signedMessage({
+    message,
+    signatureHash,
+    account,
+  }: {
+    message: string
+    signatureHash?: string
+    account?: string
+  }) {
+    if (!message) {
+      throw new Error('ArcxAnalyticsSdk::signedMessage: message cannot be empty')
+    }
+
+    if (!account && !this.currentConnectedAccount) {
+      throw new Error(
+        'ArcxAnalyticsSdk::signedMessage: account cannot be empty and was not previously recorded',
+      )
+    }
+
+    return this.event(SIGNING_EVENT, {
+      message,
+      ...(signatureHash && { signatureHash: signatureHash }),
+      account: account || this.currentConnectedAccount,
     })
   }
 

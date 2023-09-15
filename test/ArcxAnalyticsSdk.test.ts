@@ -385,6 +385,77 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
+    describe('#signedMessage', () => {
+      it('throws if message is empty', async () => {
+        try {
+          await sdk.signedMessage({
+            message: '',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq('ArcxAnalyticsSdk::signedMessage: message cannot be empty')
+          return
+        }
+        fail('should throw')
+      })
+
+      it('throws if account is undefined and currentConnectedAccount is undefined', async () => {
+        expect(sdk.currentConnectedAccount).to.be.undefined
+
+        try {
+          await sdk.signedMessage({
+            message: 'hello',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq(
+            'ArcxAnalyticsSdk::signedMessage: account cannot be empty and was not previously recorded',
+          )
+          return
+        }
+        fail('should throw')
+      })
+
+      it('submits a signing event with the currentConnectedAccount if account is undefined', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        sdk.currentConnectedAccount = TEST_ACCOUNT
+        await sdk.signedMessage({
+          message: 'hello',
+        })
+        expect(eventStub).calledOnceWithExactly(SIGNING_EVENT, {
+          account: TEST_ACCOUNT,
+          message: 'hello',
+        })
+      })
+
+      it('submits a signing event with the given account if account is defined', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        const account = '0x123'
+        await sdk.signedMessage({
+          account,
+          message: 'hello',
+        })
+        expect(eventStub).calledOnceWithExactly(SIGNING_EVENT, {
+          account,
+          message: 'hello',
+        })
+      })
+
+      it('submits a signing event with the given hash if hash is defined', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        const account = '0x123'
+        const hash = '0x123456789'
+        await sdk.signedMessage({
+          account,
+          signatureHash: hash,
+          message: 'hello',
+        })
+        expect(eventStub).calledOnceWithExactly(SIGNING_EVENT, {
+          account,
+          signatureHash: hash,
+          message: 'hello',
+        })
+      })
+    })
+
     describe('#referrer', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, 'event')
