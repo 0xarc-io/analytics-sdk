@@ -11,7 +11,6 @@ import {
   FIRST_PAGE_VISIT,
   IDENTITY_KEY,
   PAGE_EVENT,
-  REFERRER_EVENT,
   SDK_VERSION,
   SIGNING_EVENT,
   TRANSACTION_EVENT,
@@ -292,22 +291,25 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe('#connectWallet', () => {
+    describe('#wallet', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
-          chain: TEST_CHAIN_ID,
+          chainId: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         }
-        await sdk.connectWallet(attributes)
-        expect(eventStub).calledOnceWithExactly(CONNECT_EVENT, attributes)
+        await sdk.wallet(attributes)
+        expect(eventStub).calledOnceWithExactly(CONNECT_EVENT, {
+          chain: TEST_CHAIN_ID,
+          account: TEST_ACCOUNT,
+        })
       })
     })
 
     describe('#chainChanged', () => {
       it('throws if chainId is not provideed', async () => {
         try {
-          await sdk.chainChanged({
+          await sdk.chain({
             chainId: '0',
           })
         } catch (err: any) {
@@ -319,7 +321,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
       it('throws if chainId is not a valid hex or decimal number', async () => {
         try {
-          await sdk.chainChanged({
+          await sdk.chain({
             chainId: 'eth',
           })
         } catch (err: any) {
@@ -334,7 +336,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('sets currentChainId to the given chainId', async () => {
         expect(sdk.currentChainId).to.be.undefined
 
-        await sdk.chainChanged({
+        await sdk.chain({
           chainId: parseInt(TEST_CHAIN_ID),
         })
 
@@ -347,7 +349,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           chainId: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         }
-        await sdk.chainChanged(attributes)
+        await sdk.chain(attributes)
         expect(eventStub).calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
@@ -360,7 +362,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           chainId: TEST_CHAIN_ID,
         }
         sdk.currentConnectedAccount = '0x123'
-        await sdk.chainChanged(attributes)
+        await sdk.chain(attributes)
         expect(eventStub).calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
           chain: TEST_CHAIN_ID,
           account: '0x123',
@@ -372,7 +374,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
-          chain: '1',
+          chainId: '1',
           transactionHash: '0x123456789',
           metadata: { timestamp: '123456' },
         }
@@ -388,7 +390,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     describe('#signedMessage', () => {
       it('throws if message is empty', async () => {
         try {
-          await sdk.signedMessage({
+          await sdk.signature({
             message: '',
           })
         } catch (err: any) {
@@ -402,7 +404,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(sdk.currentConnectedAccount).to.be.undefined
 
         try {
-          await sdk.signedMessage({
+          await sdk.signature({
             message: 'hello',
           })
         } catch (err: any) {
@@ -417,7 +419,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('submits a signing event with the currentConnectedAccount if account is undefined', async () => {
         const eventStub = sinon.stub(sdk, 'event')
         sdk.currentConnectedAccount = TEST_ACCOUNT
-        await sdk.signedMessage({
+        await sdk.signature({
           message: 'hello',
         })
         expect(eventStub).calledOnceWithExactly(SIGNING_EVENT, {
@@ -429,7 +431,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('submits a signing event with the given account if account is defined', async () => {
         const eventStub = sinon.stub(sdk, 'event')
         const account = '0x123'
-        await sdk.signedMessage({
+        await sdk.signature({
           account,
           message: 'hello',
         })
@@ -443,7 +445,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const eventStub = sinon.stub(sdk, 'event')
         const account = '0x123'
         const hash = '0x123456789'
-        await sdk.signedMessage({
+        await sdk.signature({
           account,
           signatureHash: hash,
           message: 'hello',
@@ -453,14 +455,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           signatureHash: hash,
           message: 'hello',
         })
-      })
-    })
-
-    describe('#referrer', () => {
-      it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
-        await sdk.referrer(TEST_REFERRER)
-        expect(eventStub.calledOnceWith(REFERRER_EVENT, { referrer: TEST_REFERRER })).to.be.true
       })
     })
 
@@ -842,14 +836,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     describe('#_handleAccountConnected', () => {
       it('calls connectWallet with the correct params', async () => {
         sinon.stub(sdk, <any>'_getCurrentChainId').resolves(TEST_CHAIN_ID)
-        const connectWalletStub = sinon.stub(sdk, 'connectWallet')
+        const connectWalletStub = sinon.stub(sdk, 'wallet')
 
         expect(sdk.currentChainId).to.be.undefined
         await sdk['_handleAccountConnected'](TEST_ACCOUNT)
         expect(sdk.currentChainId).to.eq(TEST_CHAIN_ID)
 
         expect(connectWalletStub).calledOnceWithExactly({
-          chain: TEST_CHAIN_ID,
+          chainId: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
       })

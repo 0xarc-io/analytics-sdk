@@ -10,13 +10,7 @@ import {
 import { expect } from 'chai'
 import sinon from 'sinon'
 import * as postRequestModule from '../src/utils/postRequest'
-import {
-  ATTRIBUTION_EVENT,
-  CLICK_EVENT,
-  DEFAULT_SDK_CONFIG,
-  PAGE_EVENT,
-  REFERRER_EVENT,
-} from '../src/constants'
+import { ATTRIBUTION_EVENT, CLICK_EVENT, DEFAULT_SDK_CONFIG, PAGE_EVENT } from '../src/constants'
 import React from 'react'
 import { TEST_IDENTITY, TEST_JSDOM_URL, TEST_REFERRER } from './constants'
 import { MockEthereum } from './MockEthereum'
@@ -65,10 +59,9 @@ const ChildTest = () => {
 
   return (
     <div>
-      <button onClick={() => sdk?.referrer('/test')}>fire referrer event</button>
       <button onClick={() => sdk?.page({ url: '/test' })}>fire page event</button>
       <button onClick={() => sdk?.event('test-event', { gm: 'gm' })}>fire custom event</button>
-      <button onClick={() => sdk?.transaction({ chain: 1, transactionHash: '0x123' })}>
+      <button onClick={() => sdk?.transaction({ chainId: 1, transactionHash: '0x123' })}>
         fire transaction event
       </button>
       <button
@@ -241,16 +234,6 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(socketStub.emit).calledOnceWith('submit-event', {
         event: ATTRIBUTION_EVENT,
         attributes: { source: 'facebook', medium: 'social', campaign: 'ad-camp' },
-        url: TEST_JSDOM_URL,
-      })
-    })
-
-    it('posts a referrer event', async () => {
-      screen.getByText('fire referrer event').click()
-
-      expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: REFERRER_EVENT,
-        attributes: { referrer: '/test' },
         url: TEST_JSDOM_URL,
       })
     })

@@ -18,7 +18,6 @@ import {
   FIRST_PAGE_VISIT,
   IDENTITY_KEY,
   PAGE_EVENT,
-  REFERRER_EVENT,
   TRANSACTION_EVENT,
   SIGNING_EVENT,
   CLICK_EVENT,
@@ -185,7 +184,7 @@ export class ArcxAnalyticsSdk {
 
     this.currentChainId = await this._getCurrentChainId()
 
-    return this.connectWallet({ chain: this.currentChainId, account: account })
+    return this.wallet({ chainId: this.currentChainId, account: account })
   }
 
   private _handleAccountDisconnected() {
@@ -475,9 +474,16 @@ export class ArcxAnalyticsSdk {
     return this.event(PAGE_EVENT, attributes)
   }
 
-  /** Logs a wallet connect event. */
-  connectWallet(attributes: { chain: ChainID; account: Account }): void {
-    return this.event(CONNECT_EVENT, attributes)
+  /**
+   * Logs a wallet connection event.
+   * @param chainId The chain ID the wallet connected to.
+   * @param account The connected account.
+   */
+  wallet({ chainId, account }: { chainId: ChainID; account: Account }): void {
+    return this.event(CONNECT_EVENT, {
+      chain: chainId,
+      account,
+    })
   }
 
   /**
@@ -491,7 +497,7 @@ export class ArcxAnalyticsSdk {
    * @param account (optional) The connected account.
    * If not passed, the previously recorded account by the SDK will be used.
    */
-  chainChanged({ chainId, account }: { chainId: ChainID; account?: string }) {
+  chain({ chainId, account }: { chainId: ChainID; account?: string }) {
     if (!chainId || Number(chainId) === 0) {
       throw new Error('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty or 0')
     }
@@ -510,16 +516,25 @@ export class ArcxAnalyticsSdk {
     })
   }
 
-  /** Logs an on-chain transaction made by an account. */
-  transaction(attributes: {
-    chain: ChainID
+  /**
+   * Logs a transaction event.
+   * @param transactionHash The transaction hash.
+   * @param chainId (optional) The chain ID the transaction was sent to. If not provided, the previously recorded chainID will be used.
+   * @param metadata (optional) Any additional metadata to be logged.
+   */
+  transaction({
+    transactionHash,
+    chainId,
+    metadata,
+  }: {
     transactionHash: TransactionHash
+    chainId?: ChainID
     metadata?: Record<string, unknown>
   }) {
     return this.event(TRANSACTION_EVENT, {
-      chain: attributes.chain,
-      transaction_hash: attributes.transactionHash,
-      metadata: attributes.metadata || {},
+      chain: chainId,
+      transaction_hash: transactionHash,
+      metadata: metadata || {},
     })
   }
 
@@ -530,7 +545,7 @@ export class ArcxAnalyticsSdk {
    * @param account (optional) The account that signed the message. If not passed, the previously
    * recorded account by the SDK will be used.
    */
-  signedMessage({
+  signature({
     message,
     signatureHash,
     account,
@@ -554,11 +569,6 @@ export class ArcxAnalyticsSdk {
       ...(signatureHash && { signatureHash: signatureHash }),
       account: account || this.currentConnectedAccount,
     })
-  }
-
-  /** Logs an refferer of html page. */
-  async referrer(referrer?: string) {
-    return this.event(REFERRER_EVENT, { referrer: referrer || document.referrer })
   }
 }
 
