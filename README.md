@@ -111,7 +111,7 @@ arcx.chainChanged({ chainId, account })
 
 **Parameters:**
 
-- `chainId`: (**Required**, string) - The new chain ID to which the wallet is connected. It can be in either hexadecimal or decimal format. The function records the current state of the chain ID, facilitating data capture on blockchain dynamics.
+- `chainId`: (**Required**, number | string) - The new chain ID to which the wallet is connected. It can be in either hexadecimal or decimal format. The function records the current state of the chain ID, facilitating data capture on blockchain dynamics.
 - `account`: (Optional, string) - The wallet account involved in the change. If not passed, the SDK will resort to the last recorded account from a previous `connectWallet()` invocation or automatically retrieve it if Metamask is in use.
 
 #### 3. Transactions
@@ -250,7 +250,7 @@ Logs when a user connects their wallet to the dApp.
 **Parameters:**
 
 - `attributes` **(object)**
-  - `chain` **(string | number)** - the chain ID which this address applied to.
+  - `chain` **(number)** - the chain ID which this address applied to.
   - `account` **(string)** - the address of the connected wallet on the supplied chain.
 
 **Example:**
@@ -269,7 +269,7 @@ Logs when there is a change in the blockchain the user’s wallet is connected t
 **Parameters:**
 
 - `attributes` **(object)**
-  - `chainId` **(string)** - The updated chain ID to which the wallet is connected. It should be provided in either a hexadecimal or decimal format to facilitate the change log. This parameter is mandatory to invoke the function.
+  - `chainId` **(number | string)** - The updated chain ID to which the wallet is connected. It should be provided in either a hexadecimal or decimal format to facilitate the change log. This parameter is mandatory to invoke the function.
   - `account` **(string, optional)** - The account associated with the chain change event. If not specified, the function automatically resorts to using the previously recorded account from the last `connectWallet()` call or retrieves it from Metamask if it’s in use and the `trackWalletConnections` config is turned on.
 
 **Example:**
