@@ -130,7 +130,25 @@ arcx.transaction({
 
 > 🔥 Hurray! You’ve completed the bare-bone installation of the ARCx analytics SDK. The following steps beyond this are optional but can given greater resolution and insights if implemented.
 
-#### 4. Events & Attribution (optional)
+#### 4. Signatures
+
+Signing events can occur when a user signs a message through their wallet. The ARCx analytics SDK allows tracking these events through the signedMessage function. Leveraging this function enables the capturing of intricate details surrounding signed messages, enhancing the granularity of analytics derived from user interactions. Here’s how to use the function:
+
+```typescript
+arcx.signedMessage({
+  message,          // required(string) - The message that was signed
+  signatureHash,    // optional(string) - The hash of the signature
+  account,          // optional(string) - The account that signed the message. If not passed, the previously recorded account by the SDK will be utilized
+})
+```
+
+**Parameters:**
+
+- `message`: (**Required**, string) - The message that was signed. This parameter cannot be empty; attempting to pass an empty string will throw an error, ensuring that meaningful data is always captured.
+- `signatureHash`: (Optional, string) - The hash associated with the signature. While not compulsory, including this detail can help us confirm whether the signature is valid.
+- `account`: (Optional, string) - The account involved in signing the message. In instances where it is not provided, the SDK will refer to the most recently recorded account either from the last `connectWallet()` call or discovered automatically on Metamask given the `trackWalletConnections` option is turned on.
+
+#### 5. Events & Attribution (optional)
 
 ---
 
