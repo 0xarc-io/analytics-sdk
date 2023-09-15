@@ -490,12 +490,18 @@ export class ArcxAnalyticsSdk {
    * @param chainId The new chain ID the wallet connected to.
    * Either in hexadeciaml or decimal format.
    */
-  chainChanged({ chainId, account }: { chainId: string; account?: string }) {
-    if (!chainId) {
-      throw new Error('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty')
+  chainChanged({ chainId, account }: { chainId: ChainID; account?: string }) {
+    if (!chainId || Number(chainId) === 0) {
+      throw new Error('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty or 0')
     }
 
-    this.currentChainId = chainId
+    if (isNaN(Number(chainId))) {
+      throw new Error(
+        'ArcxAnalyticsSdk::chainChanged: chainId must be a valid hex or decimal number',
+      )
+    }
+
+    this.currentChainId = chainId.toString()
 
     return this.event(CHAIN_CHANGED_EVENT, {
       chain: chainId,
