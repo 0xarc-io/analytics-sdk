@@ -44,7 +44,6 @@ const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   trackReferrer: false,
   trackUTM: false,
   trackWalletConnections: false,
-  trackChainChanges: false,
   trackTransactions: false,
   trackSigning: false,
   trackClicks: false,
@@ -169,20 +168,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe('trackChainChanges', () => {
-      it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
-        const provider = new MockEthereum()
-        window.ethereum = provider
-        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
-
-        const onChainChangedStub = sinon.stub(sdk, '_onChainChanged' as any)
-
-        provider.emit('chainChanged', TEST_CHAIN_ID)
-        expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
-        expect(sdk['_registeredProviderListeners']['chainChanged']).to.not.be.null
-      })
-    })
-
     it('calls _trackSigning if trackSigning is true', async () => {
       const trackSigningStub = sinon.stub(ArcxAnalyticsSdk.prototype, '_trackSigning' as any)
       await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackSigning: true })
@@ -242,10 +227,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
   })
 
   describe('Functionality', () => {
-    let analyticsSdk: ArcxAnalyticsSdk
+    let sdk: ArcxAnalyticsSdk
 
     beforeEach(async () => {
-      analyticsSdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
+      sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, ALL_FALSE_CONFIG)
       // Reset history after init because of the /identify call
       postRequestStub.resetHistory()
     })
@@ -260,7 +245,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             e: 21,
           },
         }
-        analyticsSdk.event('TEST_EVENT', attributes)
+        sdk.event('TEST_EVENT', attributes)
         expect(socketStub.emit).calledOnceWithExactly(
           'submit-event',
           getAnalyticsData('TEST_EVENT', attributes),
@@ -270,7 +255,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('supports nested attributes', async () => {
         const attributes = { layer1: { layer2: { layer3: { layer4: 'hello!' } } } }
 
-        await analyticsSdk.event('TEST_EVENT', attributes)
+        await sdk.event('TEST_EVENT', attributes)
         expect(socketStub.emit).calledOnceWithExactly(
           'submit-event',
           getAnalyticsData('TEST_EVENT', attributes),
@@ -280,55 +265,113 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#attribute', () => {
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
           source: TEST_UTM_SOURCE,
           medium: TEST_UTM_MEDIUM,
           campaign: TEST_UTM_CAMPAIGN,
         }
-        await analyticsSdk.attribute(attributes)
+        await sdk.attribute(attributes)
         expect(eventStub).calledOnceWithExactly(ATTRIBUTION_EVENT, attributes)
       })
     })
 
     describe('#page', () => {
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
           url: TEST_JSDOM_URL,
         }
-        analyticsSdk.page(attributes)
+        sdk.page(attributes)
         expect(eventStub).calledOnceWithExactly(PAGE_EVENT, attributes)
       })
 
       it('fails if page value is not provided', async () => {
-        expect(() => analyticsSdk.page({ url: '' })).throws(
-          'ArcxAnalyticsSdk::page: url cannot be empty',
-        )
+        expect(() => sdk.page({ url: '' })).throws('ArcxAnalyticsSdk::page: url cannot be empty')
       })
     })
 
     describe('#connectWallet', () => {
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         }
-        await analyticsSdk.connectWallet(attributes)
+        await sdk.connectWallet(attributes)
         expect(eventStub).calledOnceWithExactly(CONNECT_EVENT, attributes)
+      })
+    })
+
+    describe('#chainChanged', () => {
+      it('throws if chainId is not provideed', () => {
+        try {
+          sdk.chainChanged({
+            chainId: '',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty')
+        }
+      })
+
+      it('throws if chainId is not a valid hex or decimal number', () => {
+        try {
+          sdk.chainChanged({
+            chainId: 'ethereum',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq(
+            'ArcxAnalyticsSdk::chainChanged: chainId must be a valid hex or decimal number',
+          )
+        }
+      })
+
+      it('sets currentChainId to the given chainId', async () => {
+        expect(sdk.currentChainId).to.be.undefined
+
+        await sdk.chainChanged({
+          chainId: TEST_CHAIN_ID,
+        })
+
+        expect(sdk.currentChainId).to.eq(TEST_CHAIN_ID)
+      })
+
+      it('calls event() with the given attributes', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        const attributes = {
+          chainId: TEST_CHAIN_ID,
+          account: TEST_ACCOUNT,
+        }
+        await sdk.chainChanged(attributes)
+        expect(eventStub).calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
+          chain: TEST_CHAIN_ID,
+          account: TEST_ACCOUNT,
+        })
+      })
+
+      it('if no account is passed, use the previously recorded account', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        const attributes = {
+          chainId: TEST_CHAIN_ID,
+        }
+        sdk.currentConnectedAccount = '0x123'
+        await sdk.chainChanged(attributes)
+        expect(eventStub).calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
+          chain: TEST_CHAIN_ID,
+          account: '0x123',
+        })
       })
     })
 
     describe('#transaction', () => {
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
           chain: '1',
           transactionHash: '0x123456789',
           metadata: { timestamp: '123456' },
         }
-        await analyticsSdk.transaction(attributes)
+        await sdk.transaction(attributes)
         expect(eventStub).calledOnceWithExactly(TRANSACTION_EVENT, {
           chain: '1',
           transaction_hash: '0x123456789',
@@ -339,19 +382,19 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#referrer', () => {
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
-        await analyticsSdk.referrer(TEST_REFERRER)
+        const eventStub = sinon.stub(sdk, 'event')
+        await sdk.referrer(TEST_REFERRER)
         expect(eventStub.calledOnceWith(REFERRER_EVENT, { referrer: TEST_REFERRER })).to.be.true
       })
     })
 
     describe('setProvider', () => {
       it('deletes currentChainId and currentConnectedAccount if setting to undefined', () => {
-        analyticsSdk['currentChainId'] = TEST_CHAIN_ID
-        analyticsSdk['currentConnectedAccount'] = TEST_ACCOUNT
-        analyticsSdk.setProvider(undefined)
-        expect(analyticsSdk['currentChainId']).to.be.undefined
-        expect(analyticsSdk['currentConnectedAccount']).to.be.undefined
+        sdk['currentChainId'] = TEST_CHAIN_ID
+        sdk['currentConnectedAccount'] = TEST_ACCOUNT
+        sdk.setProvider(undefined)
+        expect(sdk['currentChainId']).to.be.undefined
+        expect(sdk['currentConnectedAccount']).to.be.undefined
       })
 
       describe('setting a provider', () => {
@@ -369,14 +412,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
 
         it('sets `provider` to the given provider', () => {
-          expect(analyticsSdk.provider).to.eq(window.ethereum)
+          expect(sdk.provider).to.eq(window.ethereum)
 
-          analyticsSdk.setProvider(undefined)
-          expect(analyticsSdk.provider).to.be.undefined
+          sdk.setProvider(undefined)
+          expect(sdk.provider).to.be.undefined
 
           const newProvider = new MockEthereum()
-          analyticsSdk.setProvider(newProvider)
-          expect(analyticsSdk.provider).to.eq(newProvider)
+          sdk.setProvider(newProvider)
+          expect(sdk.provider).to.eq(newProvider)
         })
 
         it('calls _registerAccountsChangedListener if trackWalletConnections is true', async () => {
@@ -391,17 +434,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
           sdk.setProvider(new MockEthereum())
           expect(registerAccountsChangedStub).to.be.called
-        })
-
-        it('registers a chainChanged listener if trackChainChanges is true', async () => {
-          const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
-
-          const registerChainChangedStub = sinon.stub(sdk, '_registerChainChangedListener' as any)
-
-          expect(sdk['sdkConfig'].trackChainChanges).to.be.true
-
-          sdk.setProvider(new MockEthereum())
-          expect(registerChainChangedStub).to.be.called
         })
 
         it('calls _trackSigning if trackSigning is true', async () => {
@@ -462,12 +494,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
           expect(sdk.provider).to.not.be.undefined
           expect((window.ethereum as any as EventEmitter).listenerCount('accountsChanged')).to.eq(1)
-          expect((window.ethereum as any as EventEmitter).listenerCount('chainChanged')).to.eq(1)
 
           sdk.setProvider(undefined)
 
           expect((window.ethereum as any as EventEmitter).listenerCount('accountsChanged')).to.eq(0)
-          expect((window.ethereum as any as EventEmitter).listenerCount('chainChanged')).to.eq(0)
         })
       })
     })
@@ -475,7 +505,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     describe('#_reportError', () => {
       it('calls postRequest with error message', async () => {
         const errorMsg = 'TestError: this should not happen'
-        await analyticsSdk['_report']('error', errorMsg)
+        await sdk['_report']('error', errorMsg)
         expect(postRequestStub).calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/log-sdk', {
           logLevel: 'error',
           data: {
@@ -489,7 +519,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
       it('calls postRequest with warning message', async () => {
         const errorMsg = 'TestError: this should not happen'
-        await analyticsSdk['_report']('warning', errorMsg)
+        await sdk['_report']('warning', errorMsg)
         expect(postRequestStub).calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/log-sdk', {
           logLevel: 'warning',
           data: {
@@ -506,41 +536,41 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       let eventStub: sinon.SinonStub
 
       beforeEach(() => {
-        eventStub = sinon.stub(analyticsSdk, 'event')
+        eventStub = sinon.stub(sdk, 'event')
       })
 
       it('sets the current window location to sessionStorage if trackPages is true', () => {
-        analyticsSdk['sdkConfig'].trackPages = true
+        sdk['sdkConfig'].trackPages = true
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
-        analyticsSdk['_trackFirstPageVisit']()
+        sdk['_trackFirstPageVisit']()
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
-        analyticsSdk['sdkConfig'].trackPages = false
+        sdk['sdkConfig'].trackPages = false
       })
 
       it('emits a FIRST_PAGE_VISIT event with url if trackPages is true', () => {
-        analyticsSdk['sdkConfig'].trackPages = true
+        sdk['sdkConfig'].trackPages = true
 
-        analyticsSdk['_trackFirstPageVisit']()
+        sdk['_trackFirstPageVisit']()
         expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, { url: TEST_JSDOM_URL })
 
-        analyticsSdk['sdkConfig'].trackPages = false
+        sdk['sdkConfig'].trackPages = false
       })
 
       it('emits a FIRST_PAGE_VISIT event with referrer if trackReferrer is true', () => {
-        analyticsSdk['sdkConfig'].trackReferrer = true
+        sdk['sdkConfig'].trackReferrer = true
 
-        analyticsSdk['_trackFirstPageVisit']()
+        sdk['_trackFirstPageVisit']()
         expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, { referrer: TEST_REFERRER })
 
-        analyticsSdk['sdkConfig'].trackReferrer = false
+        sdk['sdkConfig'].trackReferrer = false
       })
 
       it('emits a FIRST_PAGE_VISIT event with utm tags if trackUTM is true', () => {
-        analyticsSdk['sdkConfig'].trackUTM = true
+        sdk['sdkConfig'].trackUTM = true
 
-        analyticsSdk['_trackFirstPageVisit']()
+        sdk['_trackFirstPageVisit']()
         expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, {
           utm: {
             source: TEST_UTM_SOURCE,
@@ -550,15 +580,15 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           },
         })
 
-        analyticsSdk['sdkConfig'].trackUTM = false
+        sdk['sdkConfig'].trackUTM = false
       })
 
       it('emits a FIRST_PAGE_VISIT event with url, referrer and UTM attributes if trackPages, referrer and UTM configs are set to true', () => {
-        analyticsSdk['sdkConfig'].trackPages = true
-        analyticsSdk['sdkConfig'].trackReferrer = true
-        analyticsSdk['sdkConfig'].trackUTM = true
+        sdk['sdkConfig'].trackPages = true
+        sdk['sdkConfig'].trackReferrer = true
+        sdk['sdkConfig'].trackUTM = true
 
-        analyticsSdk['_trackFirstPageVisit']()
+        sdk['_trackFirstPageVisit']()
         expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, {
           url: TEST_JSDOM_URL,
           referrer: TEST_REFERRER,
@@ -570,15 +600,15 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           },
         })
 
-        analyticsSdk['sdkConfig'].trackPages = false
-        analyticsSdk['sdkConfig'].trackReferrer = false
-        analyticsSdk['sdkConfig'].trackUTM = false
+        sdk['sdkConfig'].trackPages = false
+        sdk['sdkConfig'].trackReferrer = false
+        sdk['sdkConfig'].trackUTM = false
       })
     })
 
     describe('#_trackPagesChange', () => {
       it('locationchange event does not exist', () => {
-        const onLocationChangeStub = sinon.stub(analyticsSdk, <any>'_onLocationChange')
+        const onLocationChangeStub = sinon.stub(sdk, <any>'_onLocationChange')
 
         window.dispatchEvent(
           new window.Event('locationchange', { bubbles: true, cancelable: false }),
@@ -588,8 +618,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('registers a locationchange event', () => {
-        const onLocationChangeStub = sinon.stub(analyticsSdk, <any>'_onLocationChange')
-        analyticsSdk['_trackPagesChange']()
+        const onLocationChangeStub = sinon.stub(sdk, <any>'_onLocationChange')
+        sdk['_trackPagesChange']()
 
         window.dispatchEvent(
           new window.Event('locationchange', { bubbles: true, cancelable: false }),
@@ -601,7 +631,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       describe('triggers a locationchange event', () => {
         it('triggers on history.pushState', () => {
           const locationChangeListener = sinon.spy()
-          analyticsSdk['_trackPagesChange']()
+          sdk['_trackPagesChange']()
 
           window.addEventListener('locationchange', locationChangeListener)
           window.history.pushState({}, '', '/new-url')
@@ -612,7 +642,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         it('triggers on history.replaceState', () => {
           const locationChangeListener = sinon.spy()
-          analyticsSdk['_trackPagesChange']()
+          sdk['_trackPagesChange']()
 
           window.addEventListener('locationchange', locationChangeListener)
           window.history.replaceState({}, '', '/new-url')
@@ -623,7 +653,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         it('triggers on history.popstate', () => {
           const locationChangeListener = sinon.spy()
-          analyticsSdk['_trackPagesChange']()
+          sdk['_trackPagesChange']()
 
           window.addEventListener('locationchange', locationChangeListener)
           window.dispatchEvent(new PopStateEvent('popstate'))
@@ -634,7 +664,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         it('triggers multiple times', () => {
           const locationChangeListener = sinon.spy()
-          analyticsSdk['_trackPagesChange']()
+          sdk['_trackPagesChange']()
 
           window.addEventListener('locationchange', locationChangeListener)
 
@@ -651,33 +681,33 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_onLocationChange', () => {
       it('sets the current location in the storage and calls page', () => {
-        const pageStub = sinon.stub(analyticsSdk, 'page')
+        const pageStub = sinon.stub(sdk, 'page')
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
 
-        analyticsSdk['_onLocationChange']()
+        sdk['_onLocationChange']()
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
         expect(pageStub).to.be.calledOnceWithExactly({ url: TEST_JSDOM_URL })
       })
 
       it('sets the current location in the storage and calls page once if path is not changed ', () => {
-        const pageStub = sinon.stub(analyticsSdk, 'page')
+        const pageStub = sinon.stub(sdk, 'page')
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
 
-        analyticsSdk['_onLocationChange']()
-        analyticsSdk['_onLocationChange']()
+        sdk['_onLocationChange']()
+        sdk['_onLocationChange']()
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
         expect(pageStub).to.be.calledOnceWithExactly({ url: TEST_JSDOM_URL })
       })
 
       it('sets the current location in the storage and calls page twice if the path has changed', () => {
-        const pageStub = sinon.stub(analyticsSdk, 'page')
+        const pageStub = sinon.stub(sdk, 'page')
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
 
-        analyticsSdk['_onLocationChange']()
+        sdk['_onLocationChange']()
         window.history.pushState({}, '', `${TEST_JSDOM_URL}new`)
-        analyticsSdk['_onLocationChange']()
+        sdk['_onLocationChange']()
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(`${TEST_JSDOM_URL}new`)
         expect(pageStub).to.be.calledTwice
@@ -688,7 +718,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_trackClicks', () => {
       it('does nothing if trackClicks is disabled', () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        const eventStub = sinon.stub(sdk, 'event')
 
         window.dispatchEvent(new window.Event('click'))
 
@@ -696,8 +726,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('report warning if event target is not element', () => {
-        analyticsSdk['_trackClicks']()
-        const reportStub = sinon.stub(analyticsSdk, '_report')
+        sdk['_trackClicks']()
+        const reportStub = sinon.stub(sdk, '_report')
         window.dispatchEvent(new window.Event('click'))
         expect(reportStub).is.calledOnceWithExactly(
           'warning',
@@ -708,29 +738,26 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_onAccountsChanged', () => {
       it('does nothing if account is the same as this.currentConnectedAccount', () => {
-        analyticsSdk.currentConnectedAccount = TEST_ACCOUNT
+        sdk.currentConnectedAccount = TEST_ACCOUNT
 
-        const eventStub = sinon.stub(analyticsSdk, 'event')
-        analyticsSdk['_onAccountsChanged']([TEST_ACCOUNT])
+        const eventStub = sinon.stub(sdk, 'event')
+        sdk['_onAccountsChanged']([TEST_ACCOUNT])
 
         expect(eventStub).not.called
       })
 
       it('calls _handleAccountConnected when an account is given', () => {
-        const handleAccountConnectedStub = sinon.stub(analyticsSdk, <any>'_handleAccountConnected')
+        const handleAccountConnectedStub = sinon.stub(sdk, <any>'_handleAccountConnected')
 
-        analyticsSdk['_onAccountsChanged']([TEST_ACCOUNT])
+        sdk['_onAccountsChanged']([TEST_ACCOUNT])
 
         expect(handleAccountConnectedStub).calledOnceWithExactly(TEST_ACCOUNT)
       })
 
       it('calls _handleAccountDisconnected when no account is given', () => {
-        const handleAccountDisconnectedStub = sinon.stub(
-          analyticsSdk,
-          <any>'_handleAccountDisconnected',
-        )
+        const handleAccountDisconnectedStub = sinon.stub(sdk, <any>'_handleAccountDisconnected')
 
-        analyticsSdk['_onAccountsChanged']([])
+        sdk['_onAccountsChanged']([])
 
         expect(handleAccountDisconnectedStub).calledOnce
       })
@@ -738,12 +765,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_handleAccountConnected', () => {
       it('calls connectWallet with the correct params', async () => {
-        sinon.stub(analyticsSdk, <any>'_getCurrentChainId').resolves(TEST_CHAIN_ID)
-        const connectWalletStub = sinon.stub(analyticsSdk, 'connectWallet')
+        sinon.stub(sdk, <any>'_getCurrentChainId').resolves(TEST_CHAIN_ID)
+        const connectWalletStub = sinon.stub(sdk, 'connectWallet')
 
-        expect(analyticsSdk.currentChainId).to.be.undefined
-        await analyticsSdk['_handleAccountConnected'](TEST_ACCOUNT)
-        expect(analyticsSdk.currentChainId).to.eq(TEST_CHAIN_ID)
+        expect(sdk.currentChainId).to.be.undefined
+        await sdk['_handleAccountConnected'](TEST_ACCOUNT)
+        expect(sdk.currentChainId).to.eq(TEST_CHAIN_ID)
 
         expect(connectWalletStub).calledOnceWithExactly({
           chain: TEST_CHAIN_ID,
@@ -754,49 +781,37 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_handleAccountDisconnected', () => {
       it('does nothing if current chain id or current acount are not set', () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
-        expect(analyticsSdk.currentChainId).to.be.undefined
-        expect(analyticsSdk.currentConnectedAccount).to.be.undefined
+        const eventStub = sinon.stub(sdk, 'event')
+        expect(sdk.currentChainId).to.be.undefined
+        expect(sdk.currentConnectedAccount).to.be.undefined
 
-        analyticsSdk['_handleAccountDisconnected']()
+        sdk['_handleAccountDisconnected']()
 
         expect(eventStub).to.not.be.called
       })
 
       it('clears the current chain id and account', () => {
-        sinon.stub(analyticsSdk, 'event')
-        analyticsSdk.currentChainId = TEST_CHAIN_ID
-        analyticsSdk.currentConnectedAccount = TEST_ACCOUNT
+        sinon.stub(sdk, 'event')
+        sdk.currentChainId = TEST_CHAIN_ID
+        sdk.currentConnectedAccount = TEST_ACCOUNT
 
-        analyticsSdk['_handleAccountDisconnected']()
+        sdk['_handleAccountDisconnected']()
 
-        expect(analyticsSdk.currentChainId).to.be.undefined
-        expect(analyticsSdk.currentConnectedAccount).to.be.undefined
+        expect(sdk.currentChainId).to.be.undefined
+        expect(sdk.currentConnectedAccount).to.be.undefined
       })
 
       it('emits a DISCONNECT event with the correct params', () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        const eventStub = sinon.stub(sdk, 'event')
 
-        analyticsSdk.currentChainId = TEST_CHAIN_ID
-        analyticsSdk.currentConnectedAccount = TEST_ACCOUNT
+        sdk.currentChainId = TEST_CHAIN_ID
+        sdk.currentConnectedAccount = TEST_ACCOUNT
 
-        analyticsSdk['_handleAccountDisconnected']()
+        sdk['_handleAccountDisconnected']()
 
         expect(eventStub).calledOnceWithExactly(DISCONNECT_EVENT, {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
-        })
-      })
-    })
-
-    describe('#_onChainChanged', () => {
-      it('converts hex chain id to decimal and fires event', () => {
-        const eventStub = sinon.stub(analyticsSdk, 'event')
-
-        analyticsSdk['_onChainChanged']('0x1')
-
-        expect(eventStub).calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
-          chain: TEST_CHAIN_ID,
         })
       })
     })
@@ -806,36 +821,36 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const requestStub = window.ethereum?.request
         const warnStub = sinon.stub(console, 'warn')
 
-        analyticsSdk['_provider'] = undefined
-        await analyticsSdk['_reportCurrentWallet']()
+        sdk['_provider'] = undefined
+        await sdk['_reportCurrentWallet']()
 
         expect(requestStub).to.not.have.been.called
         expect(warnStub).to.have.been.called
       })
 
       it('calls provider.request with eth_accounts', async () => {
-        const provider = analyticsSdk.provider
+        const provider = sdk.provider
         const requestStub = provider?.request
 
-        await analyticsSdk['_reportCurrentWallet']()
+        await sdk['_reportCurrentWallet']()
 
         expect(requestStub).calledOnceWithExactly({ method: 'eth_accounts' })
       })
 
       it('does not call _handleAccountConnected if an account is returned', async () => {
-        const handleAccountConnectedStub = sinon.stub(analyticsSdk, <any>'_handleAccountConnected')
+        const handleAccountConnectedStub = sinon.stub(sdk, <any>'_handleAccountConnected')
         ;(window.ethereum?.request as any).resolves([])
 
-        await analyticsSdk['_reportCurrentWallet']()
+        await sdk['_reportCurrentWallet']()
 
         expect(handleAccountConnectedStub).not.called
       })
 
       it('calls _handleAccountConnected if an account is returned', async () => {
-        const handleAccountConnectedStub = sinon.stub(analyticsSdk, <any>'_handleAccountConnected')
+        const handleAccountConnectedStub = sinon.stub(sdk, <any>'_handleAccountConnected')
         ;(window.ethereum?.request as any).resolves([TEST_ACCOUNT])
 
-        await analyticsSdk['_reportCurrentWallet']()
+        await sdk['_reportCurrentWallet']()
 
         expect(handleAccountConnectedStub).calledOnceWithExactly(TEST_ACCOUNT)
       })
@@ -844,10 +859,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     describe('#_getCurrentChainId', () => {
       it('throws if _provider is undefined', async () => {
         const originalEthereum = window.ethereum
-        analyticsSdk['_provider'] = undefined
+        sdk['_provider'] = undefined
 
         try {
-          await analyticsSdk['_getCurrentChainId']()
+          await sdk['_getCurrentChainId']()
         } catch (err: any) {
           expect(err.message).to.eq('ArcxAnalyticsSdk::_getCurrentChainId: provider not set')
         }
@@ -860,7 +875,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         request.resolves(undefined)
 
         try {
-          await analyticsSdk['_getCurrentChainId']()
+          await sdk['_getCurrentChainId']()
         } catch (err: any) {
           expect(err.message).to.eq(
             'ArcxAnalyticsSdk::_getCurrentChainId: chainIdHex is: undefined',
@@ -871,7 +886,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('calls eth_chainId and returns a converted decimal chain id', async () => {
         const requestStub = (window.ethereum?.request as any).resolves('0x1')
 
-        const chainId = await analyticsSdk['_getCurrentChainId']()
+        const chainId = await sdk['_getCurrentChainId']()
 
         expect(requestStub).calledOnceWithExactly({ method: 'eth_chainId' })
         expect(chainId).to.eq('1')
@@ -880,9 +895,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_trackTransactions', () => {
       it('does not change request if provider is undefined', () => {
-        analyticsSdk['_provider'] = undefined
-        const reportErrorStub = sinon.stub(analyticsSdk, '_report')
-        expect(analyticsSdk['_trackTransactions']()).to.be.false
+        sdk['_provider'] = undefined
+        const reportErrorStub = sinon.stub(sdk, '_report')
+        expect(sdk['_trackTransactions']()).to.be.false
         expect(reportErrorStub).to.be.calledOnce
       })
 
@@ -905,12 +920,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           params: [transactionParams.from, 'latest'],
         })
 
-        analyticsSdk = await ArcxAnalyticsSdk.init('', {
+        sdk = await ArcxAnalyticsSdk.init('', {
           ...ALL_FALSE_CONFIG,
           trackTransactions: true,
           initialProvider: window.web3.currentProvider,
         })
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        const eventStub = sinon.stub(sdk, 'event')
 
         await window.web3.currentProvider!.request({
           method: 'eth_sendTransaction',
@@ -930,22 +945,22 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       ]
 
       it('does not change request if provider is undefined', async () => {
-        analyticsSdk['_provider'] = undefined
-        const reportErrorStub = sinon.stub(analyticsSdk, '_report')
-        expect(analyticsSdk['_trackSigning']()).to.be.false
+        sdk['_provider'] = undefined
+        const reportErrorStub = sinon.stub(sdk, '_report')
+        expect(sdk['_trackSigning']()).to.be.false
         expect(reportErrorStub).to.be.calledOnce
       })
 
       it('returns true if provider is not undefined', () => {
-        expect(analyticsSdk.provider).to.not.be.undefined
-        expect(analyticsSdk['_trackSigning']()).to.be.true
+        expect(sdk.provider).to.not.be.undefined
+        expect(sdk['_trackSigning']()).to.be.true
       })
 
       it('makes a SIGNING_EVENT event if personal_sign appears', async () => {
         const method = 'personal_sign'
 
-        analyticsSdk['_trackSigning']()
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        sdk['_trackSigning']()
+        const eventStub = sinon.stub(sdk, 'event')
         await window.ethereum!.request({ method, params })
 
         expect(eventStub).calledWithExactly(SIGNING_EVENT, {
@@ -958,8 +973,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('makes a SIGNING_EVENT event if eth_sign appears', async () => {
         const method = 'eth_sign'
 
-        analyticsSdk['_trackSigning']()
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        sdk['_trackSigning']()
+        const eventStub = sinon.stub(sdk, 'event')
         await window.ethereum!.request({ method, params })
 
         expect(eventStub).calledWithExactly(SIGNING_EVENT, {
@@ -971,8 +986,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('makes a SIGNING_EVENT event if signTypedData_v4 appears', async () => {
         const method = 'signTypedData_v4'
 
-        analyticsSdk['_trackSigning']()
-        const eventStub = sinon.stub(analyticsSdk, 'event')
+        sdk['_trackSigning']()
+        const eventStub = sinon.stub(sdk, 'event')
         await window.ethereum!.request({ method, params })
 
         expect(eventStub).calledWithExactly(SIGNING_EVENT, {
@@ -993,20 +1008,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk['_registerAccountsChangedListener']()
 
         expect(provider.listenerCount('accountsChanged')).to.eq(1)
-      })
-    })
-
-    describe('#_registerChainChangedListener', () => {
-      it('registers a chainChanged event listener and saves it to `_registeredProviderListeners`', async () => {
-        const provider = new MockEthereum()
-        window.ethereum = provider
-
-        const sdk = await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
-        expect(provider.listenerCount('chainChanged')).to.eq(0)
-
-        sdk['_registerChainChangedListener']()
-
-        expect(provider.listenerCount('chainChanged')).to.eq(1)
       })
     })
   })

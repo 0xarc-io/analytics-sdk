@@ -6,7 +6,6 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
   trackReferrer: true,
   trackUTM: true,
   trackWalletConnections: true,
-  trackChainChanges: true,
   trackTransactions: true,
   trackSigning: true,
   trackClicks: true,
