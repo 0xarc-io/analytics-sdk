@@ -102,12 +102,6 @@ export class ArcxAnalyticsSdk {
     this._registeredProviderListeners['disconnect'] = _handleAccountDisconnected
   }
 
-  private _registerChainChangedListener() {
-    const listener = (...args: unknown[]) => this._onChainChanged(args[0] as string)
-    this.provider?.on('chainChanged', listener)
-    this._registeredProviderListeners['chainChanged'] = listener
-  }
-
   private _trackFirstPageVisit() {
     if (!this.sdkConfig.trackPages && !this.sdkConfig.trackReferrer && !this.sdkConfig.trackUTM) {
       return
@@ -217,12 +211,6 @@ export class ArcxAnalyticsSdk {
     this.currentConnectedAccount = undefined
 
     return this.event(DISCONNECT_EVENT, disconnectAttributes)
-  }
-
-  private _onChainChanged(chainIdHex: string) {
-    this.currentChainId = parseInt(chainIdHex, 16).toString()
-
-    return this.event(CHAIN_CHANGED_EVENT, { chain: this.currentChainId })
   }
 
   private async _reportCurrentWallet() {
@@ -351,10 +339,6 @@ export class ArcxAnalyticsSdk {
       if (this.sdkConfig.trackWalletConnections) {
         this._reportCurrentWallet()
         this._registerAccountsChangedListener()
-      }
-
-      if (this.sdkConfig.trackChainChanges) {
-        this._registerChainChangedListener()
       }
 
       if (this.sdkConfig.trackSigning) {
@@ -495,6 +479,28 @@ export class ArcxAnalyticsSdk {
   /** Logs a wallet connect event. */
   connectWallet(attributes: { chain: ChainID; account: Account }): void {
     return this.event(CONNECT_EVENT, attributes)
+  }
+
+  /**
+   * Logs a chain change.
+   *
+   * If `account` is not passed, the previously recorded account will be used
+   * (from a previous `connectWallet()` or automatically detected if using Metamask).
+   *
+   * @param chainId The new chain ID the wallet connected to.
+   * Either in hexadeciaml or decimal format.
+   */
+  chainChanged({ chainId, account }: { chainId: string; account?: string }) {
+    if (!chainId) {
+      throw new Error('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty')
+    }
+
+    this.currentChainId = chainId
+
+    return this.event(CHAIN_CHANGED_EVENT, {
+      chain: chainId,
+      account: account || this.currentConnectedAccount,
+    })
   }
 
   /** Logs an on-chain transaction made by an account. */
