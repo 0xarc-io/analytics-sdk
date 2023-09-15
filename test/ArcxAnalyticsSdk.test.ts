@@ -304,7 +304,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe.only('#chainChanged', () => {
+    describe('#chainChanged', () => {
       it('throws if chainId is not provideed', async () => {
         try {
           await sdk.chainChanged({
