@@ -96,17 +96,32 @@ let arcx = await ArcxAnalyticsSdk.init(API_KEY, {
 A critical part of the ARCx analytics product is associating off-chain behaviour with on-chain wallet activity. In order to do this, we need to be able to link your wallet to the currently active session and the chain that the user is connected to. The chain field should contain the numeric chain ID passed as a string.
 
 ```jsx
-await arcx.connectWallet({ account: '0x1234', chain: '1' })
+arcx.connectWallet({ account: '0x1234', chain: '1' })
 ```
 
-#### 2. Transactions
+#### 2. Chain changes
+
+---
+
+To effectively track and log the changes in the blockchain that the wallet is connected to, the ARCx analytics SDK offers a `chainChanged` function. Utilize this function to note the alterations in the chain ID, fostering more substantial and dynamic analytics. Here is a breakdown of how you can employ this function in your SDK:
+
+```typescript
+arcx.chainChanged({ chainId, account })
+```
+
+**Parameters:**
+
+- `chainId`: (**Required**, string) - The new chain ID to which the wallet is connected. It can be in either hexadecimal or decimal format. The function records the current state of the chain ID, facilitating data capture on blockchain dynamics.
+- `account`: (Optional, string) - The wallet account involved in the change. If not passed, the SDK will resort to the last recorded account from a previous `connectWallet()` invocation or automatically retrieve it if Metamask is in use.
+
+#### 3. Transactions
 
 ---
 
 The final piece for a bare-bone installation of ARCx analytics is registering transactions that occur on-chain. In addition to passing the transaction hash, we need the ID of the chain the transaction is occurring on and optionally, any attributes you’d like to pass to further segment the event.
 
 ```jsx
-await arcx.transaction({
+arcx.transaction({
   chain, // required(string) - chain ID that the transaction is taking place on
   transactionHash, // required(string) - hash of the transaction
   metadata, // optional(object) - additional information about the transaction
@@ -115,14 +130,14 @@ await arcx.transaction({
 
 > 🔥 Hurray! You’ve completed the bare-bone installation of the ARCx analytics SDK. The following steps beyond this are optional but can given greater resolution and insights if implemented.
 
-#### 3. Events & Attribution (optional)
+#### 4. Events & Attribution (optional)
 
 ---
 
 Tracking key events inside your app allows the product to provide detailed information such as what percentage of whales convert through your product funnel relative to new users. The more event data we have, the more insights we can provide to help improve your product.
 
 ```jsx
-await arcx.event(
+arcx.event(
   eventName, // required(string) - the name of the event (eg. "clicked-tab")
   attributes, // optional(object) - additional information about the event
 )
@@ -131,7 +146,7 @@ await arcx.event(
 In addition to events, tracking attribution allows you to understand which marketing campaigns are successful through wallet tagging.
 
 ```jsx
-await arcx.attribute({
+arcx.attribute({
   source, // optional(string) - the origin of the web traffic (eg. discord, twitter etc)
   campaignId, // optional(string) - a specific identifier of the campaign (eg. bankless-5)
 })
@@ -145,18 +160,17 @@ Regardless of which installation method you choose, you can disable any automati
 
 The configuration options are:
 
-| Config key               | Type            | Description                                                                                            | Default           |
-| ------------------------ | --------------- | ------------------------------------------------------------------------------------------------------ | ----------------- |
-| `cacheIdentity`          | boolean         | Caches the identity of users in the browser's local storage to capture cross-session behaviours        | `true`            |
-| `initialProvider`        | EIP1193Provider | The provider to use for the web3 tracking events                                                       | `window.ethereum` |
-| `trackReferrer`          | boolean         | Whether or not to emit an initial `REFERRER` event containing the referrer attribute                   | `true`            |
-| `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically.                    | `true`            |
-| `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit    | `true`            |
-| `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`.   | `true`            |
-| `trackChainChanges`      | boolean         | Automatically track chain ID changes on the provider passed to `initialProvider` or `setProvider`.     | `true`            |
+| Config key               | Type            | Description                                                  | Default           |
+| ------------------------ | --------------- | ------------------------------------------------------------ | ----------------- |
+| `cacheIdentity`          | boolean         | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`            |
+| `initialProvider`        | EIP1193Provider | The provider to use for the web3 tracking events             | `window.ethereum` |
+| `trackReferrer`          | boolean         | Whether or not to emit an initial `REFERRER` event containing the referrer attribute | `true`            |
+| `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically. | `true`            |
+| `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`            |
+| `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`. | `true`            |
 | `trackTransactions`      | boolean         | Automatically track transaction requests on the provider passed to `initialProvider` or `setProvider`. | `true`            |
-| `trackSigning`           | boolean         | Automatically track signing requests on the provider passed to `initialProvider` or `setProvider`.     | `true`            |
-| `trackClicks`            | boolean         | Automatically track click events                                                                       | `true`            |
+| `trackSigning`           | boolean         | Automatically track signing requests on the provider passed to `initialProvider` or `setProvider`. | `true`            |
+| `trackClicks`            | boolean         | Automatically track click events                             | `true`            |
 
 # API
 
@@ -246,6 +260,22 @@ await analytics.connectWallet({
   account: '0x123',
   chain: 1,
 })
+```
+
+### `chainChanged`
+
+Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behavior associated with different chains, facilitating a richer analysis in your ARCx analytics setup.
+
+**Parameters:**
+
+- `attributes` **(object)**
+  - `chainId` **(string)** - The updated chain ID to which the wallet is connected. It should be provided in either a hexadecimal or decimal format to facilitate the change log. This parameter is mandatory to invoke the function.
+  - `account` **(string, optional)** - The account associated with the chain change event. If not specified, the function automatically resorts to using the previously recorded account from the last `connectWallet()` call or retrieves it from Metamask if it’s in use and the `trackWalletConnections` config is turned on.
+
+**Example:**
+
+```typescript
+arcx.chainChanged({ chainId: '1', account: '0x1234' })
 ```
 
 ### `transaction`
