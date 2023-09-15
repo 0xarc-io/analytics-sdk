@@ -306,7 +306,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe('#chainChanged', () => {
+    describe('#chain', () => {
       it('throws if chainId is not provideed', async () => {
         try {
           await sdk.chain({
@@ -387,7 +387,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe('#signedMessage', () => {
+    describe('#signature', () => {
       it('throws if message is empty', async () => {
         try {
           await sdk.signature({
