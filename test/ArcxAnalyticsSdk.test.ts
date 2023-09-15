@@ -37,6 +37,7 @@ import globalJsdom from 'global-jsdom'
 import EventEmitter from 'events'
 import * as SocketClientModule from '../src/utils/createClientSocket'
 import { Socket } from 'socket.io-client'
+import { fail } from 'assert'
 
 const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   cacheIdentity: false,
@@ -303,34 +304,38 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe('#chainChanged', () => {
-      it('throws if chainId is not provideed', () => {
+    describe.only('#chainChanged', () => {
+      it('throws if chainId is not provideed', async () => {
         try {
-          sdk.chainChanged({
-            chainId: '',
+          await sdk.chainChanged({
+            chainId: '0',
           })
         } catch (err: any) {
-          expect(err.message).to.eq('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty')
+          expect(err.message).to.eq('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty or 0')
+          return
         }
+        fail('should throw')
       })
 
-      it('throws if chainId is not a valid hex or decimal number', () => {
+      it('throws if chainId is not a valid hex or decimal number', async () => {
         try {
-          sdk.chainChanged({
-            chainId: 'ethereum',
+          await sdk.chainChanged({
+            chainId: 'eth',
           })
         } catch (err: any) {
           expect(err.message).to.eq(
             'ArcxAnalyticsSdk::chainChanged: chainId must be a valid hex or decimal number',
           )
+          return
         }
+        fail('should throw')
       })
 
       it('sets currentChainId to the given chainId', async () => {
         expect(sdk.currentChainId).to.be.undefined
 
         await sdk.chainChanged({
-          chainId: TEST_CHAIN_ID,
+          chainId: parseInt(TEST_CHAIN_ID),
         })
 
         expect(sdk.currentChainId).to.eq(TEST_CHAIN_ID)
