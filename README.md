@@ -280,6 +280,25 @@ await analytics.wallet({
 })
 ```
 
+### `disconnection`
+
+Logs a wallet disconnection event. This function will clear the cached known chain ID and account.
+
+**Parameters:**
+
+- `attributes` **(object, optional)**
+  - `account` **(string, optional)** - The disconnected account address. If not provided, the function will use the previously recorded account address.
+  - `chainId` **(string | number, optional)** - The chain ID from which the wallet was disconnected. If not passed, the function will use the previously recorded chain ID.
+
+**Example:**
+
+```typescript
+await analytics.disconnection({
+  account: '0x123',
+  chainId: 1,
+})
+```
+
 ### `chain`
 
 Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behavior associated with different chains, facilitating a richer analysis in your ARCx analytics setup.
