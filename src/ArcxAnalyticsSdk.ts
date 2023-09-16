@@ -1,12 +1,4 @@
-import {
-  Account,
-  Attributes,
-  ChainID,
-  SdkConfig,
-  TransactionHash,
-  RequestArguments,
-  EIP1193Provider,
-} from './types'
+import { Attributes, ChainID, SdkConfig, RequestArguments, EIP1193Provider } from './types'
 import {
   ATTRIBUTION_EVENT,
   CHAIN_CHANGED_EVENT,
@@ -479,11 +471,38 @@ export class ArcxAnalyticsSdk {
    * @param chainId The chain ID the wallet connected to.
    * @param account The connected account.
    */
-  wallet({ chainId, account }: { chainId: ChainID; account: Account }): void {
+  wallet({ chainId, account }: { chainId: ChainID; account: string }): void {
     return this.event(CONNECT_EVENT, {
       chain: chainId,
       account,
     })
+  }
+
+  /**
+   * Logs a wallet disconnection event. Will clear the cached known chain ID and account.
+   * @param account (optional) The disconnected account. Will use the previously recorded account if
+   * not passed.
+   * @param chainId (optional) The chain ID the wallet disconnected from.
+   * Will use the previously recorded chain ID if not passed.
+   */
+  disconnection(attributes?: { account?: string; chainId?: ChainID }) {
+    const account = attributes?.account || this.currentConnectedAccount
+    if (!account) {
+      // We have most likely already reported this disconnection with the automatic
+      // `disconnect` detection
+      return
+    }
+
+    const chain = attributes?.chainId || this.currentChainId
+    const eventAttributes = {
+      account,
+      ...(chain && { chain }),
+    }
+
+    this.currentChainId = undefined
+    this.currentConnectedAccount = undefined
+
+    return this.event(DISCONNECT_EVENT, eventAttributes)
   }
 
   /**
@@ -527,10 +546,14 @@ export class ArcxAnalyticsSdk {
     chainId,
     metadata,
   }: {
-    transactionHash: TransactionHash
+    transactionHash: string
     chainId?: ChainID
     metadata?: Record<string, unknown>
   }) {
+    if (!transactionHash) {
+      throw new Error('ArcxAnalyticsSdk::transaction: transactionHash cannot be empty')
+    }
+
     return this.event(TRANSACTION_EVENT, {
       chain: chainId,
       transaction_hash: transactionHash,
