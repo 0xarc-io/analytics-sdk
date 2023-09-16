@@ -189,7 +189,7 @@ export class ArcxAnalyticsSdk {
        * 3. Disconnect
        *
        * Another scenario is if the `disconnect` event is fired before or after the
-       * `accountsChanged` event
+       * `accountsChanged` event or if `disconnection()` was called before this function.
        */
       return
     }
