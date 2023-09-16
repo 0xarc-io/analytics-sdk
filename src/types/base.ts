@@ -3,8 +3,6 @@ import { EIP1193Provider } from './web3'
 
 export type Attributes = Record<string, unknown>
 export type ChainID = string | number
-export type Account = string
-export type TransactionHash = string
 
 export type SdkConfig = {
   /* ---------------------------- Internal settings --------------------------- */

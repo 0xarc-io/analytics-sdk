@@ -306,6 +306,39 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
+    describe('disconnection', () => {
+      it('does not send an event if account and currentConnectedAccount are empty', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        await sdk.disconnection()
+        expect(eventStub).to.not.have.been.called
+      })
+
+      it('submits a disconnect event with the given account if account is given', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        await sdk.disconnection({ account: TEST_ACCOUNT })
+        expect(eventStub).calledOnceWithExactly(DISCONNECT_EVENT, {
+          account: TEST_ACCOUNT,
+        })
+      })
+
+      it('submits a disconnect event with the currentConnectedAccount if account is not given', async () => {
+        const eventStub = sinon.stub(sdk, 'event')
+        sdk.currentConnectedAccount = TEST_ACCOUNT
+        await sdk.disconnection()
+        expect(eventStub).calledOnceWithExactly(DISCONNECT_EVENT, {
+          account: TEST_ACCOUNT,
+        })
+      })
+
+      it('sets the current chain id and current connected account to undefined', async () => {
+        sdk.currentChainId = TEST_CHAIN_ID
+        sdk.currentConnectedAccount = TEST_ACCOUNT
+        await sdk.disconnection()
+        expect(sdk.currentChainId).to.be.undefined
+        expect(sdk.currentConnectedAccount).to.be.undefined
+      })
+    })
+
     describe('#chain', () => {
       it('throws if chainId is not provideed', async () => {
         try {
@@ -371,6 +404,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#transaction', () => {
+      it('throws if transactionHash is empty')
+
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
@@ -806,33 +841,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    describe('#_onAccountsChanged', () => {
-      it('does nothing if account is the same as this.currentConnectedAccount', () => {
-        sdk.currentConnectedAccount = TEST_ACCOUNT
-
-        const eventStub = sinon.stub(sdk, 'event')
-        sdk['_onAccountsChanged']([TEST_ACCOUNT])
-
-        expect(eventStub).not.called
-      })
-
-      it('calls _handleAccountConnected when an account is given', () => {
-        const handleAccountConnectedStub = sinon.stub(sdk, <any>'_handleAccountConnected')
-
-        sdk['_onAccountsChanged']([TEST_ACCOUNT])
-
-        expect(handleAccountConnectedStub).calledOnceWithExactly(TEST_ACCOUNT)
-      })
-
-      it('calls _handleAccountDisconnected when no account is given', () => {
-        const handleAccountDisconnectedStub = sinon.stub(sdk, <any>'_handleAccountDisconnected')
-
-        sdk['_onAccountsChanged']([])
-
-        expect(handleAccountDisconnectedStub).calledOnce
-      })
-    })
-
     describe('#_handleAccountConnected', () => {
       it('calls connectWallet with the correct params', async () => {
         sinon.stub(sdk, <any>'_getCurrentChainId').resolves(TEST_CHAIN_ID)
@@ -844,43 +852,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(connectWalletStub).calledOnceWithExactly({
           chainId: TEST_CHAIN_ID,
-          account: TEST_ACCOUNT,
-        })
-      })
-    })
-
-    describe('#_handleAccountDisconnected', () => {
-      it('does nothing if current chain id or current acount are not set', () => {
-        const eventStub = sinon.stub(sdk, 'event')
-        expect(sdk.currentChainId).to.be.undefined
-        expect(sdk.currentConnectedAccount).to.be.undefined
-
-        sdk['_handleAccountDisconnected']()
-
-        expect(eventStub).to.not.be.called
-      })
-
-      it('clears the current chain id and account', () => {
-        sinon.stub(sdk, 'event')
-        sdk.currentChainId = TEST_CHAIN_ID
-        sdk.currentConnectedAccount = TEST_ACCOUNT
-
-        sdk['_handleAccountDisconnected']()
-
-        expect(sdk.currentChainId).to.be.undefined
-        expect(sdk.currentConnectedAccount).to.be.undefined
-      })
-
-      it('emits a DISCONNECT event with the correct params', () => {
-        const eventStub = sinon.stub(sdk, 'event')
-
-        sdk.currentChainId = TEST_CHAIN_ID
-        sdk.currentConnectedAccount = TEST_ACCOUNT
-
-        sdk['_handleAccountDisconnected']()
-
-        expect(eventStub).calledOnceWithExactly(DISCONNECT_EVENT, {
-          chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
       })
@@ -1063,20 +1034,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           account: params[0],
           messageToSign: params[1],
         })
-      })
-    })
-
-    describe('#_registerAccountsChangedListener', () => {
-      it('registers an accountsChanged event listener and saves it to `_registeredProviderListeners`', async () => {
-        const provider = new MockEthereum()
-        window.ethereum = provider
-
-        const sdk = await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
-        expect(provider.listenerCount('accountsChanged')).to.eq(0)
-
-        sdk['_registerAccountsChangedListener']()
-
-        expect(provider.listenerCount('accountsChanged')).to.eq(1)
       })
     })
   })
