@@ -7,6 +7,7 @@ import {
   IDENTITY_KEY,
   SDK_VERSION,
   Events,
+  SESSION_STORAGE_ID_KEY,
 } from '../src/constants'
 import * as postRequestModule from '../src/utils/postRequest'
 import {
@@ -17,6 +18,7 @@ import {
   TEST_JSDOM_URL,
   TEST_REFERRER,
   TEST_SCREEN,
+  TEST_SESSION_STORAGE_ID,
   TEST_UTM_CAMPAIGN,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
@@ -161,7 +163,11 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     it('creates a websocket instance with query attributes', async () => {
+      expect(sessionStorage.getItem(SESSION_STORAGE_ID_KEY)).to.be.null
+
       const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY)
+      const sessionId = sessionStorage.getItem(SESSION_STORAGE_ID_KEY)
+      expect(sessionId).to.not.be.null
 
       expect(sdk['socket']).to.be.eq(socketStub)
       expect(createClientSocketStub).to.be.calledOnceWith(DEFAULT_SDK_CONFIG.url, {
@@ -173,6 +179,24 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         viewportHeight: TEST_VIEWPORT.height,
         viewportWidth: TEST_VIEWPORT.width,
         url: TEST_JSDOM_URL,
+        sessionStorageId: sessionId,
+      })
+    })
+
+    it('creates a websocket instance with the existing session id if one exists', async () => {
+      sessionStorage.setItem(SESSION_STORAGE_ID_KEY, TEST_SESSION_STORAGE_ID)
+      await ArcxAnalyticsSdk.init(TEST_API_KEY)
+
+      expect(createClientSocketStub).to.be.calledOnceWith(DEFAULT_SDK_CONFIG.url, {
+        apiKey: TEST_API_KEY,
+        identityId: TEST_IDENTITY,
+        sdkVersion: SDK_VERSION,
+        screenHeight: TEST_SCREEN.height,
+        screenWidth: TEST_SCREEN.width,
+        viewportHeight: TEST_VIEWPORT.height,
+        viewportWidth: TEST_VIEWPORT.width,
+        url: TEST_JSDOM_URL,
+        sessionStorageId: TEST_SESSION_STORAGE_ID,
       })
     })
 

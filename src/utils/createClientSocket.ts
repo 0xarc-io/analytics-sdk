@@ -10,6 +10,7 @@ interface IQueryParams {
   viewportWidth: number
   viewportHeight: number
   url: string
+  sessionStorageId: string
 }
 
 export const createClientSocket = (url: string, queryParams: IQueryParams) => {
