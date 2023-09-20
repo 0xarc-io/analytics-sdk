@@ -136,9 +136,9 @@ Signing events can occur when a user signs a message through their wallet. The A
 
 ```typescript
 arcx.signature({
-  message,          // required(string) - The message that was signed
-  signatureHash,    // optional(string) - The hash of the signature
-  account,          // optional(string) - The account that signed the message. If not passed, the previously recorded account by the SDK will be utilized
+  message, // required(string) - The message that was signed
+  signatureHash, // optional(string) - The hash of the signature
+  account, // optional(string) - The account that signed the message. If not passed, the previously recorded account by the SDK will be utilized
 })
 ```
 
@@ -178,17 +178,17 @@ Regardless of which installation method you choose, you can disable any automati
 
 The configuration options are:
 
-| Config key               | Type            | Description                                                  | Default           |
-| ------------------------ | --------------- | ------------------------------------------------------------ | ----------------- |
-| `cacheIdentity`          | boolean         | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`            |
-| `initialProvider`        | EIP1193Provider | The provider to use for the web3 tracking events             | `window.ethereum` |
-| `trackReferrer`          | boolean         | Whether or not to emit an initial `REFERRER` event containing the referrer attribute | `true`            |
-| `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically. | `true`            |
-| `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`            |
-| `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`. | `true`            |
+| Config key               | Type            | Description                                                                                            | Default           |
+| ------------------------ | --------------- | ------------------------------------------------------------------------------------------------------ | ----------------- |
+| `cacheIdentity`          | boolean         | Caches the identity of users in the browser's local storage to capture cross-session behaviours        | `true`            |
+| `initialProvider`        | EIP1193Provider | The provider to use for the web3 tracking events                                                       | `window.ethereum` |
+| `trackReferrer`          | boolean         | Whether or not to emit an initial `REFERRER` event containing the referrer attribute                   | `true`            |
+| `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically.                    | `true`            |
+| `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit    | `true`            |
+| `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`.   | `true`            |
 | `trackTransactions`      | boolean         | Automatically track transaction requests on the provider passed to `initialProvider` or `setProvider`. | `true`            |
-| `trackSigning`           | boolean         | Automatically track signing requests on the provider passed to `initialProvider` or `setProvider`. | `true`            |
-| `trackClicks`            | boolean         | Automatically track click events                             | `true`            |
+| `trackSigning`           | boolean         | Automatically track signing requests on the provider passed to `initialProvider` or `setProvider`.     | `true`            |
+| `trackClicks`            | boolean         | Automatically track click events                                                                       | `true`            |
 
 # API
 
@@ -356,8 +356,6 @@ await analytics.signature({
 })
 ```
 
-
-
 ### `attribute`
 
 Attaches metadata about a session indicating the origination of the traffic.
@@ -391,10 +389,6 @@ To fix this, you must pass the newly connected provider to the `sdk.setProvider(
 To run a local version of the script:
 
 1. `yarn build`
-2. Copy the `dist` folder to `example/cra-script-tag/public/analytics-sdk`:
-
-```
-cp -R dist example/cra-script-tag/public/analytics-sdk
-```
-
-3. Replace the unpkg link in `example/cra-scripttag/public/index.html` to `/analytics-sdk/index.umd.min.js`
+2. `yarn copy-build-example`
+3. Add `USE_LOCAL_BUILD = true` in `example/cra-script-tag/.env`
+4. `cd example/cra-script-tag && yarn && yarn start`
