@@ -18,3 +18,4 @@ export const TEST_VIEWPORT = {
   width: 1280,
   height: 720,
 }
+export const TEST_SESSION_STORAGE_ID = 'test-session-storage-id'

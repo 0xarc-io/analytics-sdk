@@ -1,6 +1,13 @@
 import { Attributes, ChainID, SdkConfig, RequestArguments, EIP1193Provider } from './types'
-import { CURRENT_URL_KEY, DEFAULT_SDK_CONFIG, IDENTITY_KEY, SDK_VERSION, Events } from './constants'
-import { createClientSocket, getElementsFullInfo, postRequest } from './utils'
+import {
+  CURRENT_URL_KEY,
+  DEFAULT_SDK_CONFIG,
+  IDENTITY_KEY,
+  SDK_VERSION,
+  Events,
+  SESSION_STORAGE_ID_KEY,
+} from './constants'
+import { createClientSocket, getElementsFullInfo, postRequest, generateUniqueID } from './utils'
 import { Socket } from 'socket.io-client'
 
 export class ArcxAnalyticsSdk {
@@ -38,7 +45,7 @@ export class ArcxAnalyticsSdk {
     socket.once('error', (error) => {
       if (['InternalServerError', 'BadRequestError'].includes(error.name)) {
         window.localStorage.removeItem(IDENTITY_KEY)
-        ArcxAnalyticsSdk.getIdentitityId(this.sdkConfig, this.apiKey).then((identityId) => {
+        ArcxAnalyticsSdk._getIdentitityId(this.sdkConfig, this.apiKey).then((identityId) => {
           this.socket = createClientSocket(this.sdkConfig.url, {
             apiKey: this.apiKey,
             identityId,
@@ -48,6 +55,7 @@ export class ArcxAnalyticsSdk {
             viewportHeight: window.innerHeight,
             viewportWidth: window.innerWidth,
             url: window.location.href,
+            sessionStorageId: ArcxAnalyticsSdk._getSessionId(),
           })
           this._registerSocketListeners(this.socket)
         })
@@ -369,7 +377,8 @@ export class ArcxAnalyticsSdk {
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = await ArcxAnalyticsSdk.getIdentitityId(sdkConfig, apiKey)
+    const identityId = await ArcxAnalyticsSdk._getIdentitityId(sdkConfig, apiKey)
+    const sessionId = ArcxAnalyticsSdk._getSessionId()
 
     const websocket = createClientSocket(sdkConfig.url, {
       apiKey,
@@ -380,17 +389,29 @@ export class ArcxAnalyticsSdk {
       viewportHeight: window.innerHeight,
       viewportWidth: window.innerWidth,
       url: window.location.href,
+      sessionStorageId: sessionId,
     })
 
     return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket)
   }
 
-  private static async getIdentitityId(sdkConfig: SdkConfig, apiKey: string) {
+  private static async _getIdentitityId(sdkConfig: SdkConfig, apiKey: string) {
     const identityId =
       (sdkConfig?.cacheIdentity && window.localStorage.getItem(IDENTITY_KEY)) ||
       (await postRequest(sdkConfig.url, apiKey, '/identify'))
     sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
     return identityId
+  }
+
+  private static _getSessionId() {
+    const existingSessionId = window.sessionStorage.getItem(SESSION_STORAGE_ID_KEY)
+    if (existingSessionId) {
+      return existingSessionId
+    }
+
+    const newSessionId = generateUniqueID()
+    window.sessionStorage.setItem(SESSION_STORAGE_ID_KEY, newSessionId)
+    return newSessionId
   }
 
   /** Generic event logging method. Allows arbitrary events to be logged. */
