@@ -928,6 +928,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           trackTransactions: true,
           initialProvider: window.web3.currentProvider,
         })
+        sdk.currentChainId = TEST_CHAIN_ID
         const eventStub = sinon.stub(sdk, '_event' as any)
 
         await window.web3.currentProvider!.request({
@@ -936,6 +937,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
         expect(eventStub).calledWithExactly(Event.TRANSACTION_TRIGGERED, {
           ...transactionParams,
+          chainId: TEST_CHAIN_ID,
           nonce,
         })
       })

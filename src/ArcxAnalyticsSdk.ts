@@ -239,6 +239,7 @@ export class ArcxAnalyticsSdk {
 
         this._event(Event.TRANSACTION_TRIGGERED, {
           ...transactionParams,
+          chainId: this.currentChainId,
           nonce,
         })
       }
