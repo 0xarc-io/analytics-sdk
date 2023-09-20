@@ -238,7 +238,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk.event('TEST_EVENT', attributes)
         expect(socketStub.emit).calledOnceWithExactly(
           'submit-event',
-          getAnalyticsData(Event.CUSTOM_EVENT, { name: 'TEST_EVENT', attributes }),
+          getAnalyticsData(Event.CUSTOM, { name: 'TEST_EVENT', attributes }),
         )
       })
 
@@ -248,7 +248,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         await sdk.event('TEST_EVENT', attributes)
         expect(socketStub.emit).calledOnceWithExactly(
           'submit-event',
-          getAnalyticsData(Event.CUSTOM_EVENT, { name: 'TEST_EVENT', attributes }),
+          getAnalyticsData(Event.CUSTOM, { name: 'TEST_EVENT', attributes }),
         )
       })
     })

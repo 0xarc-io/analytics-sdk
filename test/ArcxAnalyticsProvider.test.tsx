@@ -190,7 +190,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       screen.getByText('fire custom event').click()
 
       expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: Event.CUSTOM_EVENT,
+        event: Event.CUSTOM,
         attributes: { name: CUSTOM_EVENT_NAME, attributes: { gm: 'gm' } },
         url: TEST_JSDOM_URL,
       })
