@@ -55,7 +55,7 @@ export class ArcxAnalyticsSdk {
             viewportHeight: window.innerHeight,
             viewportWidth: window.innerWidth,
             url: window.location.href,
-            sessionStorageId: ArcxAnalyticsSdk._getSessionId(),
+            sessionStorageId: ArcxAnalyticsSdk._getSessionId(identityId),
           })
           this._registerSocketListeners(this.socket)
         })
@@ -378,7 +378,7 @@ export class ArcxAnalyticsSdk {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
     const identityId = await ArcxAnalyticsSdk._getIdentitityId(sdkConfig, apiKey)
-    const sessionId = ArcxAnalyticsSdk._getSessionId()
+    const sessionId = ArcxAnalyticsSdk._getSessionId(identityId)
 
     const websocket = createClientSocket(sdkConfig.url, {
       apiKey,
@@ -403,13 +403,13 @@ export class ArcxAnalyticsSdk {
     return identityId
   }
 
-  private static _getSessionId() {
+  private static _getSessionId(identityId: string) {
     const existingSessionId = window.sessionStorage.getItem(SESSION_STORAGE_ID_KEY)
     if (existingSessionId) {
       return existingSessionId
     }
 
-    const newSessionId = generateUniqueID()
+    const newSessionId = generateUniqueID(identityId)
     window.sessionStorage.setItem(SESSION_STORAGE_ID_KEY, newSessionId)
     return newSessionId
   }
