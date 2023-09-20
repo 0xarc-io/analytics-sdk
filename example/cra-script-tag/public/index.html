@@ -16,10 +16,12 @@
     <script>
       const script = document.createElement('script')
       const apiKey = '%REACT_APP_ARCX_API_KEY%'
-      const useLocalBuild = '%REACT_APP_ARCX_USE_LOCAL_BUILD%' === 'true'
-      script.src = useLocalBuild
-        ? '/analytics-sdk/index.umd.min.js'
-        : 'https://unpkg.com/@arcxmoney/analytics'
+      const useLocalBuild = '%REACT_APP_ARCX_USE_LOCAL_BUILD%'
+      script.id = useLocalBuild
+      script.src =
+        useLocalBuild === 'true'
+          ? '/analytics-sdk/index.umd.min.js'
+          : 'https://unpkg.com/@arcxmoney/analytics'
       script.onload = function () {
         config = {
           url: '%REACT_APP_ARCX_API_URL%',

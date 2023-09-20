@@ -19,9 +19,6 @@ import {
   TEST_REFERRER,
   TEST_SCREEN,
   TEST_SESSION_STORAGE_ID,
-  TEST_UTM_CAMPAIGN,
-  TEST_UTM_MEDIUM,
-  TEST_UTM_SOURCE,
   TEST_VIEWPORT,
 } from './constants'
 import { MockEthereum } from './MockEthereum'
@@ -253,19 +250,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           'submit-event',
           getAnalyticsData('TEST_EVENT', attributes),
         )
-      })
-    })
-
-    describe('#attribute', () => {
-      it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
-        const attributes = {
-          source: TEST_UTM_SOURCE,
-          medium: TEST_UTM_MEDIUM,
-          campaign: TEST_UTM_CAMPAIGN,
-        }
-        await sdk.attribute(attributes)
-        expect(eventStub).calledOnceWithExactly(Events.ATTRIBUTION, attributes)
       })
     })
 
