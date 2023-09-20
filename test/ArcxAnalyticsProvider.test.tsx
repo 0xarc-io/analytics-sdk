@@ -62,13 +62,6 @@ const ChildTest = () => {
       <button onClick={() => sdk?.transaction({ chainId: 1, transactionHash: '0x123' })}>
         fire transaction event
       </button>
-      <button
-        onClick={() =>
-          sdk?.attribute({ source: 'facebook', medium: 'social', campaign: 'ad-camp' })
-        }
-      >
-        fire attribute event
-      </button>
     </div>
   )
 }
@@ -220,16 +213,6 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(socketStub.emit).calledOnceWith('submit-event', {
         event: 'TRANSACTION_SUBMITTED',
         attributes: { chain: 1, transaction_hash: '0x123', metadata: {} },
-        url: TEST_JSDOM_URL,
-      })
-    })
-
-    it('posts an attribute event', async () => {
-      screen.getByText('fire attribute event').click()
-
-      expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: Events.ATTRIBUTION,
-        attributes: { source: 'facebook', medium: 'social', campaign: 'ad-camp' },
         url: TEST_JSDOM_URL,
       })
     })

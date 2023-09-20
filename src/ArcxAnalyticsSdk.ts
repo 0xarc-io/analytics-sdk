@@ -425,27 +425,6 @@ export class ArcxAnalyticsSdk {
   }
 
   /**
-   * Logs attribution information.
-   *
-   * @remark
-   * You can optionally attribute either:
-   * - the `source` that the traffic originated from (e.g. `discord`, `twitter`)
-   * - the `medium`, defining the medium your visitors arrived at your site
-   * (e.g. `social`, `email`)
-   * - the `campaign` if you wish to track a specific marketing campaign
-   * (e.g. `bankless-podcast-1`, `discord-15`)
-   */
-  attribute(attributes: {
-    source?: string
-    medium?: string
-    campaign?: string
-    content?: string
-    [key: string]: unknown
-  }): void {
-    return this.event(Events.ATTRIBUTION, attributes)
-  }
-
-  /**
    * Logs the current page
    */
   page(): void {
