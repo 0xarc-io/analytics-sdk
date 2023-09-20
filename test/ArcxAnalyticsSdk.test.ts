@@ -6,7 +6,7 @@ import {
   DEFAULT_SDK_CONFIG,
   IDENTITY_KEY,
   SDK_VERSION,
-  Events,
+  Event,
   SESSION_STORAGE_ID_KEY,
 } from '../src/constants'
 import * as postRequestModule from '../src/utils/postRequest'
@@ -94,7 +94,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
       expect(socketStub.emit.firstCall).calledWith(
         'submit-event',
-        getAnalyticsData(Events.PAGE, {
+        getAnalyticsData(Event.PAGE, {
           referrer: TEST_REFERRER,
         }),
       )
@@ -238,7 +238,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk.event('TEST_EVENT', attributes)
         expect(socketStub.emit).calledOnceWithExactly(
           'submit-event',
-          getAnalyticsData('TEST_EVENT', attributes),
+          getAnalyticsData(Event.CUSTOM_EVENT, { name: 'TEST_EVENT', attributes }),
         )
       })
 
@@ -248,31 +248,31 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         await sdk.event('TEST_EVENT', attributes)
         expect(socketStub.emit).calledOnceWithExactly(
           'submit-event',
-          getAnalyticsData('TEST_EVENT', attributes),
+          getAnalyticsData(Event.CUSTOM_EVENT, { name: 'TEST_EVENT', attributes }),
         )
       })
     })
 
     describe('#page', () => {
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           referrer: TEST_REFERRER,
         }
         sdk.page()
-        expect(eventStub).calledOnceWithExactly(Events.PAGE, attributes)
+        expect(eventStub).calledOnceWithExactly(Event.PAGE, attributes)
       })
     })
 
     describe('#wallet', () => {
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           chainId: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         }
         await sdk.wallet(attributes)
-        expect(eventStub).calledOnceWithExactly(Events.CONNECT, {
+        expect(eventStub).calledOnceWithExactly(Event.CONNECT, {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
@@ -281,24 +281,24 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('disconnection', () => {
       it('does not send an event if account and currentConnectedAccount are empty', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         await sdk.disconnection()
         expect(eventStub).to.not.have.been.called
       })
 
       it('submits a disconnect event with the given account if account is given', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         await sdk.disconnection({ account: TEST_ACCOUNT })
-        expect(eventStub).calledOnceWithExactly(Events.DISCONNECT, {
+        expect(eventStub).calledOnceWithExactly(Event.DISCONNECT, {
           account: TEST_ACCOUNT,
         })
       })
 
       it('submits a disconnect event with the currentConnectedAccount if account is not given', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         sdk.currentConnectedAccount = TEST_ACCOUNT
         await sdk.disconnection()
-        expect(eventStub).calledOnceWithExactly(Events.DISCONNECT, {
+        expect(eventStub).calledOnceWithExactly(Event.DISCONNECT, {
           account: TEST_ACCOUNT,
         })
       })
@@ -350,26 +350,26 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           chainId: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         }
         await sdk.chain(attributes)
-        expect(eventStub).calledOnceWithExactly(Events.CHAIN_CHANGED, {
+        expect(eventStub).calledOnceWithExactly(Event.CHAIN_CHANGED, {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
       })
 
       it('if no account is passed, use the previously recorded account', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           chainId: TEST_CHAIN_ID,
         }
         sdk.currentConnectedAccount = '0x123'
         await sdk.chain(attributes)
-        expect(eventStub).calledOnceWithExactly(Events.CHAIN_CHANGED, {
+        expect(eventStub).calledOnceWithExactly(Event.CHAIN_CHANGED, {
           chain: TEST_CHAIN_ID,
           account: '0x123',
         })
@@ -392,14 +392,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('calls event() with the given attributes', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           chainId: '1',
           transactionHash: '0x123456789',
           metadata: { timestamp: '123456' },
         }
         await sdk.transaction(attributes)
-        expect(eventStub).calledOnceWithExactly(Events.TRANSACTION, {
+        expect(eventStub).calledOnceWithExactly(Event.TRANSACTION, {
           chain: '1',
           transaction_hash: '0x123456789',
           metadata: { timestamp: '123456' },
@@ -437,32 +437,32 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('submits a signing event with the currentConnectedAccount if account is undefined', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         sdk.currentConnectedAccount = TEST_ACCOUNT
         await sdk.signature({
           message: 'hello',
         })
-        expect(eventStub).calledOnceWithExactly(Events.SIGNING_TRIGGERED, {
+        expect(eventStub).calledOnceWithExactly(Event.SIGNING_TRIGGERED, {
           account: TEST_ACCOUNT,
           message: 'hello',
         })
       })
 
       it('submits a signing event with the given account if account is defined', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         const account = '0x123'
         await sdk.signature({
           account,
           message: 'hello',
         })
-        expect(eventStub).calledOnceWithExactly(Events.SIGNING_TRIGGERED, {
+        expect(eventStub).calledOnceWithExactly(Event.SIGNING_TRIGGERED, {
           account,
           message: 'hello',
         })
       })
 
       it('submits a signing event with the given hash if hash is defined', async () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         const account = '0x123'
         const hash = '0x123456789'
         await sdk.signature({
@@ -470,7 +470,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           signatureHash: hash,
           message: 'hello',
         })
-        expect(eventStub).calledOnceWithExactly(Events.SIGNING_TRIGGERED, {
+        expect(eventStub).calledOnceWithExactly(Event.SIGNING_TRIGGERED, {
           account,
           signatureHash: hash,
           message: 'hello',
@@ -626,7 +626,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       let eventStub: sinon.SinonStub
 
       beforeEach(() => {
-        eventStub = sinon.stub(sdk, 'event')
+        eventStub = sinon.stub(sdk, '_event' as any)
       })
 
       it('sets the current window location to sessionStorage if trackPages is true', () => {
@@ -643,7 +643,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk['sdkConfig'].trackPages = true
 
         sdk['_trackFirstPageVisit']()
-        expect(eventStub).calledOnceWithExactly(Events.PAGE, {
+        expect(eventStub).calledOnceWithExactly(Event.PAGE, {
           referrer: TEST_REFERRER,
         })
 
@@ -654,7 +654,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk['sdkConfig'].trackPages = true
 
         sdk['_trackFirstPageVisit']()
-        expect(eventStub).calledOnceWithExactly(Events.PAGE, {
+        expect(eventStub).calledOnceWithExactly(Event.PAGE, {
           referrer: TEST_REFERRER,
         })
 
@@ -767,14 +767,14 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(`${TEST_JSDOM_URL}new`)
         expect(socketStub.emit).to.be.calledTwice
         expect(socketStub.emit.getCall(0)).to.be.calledWithExactly('submit-event', {
-          event: Events.PAGE,
+          event: Event.PAGE,
           attributes: {
             referrer: TEST_REFERRER,
           },
           url: TEST_JSDOM_URL,
         })
         expect(socketStub.emit.getCall(1)).to.be.calledWithExactly('submit-event', {
-          event: Events.PAGE,
+          event: Event.PAGE,
           attributes: {
             referrer: TEST_REFERRER,
           },
@@ -785,7 +785,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
     describe('#_trackClicks', () => {
       it('does nothing if trackClicks is disabled', () => {
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
 
         window.dispatchEvent(new window.Event('click'))
 
@@ -928,13 +928,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           trackTransactions: true,
           initialProvider: window.web3.currentProvider,
         })
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
 
         await window.web3.currentProvider!.request({
           method: 'eth_sendTransaction',
           params: [transactionParams],
         })
-        expect(eventStub).calledWithExactly(Events.TRANSACTION_TRIGGERED, {
+        expect(eventStub).calledWithExactly(Event.TRANSACTION_TRIGGERED, {
           ...transactionParams,
           nonce,
         })
@@ -963,10 +963,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const method = 'personal_sign'
 
         sdk['_trackSigning']()
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         await window.ethereum!.request({ method, params })
 
-        expect(eventStub).calledWithExactly(Events.SIGNING_TRIGGERED, {
+        expect(eventStub).calledWithExactly(Event.SIGNING_TRIGGERED, {
           account: params[1],
           messageToSign: params[0],
         })
@@ -976,10 +976,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const method = 'eth_sign'
 
         sdk['_trackSigning']()
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         await window.ethereum!.request({ method, params })
 
-        expect(eventStub).calledWithExactly(Events.SIGNING_TRIGGERED, {
+        expect(eventStub).calledWithExactly(Event.SIGNING_TRIGGERED, {
           account: params[0],
           messageToSign: params[1],
         })
@@ -989,10 +989,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const method = 'signTypedData_v4'
 
         sdk['_trackSigning']()
-        const eventStub = sinon.stub(sdk, 'event')
+        const eventStub = sinon.stub(sdk, '_event' as any)
         await window.ethereum!.request({ method, params })
 
-        expect(eventStub).calledWithExactly(Events.SIGNING_TRIGGERED, {
+        expect(eventStub).calledWithExactly(Event.SIGNING_TRIGGERED, {
           account: params[0],
           messageToSign: params[1],
         })
@@ -1001,7 +1001,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
   })
 })
 
-function getAnalyticsData(event: string, attributes: any) {
+function getAnalyticsData(event: Event, attributes: any) {
   return {
     event,
     attributes,

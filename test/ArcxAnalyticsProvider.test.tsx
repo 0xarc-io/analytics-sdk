@@ -10,7 +10,7 @@ import {
 import { expect } from 'chai'
 import sinon from 'sinon'
 import * as postRequestModule from '../src/utils/postRequest'
-import { DEFAULT_SDK_CONFIG, Events } from '../src/constants'
+import { DEFAULT_SDK_CONFIG, Event } from '../src/constants'
 import React from 'react'
 import { TEST_IDENTITY, TEST_JSDOM_URL, TEST_REFERRER } from './constants'
 import { MockEthereum } from './MockEthereum'
@@ -25,6 +25,7 @@ const TRACK_PAGES_CONFIG: SdkConfig = {
   trackClicks: false,
   cacheIdentity: false,
 }
+const CUSTOM_EVENT_NAME = 'test-event'
 
 const TestProvider = ({
   children,
@@ -58,7 +59,7 @@ const ChildTest = () => {
   return (
     <div>
       <button onClick={() => sdk?.page()}>fire page event</button>
-      <button onClick={() => sdk?.event('test-event', { gm: 'gm' })}>fire custom event</button>
+      <button onClick={() => sdk?.event(CUSTOM_EVENT_NAME, { gm: 'gm' })}>fire custom event</button>
       <button onClick={() => sdk?.transaction({ chainId: 1, transactionHash: '0x123' })}>
         fire transaction event
       </button>
@@ -126,7 +127,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
 
       const getClickEventBody = (elementId: string, content: string) => {
         return {
-          event: Events.CLICK,
+          event: Event.CLICK,
           attributes: {
             elementId,
             content,
@@ -189,8 +190,8 @@ describe('(int) ArcxAnalyticxProvider', () => {
       screen.getByText('fire custom event').click()
 
       expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: 'test-event',
-        attributes: { gm: 'gm' },
+        event: Event.CUSTOM_EVENT,
+        attributes: { name: CUSTOM_EVENT_NAME, attributes: { gm: 'gm' } },
         url: TEST_JSDOM_URL,
       })
     })
@@ -199,7 +200,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       screen.getByText('fire page event').click()
 
       expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: Events.PAGE,
+        event: Event.PAGE,
         attributes: {
           referrer: TEST_REFERRER,
         },
