@@ -10,7 +10,7 @@ import {
 import { expect } from 'chai'
 import sinon from 'sinon'
 import * as postRequestModule from '../src/utils/postRequest'
-import { ATTRIBUTION_EVENT, CLICK_EVENT, DEFAULT_SDK_CONFIG, PAGE_EVENT } from '../src/constants'
+import { DEFAULT_SDK_CONFIG, Events } from '../src/constants'
 import React from 'react'
 import { TEST_IDENTITY, TEST_JSDOM_URL, TEST_REFERRER } from './constants'
 import { MockEthereum } from './MockEthereum'
@@ -22,8 +22,6 @@ const TEST_API_KEY = 'test-api-key'
 const TRACK_PAGES_CONFIG: SdkConfig = {
   ...DEFAULT_SDK_CONFIG,
   trackPages: true,
-  trackReferrer: false,
-  trackUTM: false,
   trackClicks: false,
   cacheIdentity: false,
 }
@@ -59,7 +57,7 @@ const ChildTest = () => {
 
   return (
     <div>
-      <button onClick={() => sdk?.page({ url: '/test' })}>fire page event</button>
+      <button onClick={() => sdk?.page()}>fire page event</button>
       <button onClick={() => sdk?.event('test-event', { gm: 'gm' })}>fire custom event</button>
       <button onClick={() => sdk?.transaction({ chainId: 1, transactionHash: '0x123' })}>
         fire transaction event
@@ -135,7 +133,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
 
       const getClickEventBody = (elementId: string, content: string) => {
         return {
-          event: CLICK_EVENT,
+          event: Events.CLICK,
           attributes: {
             elementId,
             content,
@@ -149,8 +147,6 @@ describe('(int) ArcxAnalyticxProvider', () => {
           <TestProvider
             providerOverrides={{
               config: {
-                trackUTM: false,
-                trackReferrer: false,
                 trackPages: false,
                 trackClicks: true,
               },
@@ -210,9 +206,9 @@ describe('(int) ArcxAnalyticxProvider', () => {
       screen.getByText('fire page event').click()
 
       expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: PAGE_EVENT,
+        event: Events.PAGE,
         attributes: {
-          url: '/test',
+          referrer: TEST_REFERRER,
         },
         url: TEST_JSDOM_URL,
       })
@@ -232,7 +228,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
       screen.getByText('fire attribute event').click()
 
       expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: ATTRIBUTION_EVENT,
+        event: Events.ATTRIBUTION,
         attributes: { source: 'facebook', medium: 'social', campaign: 'ad-camp' },
         url: TEST_JSDOM_URL,
       })

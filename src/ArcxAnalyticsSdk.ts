@@ -1,20 +1,5 @@
 import { Attributes, ChainID, SdkConfig, RequestArguments, EIP1193Provider } from './types'
-import {
-  ATTRIBUTION_EVENT,
-  CHAIN_CHANGED_EVENT,
-  TRANSACTION_TRIGGERED,
-  CONNECT_EVENT,
-  CURRENT_URL_KEY,
-  DEFAULT_SDK_CONFIG,
-  DISCONNECT_EVENT,
-  FIRST_PAGE_VISIT,
-  IDENTITY_KEY,
-  PAGE_EVENT,
-  TRANSACTION_EVENT,
-  SIGNING_EVENT,
-  CLICK_EVENT,
-  SDK_VERSION,
-} from './constants'
+import { CURRENT_URL_KEY, DEFAULT_SDK_CONFIG, IDENTITY_KEY, SDK_VERSION, Events } from './constants'
 import { createClientSocket, getElementsFullInfo, postRequest } from './utils'
 import { Socket } from 'socket.io-client'
 
@@ -94,37 +79,18 @@ export class ArcxAnalyticsSdk {
   }
 
   private _trackFirstPageVisit() {
-    if (!this.sdkConfig.trackPages && !this.sdkConfig.trackReferrer && !this.sdkConfig.trackUTM) {
+    if (!this.sdkConfig.trackPages) {
       return
     }
 
     const attributes: FirstVisitPageType = {}
 
-    if (this.sdkConfig.trackPages) {
-      attributes.url = window.location.href
-      if (sessionStorage.getItem(CURRENT_URL_KEY) === null) {
-        sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
-      }
+    attributes.url = window.location.href
+    if (sessionStorage.getItem(CURRENT_URL_KEY) === null) {
+      sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
     }
 
-    if (this.sdkConfig.trackReferrer) {
-      attributes.referrer = document.referrer
-    }
-
-    if (this.sdkConfig.trackUTM) {
-      const searchParams = new URLSearchParams(
-        window.location.search || window.location.hash.split('?')[1],
-      )
-
-      attributes.utm = {
-        source: searchParams.get('utm_source'),
-        medium: searchParams.get('utm_medium'),
-        campaign: searchParams.get('utm_campaign'),
-        content: searchParams.get('utm_content'),
-      }
-    }
-
-    return this.event(FIRST_PAGE_VISIT, attributes)
+    return this.page()
   }
 
   private _trackPagesChange() {
@@ -154,7 +120,7 @@ export class ArcxAnalyticsSdk {
 
     if (currentUrl !== window.location.href) {
       sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
-      this.page({ url: window.location.href })
+      this.page()
     }
   }
 
@@ -201,7 +167,7 @@ export class ArcxAnalyticsSdk {
     this.currentChainId = undefined
     this.currentConnectedAccount = undefined
 
-    return this.event(DISCONNECT_EVENT, disconnectAttributes)
+    return this.event(Events.DISCONNECT, disconnectAttributes)
   }
 
   private async _reportCurrentWallet() {
@@ -263,7 +229,7 @@ export class ArcxAnalyticsSdk {
           params: [transactionParams.from, 'latest'],
         })
 
-        this.event(TRANSACTION_TRIGGERED, {
+        this.event(Events.TRANSACTION_TRIGGERED, {
           ...transactionParams,
           nonce,
         })
@@ -294,13 +260,13 @@ export class ArcxAnalyticsSdk {
     this.provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params)) {
         if (['signTypedData_v4', 'eth_sign'].includes(method)) {
-          this.event(SIGNING_EVENT, {
+          this.event(Events.SIGNING_TRIGGERED, {
             account: params[0],
             messageToSign: params[1],
           })
         }
         if (method === 'personal_sign') {
-          this.event(SIGNING_EVENT, {
+          this.event(Events.SIGNING_TRIGGERED, {
             messageToSign: params[0],
             account: params[1],
           })
@@ -314,7 +280,7 @@ export class ArcxAnalyticsSdk {
   private _trackClicks() {
     window.addEventListener('click', (event: MouseEvent) => {
       if (event.target instanceof Element) {
-        this.event(CLICK_EVENT, {
+        this.event(Events.CLICK, {
           elementId: getElementsFullInfo(event.target),
           content: event.target.textContent,
         })
@@ -455,15 +421,16 @@ export class ArcxAnalyticsSdk {
     content?: string
     [key: string]: unknown
   }): void {
-    return this.event(ATTRIBUTION_EVENT, attributes)
+    return this.event(Events.ATTRIBUTION, attributes)
   }
 
-  /** Logs page visit events. Only use this method is `trackPages` is set to `false`. */
-  page(attributes: { url: string }): void {
-    if (!attributes.url) {
-      throw new Error('ArcxAnalyticsSdk::page: url cannot be empty')
-    }
-    return this.event(PAGE_EVENT, attributes)
+  /**
+   * Logs the current page
+   */
+  page(): void {
+    return this.event(Events.PAGE, {
+      referrer: document.referrer,
+    })
   }
 
   /**
@@ -472,7 +439,7 @@ export class ArcxAnalyticsSdk {
    * @param account The connected account.
    */
   wallet({ chainId, account }: { chainId: ChainID; account: string }): void {
-    return this.event(CONNECT_EVENT, {
+    return this.event(Events.CONNECT, {
       chain: chainId,
       account,
     })
@@ -502,7 +469,7 @@ export class ArcxAnalyticsSdk {
     this.currentChainId = undefined
     this.currentConnectedAccount = undefined
 
-    return this.event(DISCONNECT_EVENT, eventAttributes)
+    return this.event(Events.DISCONNECT, eventAttributes)
   }
 
   /**
@@ -529,7 +496,7 @@ export class ArcxAnalyticsSdk {
 
     this.currentChainId = chainId.toString()
 
-    return this.event(CHAIN_CHANGED_EVENT, {
+    return this.event(Events.CHAIN_CHANGED, {
       chain: chainId,
       account: account || this.currentConnectedAccount,
     })
@@ -554,7 +521,7 @@ export class ArcxAnalyticsSdk {
       throw new Error('ArcxAnalyticsSdk::transaction: transactionHash cannot be empty')
     }
 
-    return this.event(TRANSACTION_EVENT, {
+    return this.event(Events.TRANSACTION, {
       chain: chainId,
       transaction_hash: transactionHash,
       metadata: metadata || {},
@@ -587,7 +554,7 @@ export class ArcxAnalyticsSdk {
       )
     }
 
-    return this.event(SIGNING_EVENT, {
+    return this.event(Events.SIGNING_TRIGGERED, {
       message,
       ...(signatureHash && { signatureHash: signatureHash }),
       account: account || this.currentConnectedAccount,

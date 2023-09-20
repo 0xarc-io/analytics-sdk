@@ -3,8 +3,6 @@ import { SdkConfig } from '../types'
 export const DEFAULT_SDK_CONFIG: SdkConfig = {
   cacheIdentity: true,
   trackPages: true,
-  trackReferrer: true,
-  trackUTM: true,
   trackWalletConnections: true,
   trackTransactions: true,
   trackSigning: true,
