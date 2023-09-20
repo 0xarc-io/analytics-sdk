@@ -4,7 +4,7 @@ import {
   DEFAULT_SDK_CONFIG,
   IDENTITY_KEY,
   SDK_VERSION,
-  Events,
+  Event,
   SESSION_STORAGE_ID_KEY,
 } from './constants'
 import { createClientSocket, getElementsFullInfo, postRequest, generateUniqueID } from './utils'
@@ -175,7 +175,7 @@ export class ArcxAnalyticsSdk {
     this.currentChainId = undefined
     this.currentConnectedAccount = undefined
 
-    return this.event(Events.DISCONNECT, disconnectAttributes)
+    return this._event(Event.DISCONNECT, disconnectAttributes)
   }
 
   private async _reportCurrentWallet() {
@@ -237,7 +237,7 @@ export class ArcxAnalyticsSdk {
           params: [transactionParams.from, 'latest'],
         })
 
-        this.event(Events.TRANSACTION_TRIGGERED, {
+        this._event(Event.TRANSACTION_TRIGGERED, {
           ...transactionParams,
           nonce,
         })
@@ -268,13 +268,13 @@ export class ArcxAnalyticsSdk {
     this.provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params)) {
         if (['signTypedData_v4', 'eth_sign'].includes(method)) {
-          this.event(Events.SIGNING_TRIGGERED, {
+          this._event(Event.SIGNING_TRIGGERED, {
             account: params[0],
             messageToSign: params[1],
           })
         }
         if (method === 'personal_sign') {
-          this.event(Events.SIGNING_TRIGGERED, {
+          this._event(Event.SIGNING_TRIGGERED, {
             messageToSign: params[0],
             account: params[1],
           })
@@ -288,7 +288,7 @@ export class ArcxAnalyticsSdk {
   private _trackClicks() {
     window.addEventListener('click', (event: MouseEvent) => {
       if (event.target instanceof Element) {
-        this.event(Events.CLICK, {
+        this._event(Event.CLICK, {
           elementId: getElementsFullInfo(event.target),
           content: event.target.textContent,
         })
@@ -333,6 +333,18 @@ export class ArcxAnalyticsSdk {
   _reportErrorAndThrow(error: string): never {
     this._report('error', error)
     throw new Error(error)
+  }
+
+  /**
+   * Flexible event reporting method to be used internally.
+   */
+  private _event(event: Event, attributes?: Attributes) {
+    // If the socket is not connected, the event will be buffered until reconnection and sent then
+    this.socket.emit('submit-event', {
+      event,
+      attributes,
+      url: window.location.href,
+    })
   }
 
   /********************/
@@ -414,21 +426,11 @@ export class ArcxAnalyticsSdk {
     return newSessionId
   }
 
-  /** Generic event logging method. Allows arbitrary events to be logged. */
-  event(event: string, attributes?: Attributes) {
-    // If the socket is not connected, the event will be buffered until reconnection and sent then
-    this.socket.emit('submit-event', {
-      event,
-      attributes,
-      url: window.location.href,
-    })
-  }
-
   /**
    * Logs the current page
    */
   page(): void {
-    return this.event(Events.PAGE, {
+    return this._event(Event.PAGE, {
       referrer: document.referrer,
     })
   }
@@ -439,7 +441,7 @@ export class ArcxAnalyticsSdk {
    * @param account The connected account.
    */
   wallet({ chainId, account }: { chainId: ChainID; account: string }): void {
-    return this.event(Events.CONNECT, {
+    return this._event(Event.CONNECT, {
       chain: chainId,
       account,
     })
@@ -469,7 +471,7 @@ export class ArcxAnalyticsSdk {
     this.currentChainId = undefined
     this.currentConnectedAccount = undefined
 
-    return this.event(Events.DISCONNECT, eventAttributes)
+    return this._event(Event.DISCONNECT, eventAttributes)
   }
 
   /**
@@ -496,7 +498,7 @@ export class ArcxAnalyticsSdk {
 
     this.currentChainId = chainId.toString()
 
-    return this.event(Events.CHAIN_CHANGED, {
+    return this._event(Event.CHAIN_CHANGED, {
       chain: chainId,
       account: account || this.currentConnectedAccount,
     })
@@ -521,7 +523,7 @@ export class ArcxAnalyticsSdk {
       throw new Error('ArcxAnalyticsSdk::transaction: transactionHash cannot be empty')
     }
 
-    return this.event(Events.TRANSACTION, {
+    return this._event(Event.TRANSACTION, {
       chain: chainId,
       transaction_hash: transactionHash,
       metadata: metadata || {},
@@ -554,10 +556,22 @@ export class ArcxAnalyticsSdk {
       )
     }
 
-    return this.event(Events.SIGNING_TRIGGERED, {
+    return this._event(Event.SIGNING_TRIGGERED, {
       message,
       ...(signatureHash && { signatureHash: signatureHash }),
       account: account || this.currentConnectedAccount,
+    })
+  }
+
+  /**
+   * Logs a custom event
+   * @param name Event name
+   * @param attributes (Optional) Event attributes
+   */
+  event(name: string, attributes?: Attributes) {
+    return this._event(Event.CUSTOM_EVENT, {
+      name,
+      attributes,
     })
   }
 }
