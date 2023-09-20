@@ -5,10 +5,7 @@
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
+    <meta name="description" content="Web site created using create-react-app" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -17,12 +14,15 @@
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <!-- ARCx Analytics -->
     <script>
-      const script = document.createElement('script');
-      const apiKey = "%REACT_APP_ARCX_API_KEY%"
-      script.src = 'https://unpkg.com/@arcxmoney/analytics'
+      const script = document.createElement('script')
+      const apiKey = '%REACT_APP_ARCX_API_KEY%'
+      const useLocalBuild = '%REACT_APP_ARCX_USE_LOCAL_BUILD%' === 'true'
+      script.src = useLocalBuild
+        ? '/analytics-sdk/index.umd.min.js'
+        : 'https://unpkg.com/@arcxmoney/analytics'
       script.onload = function () {
         config = {
-          url: '%REACT_APP_ARCX_API_URL%'
+          url: '%REACT_APP_ARCX_API_URL%',
         }
         ArcxAnalyticsSdk.init(apiKey, config).then(function (sdk) {
           window.arcx = sdk

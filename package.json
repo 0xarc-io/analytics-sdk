@@ -76,7 +76,8 @@
     "test": "nyc mocha",
     "test-watch": "nodemon --config test.nodemon.json",
     "prepare": "husky install",
-    "commit": "git add . && cz"
+    "commit": "git add . && cz",
+    "copy-build-example": "cp -R dist example/cra-script-tag/public/analytics-sdk"
   },
   "peerDependencies": {
     "@types/react": ">=16.14.34",
