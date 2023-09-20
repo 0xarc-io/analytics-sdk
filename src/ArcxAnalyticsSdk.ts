@@ -569,7 +569,7 @@ export class ArcxAnalyticsSdk {
    * @param attributes (Optional) Event attributes
    */
   event(name: string, attributes?: Attributes) {
-    return this._event(Event.CUSTOM_EVENT, {
+    return this._event(Event.CUSTOM, {
       name,
       attributes,
     })
