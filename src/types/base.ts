@@ -12,8 +12,6 @@ export type SdkConfig = {
 
   /* ---------------------------- Tracking options ---------------------------- */
   trackPages: boolean
-  trackReferrer: boolean
-  trackUTM: boolean
   trackWalletConnections: boolean
   trackTransactions: boolean
   trackSigning: boolean

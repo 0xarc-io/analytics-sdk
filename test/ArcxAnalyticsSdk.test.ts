@@ -2,19 +2,11 @@ import sinon from 'sinon'
 import { expect } from 'chai'
 import { ArcxAnalyticsSdk, SdkConfig } from '../src'
 import {
-  ATTRIBUTION_EVENT,
-  CHAIN_CHANGED_EVENT,
-  CONNECT_EVENT,
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
-  DISCONNECT_EVENT,
-  FIRST_PAGE_VISIT,
   IDENTITY_KEY,
-  PAGE_EVENT,
   SDK_VERSION,
-  SIGNING_EVENT,
-  TRANSACTION_EVENT,
-  TRANSACTION_TRIGGERED,
+  Events,
 } from '../src/constants'
 import * as postRequestModule from '../src/utils/postRequest'
 import {
@@ -26,7 +18,6 @@ import {
   TEST_REFERRER,
   TEST_SCREEN,
   TEST_UTM_CAMPAIGN,
-  TEST_UTM_CONTENT,
   TEST_UTM_MEDIUM,
   TEST_UTM_SOURCE,
   TEST_VIEWPORT,
@@ -41,8 +32,6 @@ import { fail } from 'assert'
 const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   cacheIdentity: false,
   trackPages: false,
-  trackReferrer: false,
-  trackUTM: false,
   trackWalletConnections: false,
   trackTransactions: false,
   trackSigning: false,
@@ -101,20 +90,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, '', '/identify')).to.be.true
     })
 
-    it('makes an initial FIRST_PAGE_VISIT call url, utm and referrer if using the default config', async () => {
+    it('makes an initial PAGE call if using the default config', async () => {
       await ArcxAnalyticsSdk.init('', { cacheIdentity: false })
 
       expect(socketStub.emit.firstCall).calledWith(
         'submit-event',
-        getAnalyticsData(FIRST_PAGE_VISIT, {
-          url: TEST_JSDOM_URL,
+        getAnalyticsData(Events.PAGE, {
           referrer: TEST_REFERRER,
-          utm: {
-            source: TEST_UTM_SOURCE,
-            medium: TEST_UTM_MEDIUM,
-            campaign: TEST_UTM_CAMPAIGN,
-            content: TEST_UTM_CONTENT,
-          },
         }),
       )
     })
@@ -126,19 +108,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         DEFAULT_SDK_CONFIG.url,
         '',
         '/identify',
-      )
-    })
-
-    it('does not include the UTM object if trackUTM is set to false', async () => {
-      await ArcxAnalyticsSdk.init('', {
-        ...ALL_FALSE_CONFIG,
-        trackPages: true,
-      })
-
-      expect(postRequestStub.getCall(0)).calledWithExactly(DEFAULT_SDK_CONFIG.url, '', '/identify')
-      expect(socketStub.emit).calledOnceWith(
-        'submit-event',
-        getAnalyticsData(FIRST_PAGE_VISIT, { url: TEST_JSDOM_URL }),
       )
     })
 
@@ -272,7 +241,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           campaign: TEST_UTM_CAMPAIGN,
         }
         await sdk.attribute(attributes)
-        expect(eventStub).calledOnceWithExactly(ATTRIBUTION_EVENT, attributes)
+        expect(eventStub).calledOnceWithExactly(Events.ATTRIBUTION, attributes)
       })
     })
 
@@ -280,14 +249,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, 'event')
         const attributes = {
-          url: TEST_JSDOM_URL,
+          referrer: TEST_REFERRER,
         }
-        sdk.page(attributes)
-        expect(eventStub).calledOnceWithExactly(PAGE_EVENT, attributes)
-      })
-
-      it('fails if page value is not provided', async () => {
-        expect(() => sdk.page({ url: '' })).throws('ArcxAnalyticsSdk::page: url cannot be empty')
+        sdk.page()
+        expect(eventStub).calledOnceWithExactly(Events.PAGE, attributes)
       })
     })
 
@@ -299,7 +264,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           account: TEST_ACCOUNT,
         }
         await sdk.wallet(attributes)
-        expect(eventStub).calledOnceWithExactly(CONNECT_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.CONNECT, {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
@@ -316,7 +281,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       it('submits a disconnect event with the given account if account is given', async () => {
         const eventStub = sinon.stub(sdk, 'event')
         await sdk.disconnection({ account: TEST_ACCOUNT })
-        expect(eventStub).calledOnceWithExactly(DISCONNECT_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.DISCONNECT, {
           account: TEST_ACCOUNT,
         })
       })
@@ -325,7 +290,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         const eventStub = sinon.stub(sdk, 'event')
         sdk.currentConnectedAccount = TEST_ACCOUNT
         await sdk.disconnection()
-        expect(eventStub).calledOnceWithExactly(DISCONNECT_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.DISCONNECT, {
           account: TEST_ACCOUNT,
         })
       })
@@ -383,7 +348,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           account: TEST_ACCOUNT,
         }
         await sdk.chain(attributes)
-        expect(eventStub).calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.CHAIN_CHANGED, {
           chain: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
@@ -396,7 +361,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         }
         sdk.currentConnectedAccount = '0x123'
         await sdk.chain(attributes)
-        expect(eventStub).calledOnceWithExactly(CHAIN_CHANGED_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.CHAIN_CHANGED, {
           chain: TEST_CHAIN_ID,
           account: '0x123',
         })
@@ -404,7 +369,19 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#transaction', () => {
-      it('throws if transactionHash is empty')
+      it('throws if transactionHash is empty', async () => {
+        try {
+          await sdk.transaction({
+            transactionHash: '',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq(
+            'ArcxAnalyticsSdk::transaction: transactionHash cannot be empty',
+          )
+          return
+        }
+        fail('should throw')
+      })
 
       it('calls event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, 'event')
@@ -414,7 +391,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           metadata: { timestamp: '123456' },
         }
         await sdk.transaction(attributes)
-        expect(eventStub).calledOnceWithExactly(TRANSACTION_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.TRANSACTION, {
           chain: '1',
           transaction_hash: '0x123456789',
           metadata: { timestamp: '123456' },
@@ -457,7 +434,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         await sdk.signature({
           message: 'hello',
         })
-        expect(eventStub).calledOnceWithExactly(SIGNING_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.SIGNING_TRIGGERED, {
           account: TEST_ACCOUNT,
           message: 'hello',
         })
@@ -470,7 +447,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           account,
           message: 'hello',
         })
-        expect(eventStub).calledOnceWithExactly(SIGNING_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.SIGNING_TRIGGERED, {
           account,
           message: 'hello',
         })
@@ -485,7 +462,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           signatureHash: hash,
           message: 'hello',
         })
-        expect(eventStub).calledOnceWithExactly(SIGNING_EVENT, {
+        expect(eventStub).calledOnceWithExactly(Events.SIGNING_TRIGGERED, {
           account,
           signatureHash: hash,
           message: 'hello',
@@ -654,60 +631,26 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk['sdkConfig'].trackPages = false
       })
 
-      it('emits a FIRST_PAGE_VISIT event with url if trackPages is true', () => {
+      it('emits a PAGE event with url if trackPages is true', () => {
         sdk['sdkConfig'].trackPages = true
 
         sdk['_trackFirstPageVisit']()
-        expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, { url: TEST_JSDOM_URL })
-
-        sdk['sdkConfig'].trackPages = false
-      })
-
-      it('emits a FIRST_PAGE_VISIT event with referrer if trackReferrer is true', () => {
-        sdk['sdkConfig'].trackReferrer = true
-
-        sdk['_trackFirstPageVisit']()
-        expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, { referrer: TEST_REFERRER })
-
-        sdk['sdkConfig'].trackReferrer = false
-      })
-
-      it('emits a FIRST_PAGE_VISIT event with utm tags if trackUTM is true', () => {
-        sdk['sdkConfig'].trackUTM = true
-
-        sdk['_trackFirstPageVisit']()
-        expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, {
-          utm: {
-            source: TEST_UTM_SOURCE,
-            medium: TEST_UTM_MEDIUM,
-            campaign: TEST_UTM_CAMPAIGN,
-            content: TEST_UTM_CONTENT,
-          },
-        })
-
-        sdk['sdkConfig'].trackUTM = false
-      })
-
-      it('emits a FIRST_PAGE_VISIT event with url, referrer and UTM attributes if trackPages, referrer and UTM configs are set to true', () => {
-        sdk['sdkConfig'].trackPages = true
-        sdk['sdkConfig'].trackReferrer = true
-        sdk['sdkConfig'].trackUTM = true
-
-        sdk['_trackFirstPageVisit']()
-        expect(eventStub).calledOnceWithExactly(FIRST_PAGE_VISIT, {
-          url: TEST_JSDOM_URL,
+        expect(eventStub).calledOnceWithExactly(Events.PAGE, {
           referrer: TEST_REFERRER,
-          utm: {
-            source: TEST_UTM_SOURCE,
-            medium: TEST_UTM_MEDIUM,
-            campaign: TEST_UTM_CAMPAIGN,
-            content: TEST_UTM_CONTENT,
-          },
         })
 
         sdk['sdkConfig'].trackPages = false
-        sdk['sdkConfig'].trackReferrer = false
-        sdk['sdkConfig'].trackUTM = false
+      })
+
+      it('emits a PAGE event with url, referrer and UTM attributes if trackPages, referrer and UTM configs are set to true', () => {
+        sdk['sdkConfig'].trackPages = true
+
+        sdk['_trackFirstPageVisit']()
+        expect(eventStub).calledOnceWithExactly(Events.PAGE, {
+          referrer: TEST_REFERRER,
+        })
+
+        sdk['sdkConfig'].trackPages = false
       })
     })
 
@@ -792,7 +735,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk['_onLocationChange']()
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
-        expect(pageStub).to.be.calledOnceWithExactly({ url: TEST_JSDOM_URL })
+        expect(pageStub).to.be.calledOnceWithExactly()
       })
 
       it('sets the current location in the storage and calls page once if path is not changed ', () => {
@@ -803,11 +746,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk['_onLocationChange']()
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(TEST_JSDOM_URL)
-        expect(pageStub).to.be.calledOnceWithExactly({ url: TEST_JSDOM_URL })
+        expect(pageStub).to.be.calledOnceWithExactly()
       })
 
       it('sets the current location in the storage and calls page twice if the path has changed', () => {
-        const pageStub = sinon.stub(sdk, 'page')
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.be.null
 
         sdk['_onLocationChange']()
@@ -815,9 +757,21 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk['_onLocationChange']()
 
         expect(sessionStorage.getItem(CURRENT_URL_KEY)).to.eq(`${TEST_JSDOM_URL}new`)
-        expect(pageStub).to.be.calledTwice
-        expect(pageStub.getCall(0)).to.be.calledWithExactly({ url: TEST_JSDOM_URL })
-        expect(pageStub.getCall(1)).to.be.calledWithExactly({ url: `${TEST_JSDOM_URL}new` })
+        expect(socketStub.emit).to.be.calledTwice
+        expect(socketStub.emit.getCall(0)).to.be.calledWithExactly('submit-event', {
+          event: Events.PAGE,
+          attributes: {
+            referrer: TEST_REFERRER,
+          },
+          url: TEST_JSDOM_URL,
+        })
+        expect(socketStub.emit.getCall(1)).to.be.calledWithExactly('submit-event', {
+          event: Events.PAGE,
+          attributes: {
+            referrer: TEST_REFERRER,
+          },
+          url: TEST_JSDOM_URL + 'new',
+        })
       })
     })
 
@@ -972,7 +926,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           method: 'eth_sendTransaction',
           params: [transactionParams],
         })
-        expect(eventStub).calledWithExactly(TRANSACTION_TRIGGERED, {
+        expect(eventStub).calledWithExactly(Events.TRANSACTION_TRIGGERED, {
           ...transactionParams,
           nonce,
         })
@@ -997,40 +951,40 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(sdk['_trackSigning']()).to.be.true
       })
 
-      it('makes a SIGNING_EVENT event if personal_sign appears', async () => {
+      it('makes a Events.SIGNING_TRIGGERED event if personal_sign appears', async () => {
         const method = 'personal_sign'
 
         sdk['_trackSigning']()
         const eventStub = sinon.stub(sdk, 'event')
         await window.ethereum!.request({ method, params })
 
-        expect(eventStub).calledWithExactly(SIGNING_EVENT, {
+        expect(eventStub).calledWithExactly(Events.SIGNING_TRIGGERED, {
           account: params[1],
           messageToSign: params[0],
         })
       })
 
-      it('makes a SIGNING_EVENT event if eth_sign appears', async () => {
+      it('makes a Events.SIGNING_TRIGGERED event if eth_sign appears', async () => {
         const method = 'eth_sign'
 
         sdk['_trackSigning']()
         const eventStub = sinon.stub(sdk, 'event')
         await window.ethereum!.request({ method, params })
 
-        expect(eventStub).calledWithExactly(SIGNING_EVENT, {
+        expect(eventStub).calledWithExactly(Events.SIGNING_TRIGGERED, {
           account: params[0],
           messageToSign: params[1],
         })
       })
 
-      it('makes a SIGNING_EVENT event if signTypedData_v4 appears', async () => {
+      it('makes a Events.SIGNING_TRIGGERED event if signTypedData_v4 appears', async () => {
         const method = 'signTypedData_v4'
 
         sdk['_trackSigning']()
         const eventStub = sinon.stub(sdk, 'event')
         await window.ethereum!.request({ method, params })
 
-        expect(eventStub).calledWithExactly(SIGNING_EVENT, {
+        expect(eventStub).calledWithExactly(Events.SIGNING_TRIGGERED, {
           account: params[0],
           messageToSign: params[1],
         })
