@@ -32,6 +32,7 @@ const ALL_FALSE_CONFIG: Omit<SdkConfig, 'url'> = {
   cacheIdentity: false,
   trackPages: false,
   trackWalletConnections: false,
+  trackChainChanges: false,
   trackTransactions: false,
   trackSigning: false,
   trackClicks: false,
@@ -133,6 +134,20 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         provider.emit('accountsChanged', [TEST_ACCOUNT])
         expect(onAccountsChangedStub).calledOnceWithExactly([TEST_ACCOUNT])
+      })
+    })
+
+    describe('trackChainChanges', () => {
+      it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
+        const provider = new MockEthereum()
+        window.ethereum = provider
+        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
+
+        const onChainChangedStub = sinon.stub(sdk, '_onChainChanged' as any)
+
+        provider.emit('chainChanged', TEST_CHAIN_ID)
+        expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
+        expect(sdk['_registeredProviderListeners']['chainChanged']).to.not.be.null
       })
     })
 
@@ -254,7 +269,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#page', () => {
-      it('calls event() with the given attributes', async () => {
+      it('calls _event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           referrer: TEST_REFERRER,
@@ -265,7 +280,11 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#wallet', () => {
-      it('calls event() with the given attributes', async () => {
+      it('throws if chainId is empty')
+      it('throws if account is empty')
+      it('saves the account and chainId to the sdk instance')
+
+      it('calls _event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           chainId: TEST_CHAIN_ID,
@@ -273,7 +292,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         }
         await sdk.wallet(attributes)
         expect(eventStub).calledOnceWithExactly(Event.CONNECT, {
-          chain: TEST_CHAIN_ID,
+          chainId: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
       })
@@ -349,7 +368,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(sdk.currentChainId).to.eq(TEST_CHAIN_ID)
       })
 
-      it('calls event() with the given attributes', async () => {
+      it('calls _event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           chainId: TEST_CHAIN_ID,
@@ -357,7 +376,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         }
         await sdk.chain(attributes)
         expect(eventStub).calledOnceWithExactly(Event.CHAIN_CHANGED, {
-          chain: TEST_CHAIN_ID,
+          chainId: TEST_CHAIN_ID,
           account: TEST_ACCOUNT,
         })
       })
@@ -370,7 +389,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         sdk.currentConnectedAccount = '0x123'
         await sdk.chain(attributes)
         expect(eventStub).calledOnceWithExactly(Event.CHAIN_CHANGED, {
-          chain: TEST_CHAIN_ID,
+          chainId: TEST_CHAIN_ID,
           account: '0x123',
         })
       })
@@ -391,17 +410,22 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         fail('should throw')
       })
 
-      it('calls event() with the given attributes', async () => {
+      it('throws if chainId and currentChainId are empty')
+      it('throws if account and currentConnectedAccount are empty')
+
+      it('calls _event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, '_event' as any)
         const attributes = {
           chainId: '1',
           transactionHash: '0x123456789',
           metadata: { timestamp: '123456' },
         }
+        sdk.currentConnectedAccount = TEST_ACCOUNT
         await sdk.transaction(attributes)
-        expect(eventStub).calledOnceWithExactly(Event.TRANSACTION, {
-          chain: '1',
-          transaction_hash: '0x123456789',
+        expect(eventStub).calledOnceWithExactly(Event.TRANSACTION_SUBMITTED, {
+          chainId: '1',
+          account: TEST_ACCOUNT,
+          transactionHash: '0x123456789',
           metadata: { timestamp: '123456' },
         })
       })
@@ -526,6 +550,17 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           expect(registerAccountsChangedStub).to.be.called
         })
 
+        it('registers a chainChanged listener if trackChainChanges is true', async () => {
+          const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
+
+          const registerChainChangedStub = sinon.stub(sdk, '_registerChainChangedListener' as any)
+
+          expect(sdk['sdkConfig'].trackChainChanges).to.be.true
+
+          sdk.setProvider(new MockEthereum())
+          expect(registerChainChangedStub).to.be.called
+        })
+
         it('calls _trackSigning if trackSigning is true', async () => {
           const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackSigning: true })
 
@@ -584,10 +619,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
           expect(sdk.provider).to.not.be.undefined
           expect((window.ethereum as any as EventEmitter).listenerCount('accountsChanged')).to.eq(1)
+          expect((window.ethereum as any as EventEmitter).listenerCount('chainChanged')).to.eq(1)
 
           sdk.setProvider(undefined)
 
           expect((window.ethereum as any as EventEmitter).listenerCount('accountsChanged')).to.eq(0)
+          expect((window.ethereum as any as EventEmitter).listenerCount('chainChanged')).to.eq(0)
         })
       })
     })
@@ -819,6 +856,19 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
+    describe('#_onChainChanged', () => {
+      it('converts hex chain id to decimal and fires event', () => {
+        const eventStub = sinon.stub(sdk, '_event' as any)
+
+        sdk['_onChainChanged']('0x1')
+
+        expect(eventStub).calledOnceWithExactly(Event.CHAIN_CHANGED, {
+          chainId: TEST_CHAIN_ID,
+          account: undefined,
+        })
+      })
+    })
+
     describe('#_reportCurrentWallet', () => {
       it('returns if the provider is non-existent', async () => {
         const requestStub = window.ethereum?.request
@@ -897,6 +947,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_trackTransactions', () => {
+      it('throws if currentChainId is not set')
+
       it('does not change request if provider is undefined', () => {
         sdk['_provider'] = undefined
         const reportErrorStub = sinon.stub(sdk, '_report')
@@ -911,7 +963,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           to: '0x03cddc9c7fad4b6848d6741b0ef381470bc675cd',
           data: '0x97b4d89f0...082ec95a',
         }
-        const nonce = 12
+        const nonce = 0xd // 13 in decimal
 
         const stubProvider = sinon.createStubInstance(MockEthereum)
         window.web3 = {
@@ -938,7 +990,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         expect(eventStub).calledWithExactly(Event.TRANSACTION_TRIGGERED, {
           ...transactionParams,
           chainId: TEST_CHAIN_ID,
-          nonce,
+          nonce: '13',
         })
       })
     })
@@ -970,7 +1022,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(eventStub).calledWithExactly(Event.SIGNING_TRIGGERED, {
           account: params[1],
-          messageToSign: params[0],
+          message: params[0],
         })
       })
 
@@ -983,7 +1035,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(eventStub).calledWithExactly(Event.SIGNING_TRIGGERED, {
           account: params[0],
-          messageToSign: params[1],
+          message: params[1],
         })
       })
 
@@ -996,8 +1048,33 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
         expect(eventStub).calledWithExactly(Event.SIGNING_TRIGGERED, {
           account: params[0],
-          messageToSign: params[1],
+          message: params[1],
         })
+      })
+    })
+
+    describe('#_registerAccountsChangedListener', () => {
+      it('registers an accountsChanged event listener and saves it to `_registeredProviderListeners`', async () => {
+        const provider = new MockEthereum()
+        window.ethereum = provider
+        const sdk = await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
+        expect(provider.listenerCount('accountsChanged')).to.eq(0)
+        sdk['_registerAccountsChangedListener']()
+        expect(provider.listenerCount('accountsChanged')).to.eq(1)
+      })
+    })
+
+    describe('#_registerChainChangedListener', () => {
+      it('registers a chainChanged event listener and saves it to `_registeredProviderListeners`', async () => {
+        const provider = new MockEthereum()
+        window.ethereum = provider
+
+        const sdk = await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
+        expect(provider.listenerCount('chainChanged')).to.eq(0)
+
+        sdk['_registerChainChangedListener']()
+
+        expect(provider.listenerCount('chainChanged')).to.eq(1)
       })
     })
   })
