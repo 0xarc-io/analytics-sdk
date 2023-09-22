@@ -12,7 +12,7 @@ import sinon from 'sinon'
 import * as postRequestModule from '../src/utils/postRequest'
 import { DEFAULT_SDK_CONFIG, Event } from '../src/constants'
 import React from 'react'
-import { TEST_IDENTITY, TEST_JSDOM_URL, TEST_REFERRER } from './constants'
+import { TEST_ACCOUNT, TEST_IDENTITY, TEST_JSDOM_URL, TEST_REFERRER } from './constants'
 import { MockEthereum } from './MockEthereum'
 import globalJsdom from 'global-jsdom'
 import * as SocketClientModule from '../src/utils/createClientSocket'
@@ -60,7 +60,11 @@ const ChildTest = () => {
     <div>
       <button onClick={() => sdk?.page()}>fire page event</button>
       <button onClick={() => sdk?.event(CUSTOM_EVENT_NAME, { gm: 'gm' })}>fire custom event</button>
-      <button onClick={() => sdk?.transaction({ chainId: 1, transactionHash: '0x123' })}>
+      <button
+        onClick={() =>
+          sdk?.transaction({ account: TEST_ACCOUNT, chainId: 1, transactionHash: '0x123' })
+        }
+      >
         fire transaction event
       </button>
     </div>
@@ -212,8 +216,8 @@ describe('(int) ArcxAnalyticxProvider', () => {
       screen.getByText('fire transaction event').click()
 
       expect(socketStub.emit).calledOnceWith('submit-event', {
-        event: 'TRANSACTION_SUBMITTED',
-        attributes: { chain: 1, transaction_hash: '0x123', metadata: {} },
+        event: Event.TRANSACTION_SUBMITTED,
+        attributes: { chainId: 1, transactionHash: '0x123', account: TEST_ACCOUNT },
         url: TEST_JSDOM_URL,
       })
     })
