@@ -9,10 +9,18 @@ export const EthereumEventsButtons = () => {
       return
     }
     const signer = provider?.getSigner()
-    await signer?.sendTransaction({
+    const tx = await signer?.sendTransaction({
       to: '0x0000000000000000000000000000000000000000',
       value: '10000000000',
     })
+    if (tx) {
+      window.arcx?.transaction({
+        transactionHash: tx.hash,
+        metadata: {
+          description: 'custom transaction test',
+        },
+      })
+    }
   }
 
   const signMessage = async () => {
