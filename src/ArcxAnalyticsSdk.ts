@@ -153,6 +153,12 @@ export class ArcxAnalyticsSdk {
     return this.wallet({ chainId: this.currentChainId, account: account })
   }
 
+  private _registerChainChangedListener() {
+    const listener = (...args: unknown[]) => this._onChainChanged(args[0] as string)
+    this.provider?.on('chainChanged', listener)
+    this._registeredProviderListeners['chainChanged'] = listener
+  }
+
   private _handleAccountDisconnected() {
     if (!this.currentChainId && !this.currentConnectedAccount) {
       /**
@@ -176,6 +182,14 @@ export class ArcxAnalyticsSdk {
     this.currentConnectedAccount = undefined
 
     return this._event(Event.DISCONNECT, disconnectAttributes)
+  }
+
+  private _onChainChanged(chainIdHex: string) {
+    this.currentChainId = parseInt(chainIdHex).toString()
+
+    return this.chain({
+      chainId: this.currentChainId,
+    })
   }
 
   private async _reportCurrentWallet() {
@@ -232,10 +246,19 @@ export class ArcxAnalyticsSdk {
     provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params) && method === 'eth_sendTransaction') {
         const transactionParams = params[0] as Record<string, unknown>
-        const nonce = await provider.request({
+        let nonce = await provider.request<string>({
           method: 'eth_getTransactionCount',
           params: [transactionParams.from, 'latest'],
         })
+        if (nonce) {
+          nonce = parseInt(nonce).toString()
+        }
+
+        if (!this.currentChainId) {
+          this._reportErrorAndThrow(
+            'ArcxAnalyticsSdk::_trackTransactions: currentChainId is not set',
+          )
+        }
 
         this._event(Event.TRANSACTION_TRIGGERED, {
           ...transactionParams,
@@ -271,12 +294,12 @@ export class ArcxAnalyticsSdk {
         if (['signTypedData_v4', 'eth_sign'].includes(method)) {
           this._event(Event.SIGNING_TRIGGERED, {
             account: params[0],
-            messageToSign: params[1],
+            message: params[1],
           })
         }
         if (method === 'personal_sign') {
           this._event(Event.SIGNING_TRIGGERED, {
-            messageToSign: params[0],
+            message: params[0],
             account: params[1],
           })
         }
@@ -291,7 +314,7 @@ export class ArcxAnalyticsSdk {
       if (event.target instanceof Element) {
         this._event(Event.CLICK, {
           elementId: getElementsFullInfo(event.target),
-          content: event.target.textContent,
+          ...(event.target.textContent && { content: event.target.textContent }),
         })
       } else {
         this._report('warning', 'ArcxAnalyticsSdk::_trackClicks: event target is not Element')
@@ -304,6 +327,10 @@ export class ArcxAnalyticsSdk {
       if (this.sdkConfig.trackWalletConnections) {
         this._reportCurrentWallet()
         this._registerAccountsChangedListener()
+      }
+
+      if (this.sdkConfig.trackChainChanges) {
+        this._registerChainChangedListener()
       }
 
       if (this.sdkConfig.trackSigning) {
@@ -442,8 +469,18 @@ export class ArcxAnalyticsSdk {
    * @param account The connected account.
    */
   wallet({ chainId, account }: { chainId: ChainID; account: string }): void {
+    if (!chainId) {
+      throw new Error('ArcxAnalyticsSdk::wallet: chainId cannot be empty')
+    }
+    if (!account) {
+      throw new Error('ArcxAnalyticsSdk::wallet: account cannot be empty')
+    }
+
+    this.currentChainId = chainId.toString()
+    this.currentConnectedAccount = account
+
     return this._event(Event.CONNECT, {
-      chain: chainId,
+      chainId,
       account,
     })
   }
@@ -463,10 +500,10 @@ export class ArcxAnalyticsSdk {
       return
     }
 
-    const chain = attributes?.chainId || this.currentChainId
+    const chainId = attributes?.chainId || this.currentChainId
     const eventAttributes = {
       account,
-      ...(chain && { chain }),
+      ...(chainId && { chainId }),
     }
 
     this.currentChainId = undefined
@@ -500,7 +537,7 @@ export class ArcxAnalyticsSdk {
     this.currentChainId = chainId.toString()
 
     return this._event(Event.CHAIN_CHANGED, {
-      chain: chainId,
+      chainId,
       account: account || this.currentConnectedAccount,
     })
   }
@@ -508,26 +545,42 @@ export class ArcxAnalyticsSdk {
   /**
    * Logs a transaction event.
    * @param transactionHash The transaction hash.
-   * @param chainId (optional) The chain ID the transaction was sent to. If not provided, the previously recorded chainID will be used.
+   * @param account (optional) The account that sent the transaction.
+   * If not passed, the previously recorded account by the SDK will be used.
+   * @param chainId (optional) The chain ID the transaction was sent to.
+   * If not provided, the previously recorded chainID will be used.
    * @param metadata (optional) Any additional metadata to be logged.
    */
   transaction({
     transactionHash,
+    account,
     chainId,
     metadata,
   }: {
     transactionHash: string
+    account?: string
     chainId?: ChainID
     metadata?: Record<string, unknown>
   }) {
     if (!transactionHash) {
       throw new Error('ArcxAnalyticsSdk::transaction: transactionHash cannot be empty')
     }
+    if (!chainId && !this.currentChainId) {
+      throw new Error(
+        'ArcxAnalyticsSdk::transaction: chainId cannot be empty and was not previously recorded',
+      )
+    }
+    if (!account && !this.currentConnectedAccount) {
+      throw new Error(
+        'ArcxAnalyticsSdk::transaction: account cannot be empty and was not previously recorded',
+      )
+    }
 
-    return this._event(Event.TRANSACTION, {
-      chain: chainId,
-      transaction_hash: transactionHash,
-      metadata: metadata || {},
+    return this._event(Event.TRANSACTION_SUBMITTED, {
+      chainId: chainId || this.currentChainId,
+      account: account || this.currentConnectedAccount,
+      transactionHash,
+      ...(metadata && { metadata }),
     })
   }
 

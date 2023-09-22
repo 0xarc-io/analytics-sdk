@@ -13,6 +13,7 @@ export type SdkConfig = {
   /* ---------------------------- Tracking options ---------------------------- */
   trackPages: boolean
   trackWalletConnections: boolean
+  trackChainChanges: boolean
   trackTransactions: boolean
   trackSigning: boolean
   trackClicks: boolean

@@ -4,6 +4,7 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
   cacheIdentity: true,
   trackPages: true,
   trackWalletConnections: true,
+  trackChainChanges: true,
   trackTransactions: true,
   trackSigning: true,
   trackClicks: true,
