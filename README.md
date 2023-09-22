@@ -186,6 +186,7 @@ The configuration options are:
 | `trackPages`             | boolean         | Tracks whenever there is a URL change during the session and logs it automatically.                    | `true`            |
 | `trackUTM`               | boolean         | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit    | `true`            |
 | `trackWalletConnections` | boolean         | Automatically track wallet connections on the provider passed to `initialProvider` or `setProvider`.   | `true`            |
+| `trackChainChanges`      | boolean         | Automatically track chain ID changes on the provider passed to `initialProvider` or `setProvider`.     | `true`            |
 | `trackTransactions`      | boolean         | Automatically track transaction requests on the provider passed to `initialProvider` or `setProvider`. | `true`            |
 | `trackSigning`           | boolean         | Automatically track signing requests on the provider passed to `initialProvider` or `setProvider`.     | `true`            |
 | `trackClicks`            | boolean         | Automatically track click events                                                                       | `true`            |
@@ -312,7 +313,7 @@ Logs when there is a change in the blockchain the user’s wallet is connected t
 **Example:**
 
 ```typescript
-arcx.chainChanged({ chainId: '1', account: '0x1234' })
+arcx.chain({ chainId: '1', account: '0x1234' })
 ```
 
 ### `transaction`
