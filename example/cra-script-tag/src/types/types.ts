@@ -16,7 +16,12 @@ export interface ArcxAnalyticsSdk {
   attribute: (attributes: any) => Promise<string>
   page: (attributes: any) => Promise<string>
   connectWallet: (attributes: any) => Promise<string>
-  transaction: (attributes: any) => Promise<string>
+  transaction: (attributes: {
+    transactionHash: string
+    account?: string
+    chainId?: string | number
+    metadata?: Record<string, unknown>
+  }) => Promise<string>
   referrer: (referrer?: string) => Promise<string>
   setProvider: (provider: EIP1193Provider | undefined) => void
   _report: (logLevel: 'error' | 'log' | 'warning', content: string) => Promise<string>
