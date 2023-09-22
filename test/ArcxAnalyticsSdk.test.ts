@@ -280,9 +280,44 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#wallet', () => {
-      it('throws if chainId is empty')
-      it('throws if account is empty')
-      it('saves the account and chainId to the sdk instance')
+      it('throws if chainId is empty', async () => {
+        try {
+          await sdk.wallet({
+            chainId: '',
+            account: TEST_ACCOUNT,
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq('ArcxAnalyticsSdk::wallet: chainId cannot be empty')
+          return
+        }
+        fail('should throw')
+      })
+
+      it('throws if account is empty', async () => {
+        try {
+          await sdk.wallet({
+            chainId: TEST_CHAIN_ID,
+            account: '',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq('ArcxAnalyticsSdk::wallet: account cannot be empty')
+          return
+        }
+        fail('should throw')
+      })
+
+      it('saves the account and chainId to the sdk instance', async () => {
+        expect(sdk.currentChainId).to.be.undefined
+        expect(sdk.currentConnectedAccount).to.be.undefined
+
+        await sdk.wallet({
+          chainId: TEST_CHAIN_ID,
+          account: TEST_ACCOUNT,
+        })
+
+        expect(sdk.currentChainId).to.eq(TEST_CHAIN_ID)
+        expect(sdk.currentConnectedAccount).to.eq(TEST_ACCOUNT)
+      })
 
       it('calls _event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, '_event' as any)
@@ -410,8 +445,34 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         fail('should throw')
       })
 
-      it('throws if chainId and currentChainId are empty')
-      it('throws if account and currentConnectedAccount are empty')
+      it('throws if chainId and currentChainId are empty', async () => {
+        try {
+          await sdk.transaction({
+            transactionHash: '0x123456789',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq(
+            'ArcxAnalyticsSdk::transaction: chainId cannot be empty and was not previously recorded',
+          )
+          return
+        }
+        fail('should throw')
+      })
+
+      it('throws if account and currentConnectedAccount are empty', async () => {
+        try {
+          await sdk.transaction({
+            transactionHash: '0x123456789',
+            chainId: '1',
+          })
+        } catch (err: any) {
+          expect(err.message).to.eq(
+            'ArcxAnalyticsSdk::transaction: account cannot be empty and was not previously recorded',
+          )
+          return
+        }
+        fail('should throw')
+      })
 
       it('calls _event() with the given attributes', async () => {
         const eventStub = sinon.stub(sdk, '_event' as any)
@@ -947,8 +1008,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('#_trackTransactions', () => {
-      it('throws if currentChainId is not set')
-
       it('does not change request if provider is undefined', () => {
         sdk['_provider'] = undefined
         const reportErrorStub = sinon.stub(sdk, '_report')
