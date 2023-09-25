@@ -211,16 +211,6 @@ await analytics = await ArcxAnalyticsSdk.init(
 )
 ```
 
-### `setProvider` (deprecated)
-
-> Deprecated. Use the manual event tracking instead.
-
-Sets the [EIP-1193](https://eips.ethereum.org/EIPS/eip-1193) to use. If automatic EVM events tracking is enabled, the registered listeners will be removed from the old provider and added to the new one.
-
-**Parameters:**
-
-- `provider` **(EIP1193Provider)** - the provider to use
-
 ### `event`
 
 A generic, catch-all `event` log. Use this method when no existing methods

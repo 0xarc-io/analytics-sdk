@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 import { expect } from 'chai'
-import { ArcxAnalyticsSdk, LIBRARY_USAGE_HEADER, SdkConfig } from '../src'
+import { ArcxAnalyticsSdk, EIP1193Provider, LIBRARY_USAGE_HEADER, SdkConfig } from '../src'
 import {
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -565,15 +565,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
       })
 
-      describe('#setProvider', () => {
-        it('deletes currentChainId and currentConnectedAccount if setting to undefined', () => {
-          sdk['currentChainId'] = TEST_CHAIN_ID
-          sdk['currentConnectedAccount'] = TEST_ACCOUNT
-          sdk['setProvider'](undefined)
-          expect(sdk['currentChainId']).to.be.undefined
-          expect(sdk['currentConnectedAccount']).to.be.undefined
-        })
-
+      describe('#_trackProvider', () => {
         describe('setting a provider', () => {
           it('saves the original `request` to _originalRequest', async () => {
             const provider = new MockEthereum()
@@ -583,7 +575,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
             expect(sdk['_originalRequest']).to.be.undefined
 
-            sdk['setProvider'](provider)
+            sdk['_trackProvider'](provider)
 
             expect(sdk['_originalRequest']).to.eq(originalRequest)
           })
@@ -591,11 +583,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           it('sets `provider` to the given provider', () => {
             expect(sdk.provider).to.eq(window.ethereum)
 
-            sdk['setProvider'](undefined)
-            expect(sdk.provider).to.be.undefined
-
             const newProvider = new MockEthereum()
-            sdk['setProvider'](newProvider)
+            sdk['_trackProvider'](newProvider)
             expect(sdk.provider).to.eq(newProvider)
           })
 
@@ -609,7 +598,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
             expect(sdk['sdkConfig'].trackTransactions).to.be.true
 
-            sdk['setProvider'](new MockEthereum())
+            sdk['_trackProvider'](new MockEthereum())
             expect(registerAccountsChangedStub).to.be.called
           })
 
@@ -620,7 +609,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
             expect(sdk['sdkConfig'].trackChainChanges).to.be.true
 
-            sdk['setProvider'](new MockEthereum())
+            sdk['_trackProvider'](new MockEthereum())
             expect(registerChainChangedStub).to.be.called
           })
 
@@ -631,7 +620,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
             expect(sdk['sdkConfig'].trackSigning).to.be.true
 
-            sdk['setProvider'](new MockEthereum())
+            sdk['_trackProvider'](new MockEthereum())
             expect(trackSigningStub).to.be.called
           })
 
@@ -642,7 +631,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
             expect(sdk['sdkConfig'].trackTransactions).to.be.true
 
-            sdk['setProvider'](new MockEthereum())
+            sdk['_trackProvider'](new MockEthereum())
             expect(trackTransactionsStub).to.be.called
           })
         })
@@ -657,7 +646,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             expect(window.ethereum.request).to.not.eq(originalRequest)
 
             const newProvider = new MockEthereum()
-            sdk['setProvider'](newProvider)
+            sdk['_trackProvider'](newProvider)
 
             expect(window.ethereum.request).to.eq(originalRequest)
           })
@@ -671,7 +660,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             expect(window.ethereum.request).to.not.eq(originalRequest)
 
             const newProvider = new MockEthereum()
-            sdk['setProvider'](newProvider)
+            sdk['_trackProvider'](newProvider)
 
             expect(window.ethereum.request).to.eq(originalRequest)
           })
@@ -686,7 +675,11 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             )
             expect((window.ethereum as any as EventEmitter).listenerCount('chainChanged')).to.eq(1)
 
-            sdk['setProvider'](undefined)
+            sdk['_trackProvider']({
+              on: sinon.stub(),
+              removeListener: sinon.stub(),
+              request: sinon.stub(),
+            } as EIP1193Provider)
 
             expect((window.ethereum as any as EventEmitter).listenerCount('accountsChanged')).to.eq(
               0,
