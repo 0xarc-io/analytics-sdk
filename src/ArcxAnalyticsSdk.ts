@@ -40,7 +40,10 @@ export class ArcxAnalyticsSdk {
     private _libraryUsage?: LibraryUsageType,
   ) {
     if (_libraryUsage !== 'npm-package') {
-      this.setProvider(window?.ethereum || window.web3?.currentProvider)
+      const provider = window?.ethereum || window.web3?.currentProvider
+      if (provider) {
+        this._trackProvider(provider)
+      }
     }
 
     if (this.sdkConfig.trackPages) {
@@ -393,10 +396,10 @@ export class ArcxAnalyticsSdk {
   }
 
   /**
-   * Sets a new provider. If automatic EVM events tracking is enabled,
+   * Attaches web3 tracking to the given provider. If automatic EVM events tracking is enabled,
    * the registered listeners will be removed from the old provider and added to the new one.
    */
-  setProvider(provider: EIP1193Provider | undefined) {
+  private _trackProvider(provider: EIP1193Provider) {
     if (provider === this._provider) {
       return
     }
