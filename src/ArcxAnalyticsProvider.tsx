@@ -15,7 +15,17 @@ export const ArcxAnalyticsProvider = ({ apiKey, config, children }: ArcxAnalytic
     if (initializedStartedRef.current) return
     initializedStartedRef.current = true
 
-    ArcxAnalyticsSdk.init(apiKey, config).then((sdk) => setSdk(sdk))
+    ArcxAnalyticsSdk.init(
+      apiKey,
+      {
+        ...config,
+        trackWalletConnections: false,
+        trackChainChanges: false,
+        trackTransactions: false,
+        trackSigning: false,
+      },
+      'npm-package',
+    ).then((sdk) => setSdk(sdk))
   }, [apiKey])
 
   return <ArcxAnalyticsContext.Provider value={sdk}>{children}</ArcxAnalyticsContext.Provider>
