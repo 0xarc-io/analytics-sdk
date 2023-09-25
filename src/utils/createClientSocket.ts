@@ -13,14 +13,9 @@ interface IQueryParams {
   sessionStorageId: string
 }
 
-export const createClientSocket = (
-  url: string,
-  queryParams: IQueryParams,
-  headers?: Record<string, string>,
-) => {
+export const createClientSocket = (url: string, queryParams: IQueryParams) => {
   return io(url, {
     query: queryParams,
     transports: ['websocket'],
-    extraHeaders: headers,
   })
 }

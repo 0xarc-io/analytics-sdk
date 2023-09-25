@@ -92,9 +92,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    it('sets _libraryUsage if it is passed', async () => {
+    it('sets _libraryType if it is passed', async () => {
       const sdk = await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG, 'npm-package')
-      expect(sdk['_libraryUsage']).to.equal('npm-package')
+      expect(sdk['_libraryType']).to.equal('npm-package')
     })
 
     it('makes an /identity call when no identity is found in localStorage', async () => {
@@ -195,23 +195,18 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       expect(sessionId).to.not.be.null
 
       expect(sdk['socket']).to.be.eq(socketStub)
-      expect(createClientSocketStub).to.be.calledOnceWith(
-        DEFAULT_SDK_CONFIG.url,
-        {
-          apiKey: TEST_API_KEY,
-          identityId: TEST_IDENTITY,
-          sdkVersion: SDK_VERSION,
-          screenHeight: TEST_SCREEN.height,
-          screenWidth: TEST_SCREEN.width,
-          viewportHeight: TEST_VIEWPORT.height,
-          viewportWidth: TEST_VIEWPORT.width,
-          url: TEST_JSDOM_URL,
-          sessionStorageId: sessionId,
-        },
-        {
-          [LIBRARY_USAGE_HEADER]: 'script-tag',
-        },
-      )
+      expect(createClientSocketStub).to.be.calledOnceWith(DEFAULT_SDK_CONFIG.url, {
+        apiKey: TEST_API_KEY,
+        identityId: TEST_IDENTITY,
+        sdkVersion: SDK_VERSION,
+        screenHeight: TEST_SCREEN.height,
+        screenWidth: TEST_SCREEN.width,
+        viewportHeight: TEST_VIEWPORT.height,
+        viewportWidth: TEST_VIEWPORT.width,
+        url: TEST_JSDOM_URL,
+        sessionStorageId: sessionId,
+        libraryType: 'script-tag',
+      })
     })
 
     it('creates a websocket instance with the existing session id if one exists', async () => {
@@ -690,9 +685,9 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       describe('#_reportError', () => {
-        it('calls postRequest with library usage header if _libraryUsage is set', async () => {
+        it('calls postRequest with library usage header if _libraryType is set', async () => {
           const errorMsg = 'TestError: this should not happen'
-          sdk['_libraryUsage'] = 'script-tag'
+          sdk['_libraryType'] = 'script-tag'
           await sdk['_report']('error', errorMsg)
           expect(postRequestStub).calledOnceWith(
             DEFAULT_SDK_CONFIG.url,

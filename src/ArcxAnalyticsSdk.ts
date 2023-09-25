@@ -37,9 +37,9 @@ export class ArcxAnalyticsSdk {
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
     private socket: Socket,
-    private _libraryUsage?: LibraryUsageType,
+    private _libraryType?: LibraryUsageType,
   ) {
-    if (_libraryUsage !== 'npm-package') {
+    if (_libraryType !== 'npm-package') {
       const provider = window?.ethereum || window.web3?.currentProvider
       if (provider) {
         this._trackProvider(provider)
@@ -373,7 +373,7 @@ export class ArcxAnalyticsSdk {
           url: window.location.href,
         },
       },
-      this._libraryUsage ? { [LIBRARY_USAGE_HEADER]: this._libraryUsage } : undefined,
+      this._libraryType ? { [LIBRARY_USAGE_HEADER]: this._libraryType } : undefined,
     )
   }
 
@@ -437,32 +437,27 @@ export class ArcxAnalyticsSdk {
   static async init(
     apiKey: string,
     config?: Partial<SdkConfig>,
-    libraryUsage?: LibraryUsageType,
+    libraryType?: LibraryUsageType,
   ): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = await ArcxAnalyticsSdk._getIdentitityId(sdkConfig, apiKey, libraryUsage)
+    const identityId = await ArcxAnalyticsSdk._getIdentitityId(sdkConfig, apiKey, libraryType)
     const sessionId = ArcxAnalyticsSdk._getSessionId(identityId)
 
-    const extraHeaders =
-      libraryUsage !== undefined ? { [LIBRARY_USAGE_HEADER]: libraryUsage } : undefined
-    const websocket = createClientSocket(
-      sdkConfig.url,
-      {
-        apiKey,
-        identityId,
-        sdkVersion: SDK_VERSION,
-        screenHeight: screen.height,
-        screenWidth: screen.width,
-        viewportHeight: window.innerHeight,
-        viewportWidth: window.innerWidth,
-        url: window.location.href,
-        sessionStorageId: sessionId,
-      },
-      extraHeaders,
-    )
+    const websocket = createClientSocket(sdkConfig.url, {
+      apiKey,
+      identityId,
+      sdkVersion: SDK_VERSION,
+      screenHeight: screen.height,
+      screenWidth: screen.width,
+      viewportHeight: window.innerHeight,
+      viewportWidth: window.innerWidth,
+      url: window.location.href,
+      sessionStorageId: sessionId,
+      ...(libraryType && { libraryType }),
+    })
 
-    return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket, libraryUsage)
+    return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket, libraryType)
   }
 
   private static async _getIdentitityId(
