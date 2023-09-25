@@ -1,14 +1,16 @@
+/* eslint-disable @typescript-eslint/indent */
 import { ReactNode } from 'react'
-import { EIP1193Provider } from './web3'
 
 export type Attributes = Record<string, unknown>
 export type ChainID = string | number
+
+export const LIBRARY_USAGE_HEADER = 'X-Library-Usage'
+export type LibraryUsageType = 'script-tag' | 'npm-package'
 
 export type SdkConfig = {
   /* ---------------------------- Internal settings --------------------------- */
   cacheIdentity: boolean
   url: string
-  initialProvider?: EIP1193Provider
 
   /* ---------------------------- Tracking options ---------------------------- */
   trackPages: boolean
@@ -22,5 +24,12 @@ export type SdkConfig = {
 export type ArcxAnalyticsProviderProps = {
   apiKey: string
   children?: ReactNode
-  config?: Partial<SdkConfig>
+  config?: Omit<
+    Partial<SdkConfig>,
+    | 'trackWalletConnections'
+    | 'trackChainChanges'
+    | 'trackTransactions'
+    | 'trackSigning'
+    | 'initialProvider'
+  >
 }

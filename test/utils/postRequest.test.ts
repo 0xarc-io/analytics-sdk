@@ -23,7 +23,11 @@ describe('(unit) postRequest', () => {
         },
       },
     }
-    const res = await postRequest('https://example.com/', TEST_API_KEY, 'v1', data)
+    const extraHeaders = {
+      'x-extra-header': TEST_API_KEY,
+    }
+
+    const res = await postRequest('https://example.com/', TEST_API_KEY, 'v1', data, extraHeaders)
 
     expect(res).to.equal('test response')
     expect(SDK_VERSION).to.not.be.empty
@@ -33,6 +37,7 @@ describe('(unit) postRequest', () => {
         'Content-Type': 'application/json; charset=UTF-8',
         'x-api-key': TEST_API_KEY,
         'x-sdk-version': SDK_VERSION,
+        ...extraHeaders,
       },
       body: JSON.stringify(data),
     })

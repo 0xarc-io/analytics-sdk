@@ -6,6 +6,7 @@ import {
   ArcxAnalyticsContext,
   SdkConfig,
   useArcxAnalytics,
+  LIBRARY_USAGE_HEADER,
 } from '../src'
 import { expect } from 'chai'
 import sinon from 'sinon'
@@ -26,32 +27,6 @@ const TRACK_PAGES_CONFIG: SdkConfig = {
   cacheIdentity: false,
 }
 const CUSTOM_EVENT_NAME = 'test-event'
-
-const TestProvider = ({
-  children,
-  providerOverrides,
-}: {
-  children?: React.ReactNode
-  providerOverrides?: Partial<ArcxAnalyticsProviderProps>
-}) => (
-  <ArcxAnalyticsProvider apiKey={TEST_API_KEY} config={TRACK_PAGES_CONFIG} {...providerOverrides}>
-    <ArcxAnalyticsContext.Consumer>
-      {(sdk) => (
-        <div>
-          <div>Identity: {sdk?.identityId}</div>
-          <div
-            id="id-for-click"
-            data-testid="track-click"
-            className="test-classname-1 test-classname-2"
-          >
-            Text to click
-          </div>
-          <div>{children}</div>
-        </div>
-      )}
-    </ArcxAnalyticsContext.Consumer>
-  </ArcxAnalyticsProvider>
-)
 
 const ChildTest = () => {
   const sdk = useArcxAnalytics()
@@ -101,11 +76,46 @@ describe('(int) ArcxAnalyticxProvider', () => {
     cleanup()
   })
 
+  const TestProvider = ({
+    children,
+    providerOverrides,
+  }: {
+    children?: React.ReactNode
+    providerOverrides?: Partial<ArcxAnalyticsProviderProps>
+  }) => (
+    <ArcxAnalyticsProvider apiKey={TEST_API_KEY} config={TRACK_PAGES_CONFIG} {...providerOverrides}>
+      <ArcxAnalyticsContext.Consumer>
+        {(sdk) => (
+          <div>
+            <div>Identity: {sdk?.identityId}</div>
+            <div
+              id="id-for-click"
+              data-testid="track-click"
+              className="test-classname-1 test-classname-2"
+            >
+              Text to click
+            </div>
+            <div>{children}</div>
+          </div>
+        )}
+      </ArcxAnalyticsContext.Consumer>
+    </ArcxAnalyticsProvider>
+  )
+
   describe('Initialization', () => {
-    it('initializes the SDK', async () => {
+    it('initializes the SDK with the library usage type set to "npm-package"', async () => {
       const screen = render(<TestProvider />)
 
-      expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, TEST_API_KEY, '/identify'))
+      expect(postRequestStub.calledOnce).to.be.true
+      const args = postRequestStub.getCall(0).args
+      expect(args).to.deep.eq([
+        DEFAULT_SDK_CONFIG.url,
+        TEST_API_KEY,
+        '/identify',
+        {
+          [LIBRARY_USAGE_HEADER]: 'npm-package',
+        },
+      ])
       expect(await screen.findByText(`Identity: ${TEST_IDENTITY}`)).to.exist
     })
 
