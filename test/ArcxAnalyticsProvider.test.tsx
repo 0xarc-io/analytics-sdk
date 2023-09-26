@@ -6,7 +6,6 @@ import {
   ArcxAnalyticsContext,
   SdkConfig,
   useArcxAnalytics,
-  LIBRARY_USAGE_HEADER,
 } from '../src'
 import { expect } from 'chai'
 import sinon from 'sinon'
@@ -103,22 +102,6 @@ describe('(int) ArcxAnalyticxProvider', () => {
   )
 
   describe('Initialization', () => {
-    it('initializes the SDK with the library usage type set to "npm-package"', async () => {
-      const screen = render(<TestProvider />)
-
-      expect(postRequestStub.calledOnce).to.be.true
-      const args = postRequestStub.getCall(0).args
-      expect(args).to.deep.eq([
-        DEFAULT_SDK_CONFIG.url,
-        TEST_API_KEY,
-        '/identify',
-        {
-          [LIBRARY_USAGE_HEADER]: 'npm-package',
-        },
-      ])
-      expect(await screen.findByText(`Identity: ${TEST_IDENTITY}`)).to.exist
-    })
-
     it('fails to initialize sdk if api key was not provided', () => {
       // Hide the error message in the console
       sinon.stub(console, 'error')
@@ -147,6 +130,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
             content,
           },
           url: TEST_JSDOM_URL,
+          libraryType: 'npm-package',
         }
       }
 
@@ -207,6 +191,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
         event: Event.CUSTOM,
         attributes: { name: CUSTOM_EVENT_NAME, attributes: { gm: 'gm' } },
         url: TEST_JSDOM_URL,
+        libraryType: 'npm-package',
       })
     })
 
@@ -219,6 +204,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
           referrer: TEST_REFERRER,
         },
         url: TEST_JSDOM_URL,
+        libraryType: 'npm-package',
       })
     })
 
@@ -229,6 +215,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
         event: Event.TRANSACTION_SUBMITTED,
         attributes: { chainId: 1, transactionHash: '0x123', account: TEST_ACCOUNT },
         url: TEST_JSDOM_URL,
+        libraryType: 'npm-package',
       })
     })
   })

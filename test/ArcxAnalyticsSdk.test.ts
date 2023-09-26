@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 import { expect } from 'chai'
-import { ArcxAnalyticsSdk, EIP1193Provider, LIBRARY_USAGE_HEADER, SdkConfig } from '../src'
+import { ArcxAnalyticsSdk, EIP1193Provider, SdkConfig } from '../src'
 import {
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -85,18 +85,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
     })
 
-    it('makes an /identity call with the "X-Library-Usage": "npm-package" if libraryUsage is passed', async () => {
-      await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG, 'npm-package')
-      expect(postRequestStub).to.be.calledOnceWithExactly(DEFAULT_SDK_CONFIG.url, '', '/identify', {
-        [LIBRARY_USAGE_HEADER]: 'npm-package',
-      })
-    })
-
-    it('sets _libraryType if it is passed', async () => {
-      const sdk = await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG, 'npm-package')
-      expect(sdk['_libraryType']).to.equal('npm-package')
-    })
-
     it('makes an /identity call when no identity is found in localStorage', async () => {
       await ArcxAnalyticsSdk.init('', ALL_FALSE_CONFIG)
       expect(postRequestStub.calledOnceWith(DEFAULT_SDK_CONFIG.url, '', '/identify')).to.be.true
@@ -120,7 +108,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         DEFAULT_SDK_CONFIG.url,
         '',
         '/identify',
-        undefined,
       )
     })
 
@@ -187,10 +174,10 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       await ArcxAnalyticsSdk.init(TEST_API_KEY)
     })
 
-    it('creates a websocket instance with query attributes and library usage', async () => {
+    it('creates a websocket instance with query attributes', async () => {
       expect(sessionStorage.getItem(SESSION_STORAGE_ID_KEY)).to.be.null
 
-      const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, undefined, 'script-tag')
+      const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, undefined)
       const sessionId = sessionStorage.getItem(SESSION_STORAGE_ID_KEY)
       expect(sessionId).to.not.be.null
 
@@ -205,7 +192,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         viewportWidth: TEST_VIEWPORT.width,
         url: TEST_JSDOM_URL,
         sessionStorageId: sessionId,
-        libraryType: 'script-tag',
       })
     })
 
@@ -685,29 +671,6 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       describe('#_reportError', () => {
-        it('calls postRequest with library usage header if _libraryType is set', async () => {
-          const errorMsg = 'TestError: this should not happen'
-          sdk['_libraryType'] = 'script-tag'
-          await sdk['_report']('error', errorMsg)
-          expect(postRequestStub).calledOnceWith(
-            DEFAULT_SDK_CONFIG.url,
-            TEST_API_KEY,
-            '/log-sdk',
-            {
-              logLevel: 'error',
-              data: {
-                identityId: TEST_IDENTITY,
-                msg: errorMsg,
-                apiKey: TEST_API_KEY,
-                url: TEST_JSDOM_URL,
-              },
-            },
-            {
-              [LIBRARY_USAGE_HEADER]: 'script-tag',
-            },
-          )
-        })
-
         it('calls postRequest with error message', async () => {
           const errorMsg = 'TestError: this should not happen'
           await sdk['_report']('error', errorMsg)
@@ -887,6 +850,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
               referrer: TEST_REFERRER,
             },
             url: TEST_JSDOM_URL,
+            libraryType: 'npm-package',
           })
           expect(socketStub.emit.getCall(1)).to.be.calledWithExactly('submit-event', {
             event: Event.PAGE,
@@ -894,6 +858,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
               referrer: TEST_REFERRER,
             },
             url: TEST_JSDOM_URL + 'new',
+            libraryType: 'npm-package',
           })
         })
       })
@@ -1160,6 +1125,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       event,
       attributes,
       url: TEST_JSDOM_URL,
+      libraryType: 'npm-package',
     }
   }
 })
