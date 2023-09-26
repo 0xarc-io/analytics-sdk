@@ -26,7 +26,7 @@
         config = {
           url: '%REACT_APP_ARCX_API_URL%',
         }
-        ArcxAnalyticsSdk.init(apiKey, config, 'script-tag').then(function (sdk) {
+        ArcxAnalyticsSdk.init(apiKey, config).then(function (sdk) {
           window.arcx = sdk
         })
       }

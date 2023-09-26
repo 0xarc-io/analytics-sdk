@@ -5,7 +5,7 @@ export type Attributes = Record<string, unknown>
 export type ChainID = string | number
 
 export const LIBRARY_USAGE_HEADER = 'X-Library-Usage'
-export type LibraryUsageType = 'script-tag' | 'npm-package'
+export type LibraryType = 'script-tag' | 'npm-package'
 
 export type SdkConfig = {
   /* ---------------------------- Internal settings --------------------------- */
