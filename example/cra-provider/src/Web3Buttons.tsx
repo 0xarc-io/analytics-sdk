@@ -10,9 +10,7 @@ export const Web3Buttons = () => {
   const [connectedWallet, setConnectedWallet] = useState<'metamask' | 'walletConnect' | undefined>()
 
   useEffect(() => {
-    if (sdk && provider) {
-      sdk.setProvider(provider.provider as any)
-    } else if (sdk && sdk.provider && !provider) {
+    if (sdk && sdk.provider && !provider) {
       // provider disconnected from external source (e.g. user clicked disconnect in wallet connect)
       setConnectedWallet(undefined)
     }
