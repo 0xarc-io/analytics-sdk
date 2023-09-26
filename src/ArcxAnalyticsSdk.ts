@@ -1,12 +1,4 @@
-import {
-  Attributes,
-  ChainID,
-  SdkConfig,
-  RequestArguments,
-  EIP1193Provider,
-  LibraryUsageType,
-  LIBRARY_USAGE_HEADER,
-} from './types'
+import { Attributes, ChainID, SdkConfig, RequestArguments, EIP1193Provider } from './types'
 import {
   CURRENT_URL_KEY,
   DEFAULT_SDK_CONFIG,
@@ -15,7 +7,13 @@ import {
   Event,
   SESSION_STORAGE_ID_KEY,
 } from './constants'
-import { createClientSocket, getElementsFullInfo, postRequest, generateUniqueID } from './utils'
+import {
+  createClientSocket,
+  getElementsFullInfo,
+  postRequest,
+  generateUniqueID,
+  getLibraryType,
+} from './utils'
 import { Socket } from 'socket.io-client'
 
 export class ArcxAnalyticsSdk {
@@ -37,13 +35,10 @@ export class ArcxAnalyticsSdk {
     public readonly identityId: string,
     private readonly sdkConfig: SdkConfig,
     private socket: Socket,
-    private _libraryType?: LibraryUsageType,
   ) {
-    if (_libraryType !== 'npm-package') {
-      const provider = window?.ethereum || window.web3?.currentProvider
-      if (provider) {
-        this._trackProvider(provider)
-      }
+    const provider = window?.ethereum || window.web3?.currentProvider
+    if (provider) {
+      this._trackProvider(provider)
     }
 
     if (this.sdkConfig.trackPages) {
@@ -359,22 +354,16 @@ export class ArcxAnalyticsSdk {
 
   /** Report error to the server in order to better understand edge cases which can appear */
   _report(logLevel: 'error' | 'log' | 'warning', content: string, error?: object): Promise<string> {
-    return postRequest(
-      this.sdkConfig.url,
-      this.apiKey,
-      '/log-sdk',
-      {
-        logLevel,
-        data: {
-          msg: content,
-          identityId: this.identityId,
-          apiKey: this.apiKey,
-          ...(error && { error: error }),
-          url: window.location.href,
-        },
+    return postRequest(this.sdkConfig.url, this.apiKey, '/log-sdk', {
+      logLevel,
+      data: {
+        msg: content,
+        identityId: this.identityId,
+        apiKey: this.apiKey,
+        ...(error && { error: error }),
+        url: window.location.href,
       },
-      this._libraryType ? { [LIBRARY_USAGE_HEADER]: this._libraryType } : undefined,
-    )
+    })
   }
 
   /** Report error to the server and throw an error */
@@ -392,6 +381,8 @@ export class ArcxAnalyticsSdk {
       event,
       attributes,
       url: window.location.href,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      libraryType: getLibraryType(),
     })
   }
 
@@ -434,14 +425,10 @@ export class ArcxAnalyticsSdk {
   /********************/
 
   /** Initialises the Analytics SDK with desired configuration. */
-  static async init(
-    apiKey: string,
-    config?: Partial<SdkConfig>,
-    libraryType?: LibraryUsageType,
-  ): Promise<ArcxAnalyticsSdk> {
+  static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
-    const identityId = await ArcxAnalyticsSdk._getIdentitityId(sdkConfig, apiKey, libraryType)
+    const identityId = await ArcxAnalyticsSdk._getIdentitityId(sdkConfig, apiKey)
     const sessionId = ArcxAnalyticsSdk._getSessionId(identityId)
 
     const websocket = createClientSocket(sdkConfig.url, {
@@ -454,25 +441,15 @@ export class ArcxAnalyticsSdk {
       viewportWidth: window.innerWidth,
       url: window.location.href,
       sessionStorageId: sessionId,
-      ...(libraryType && { libraryType }),
     })
 
-    return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket, libraryType)
+    return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket)
   }
 
-  private static async _getIdentitityId(
-    sdkConfig: SdkConfig,
-    apiKey: string,
-    libraryUsage?: LibraryUsageType,
-  ) {
+  private static async _getIdentitityId(sdkConfig: SdkConfig, apiKey: string) {
     const identityId =
       (sdkConfig?.cacheIdentity && window.localStorage.getItem(IDENTITY_KEY)) ||
-      (await postRequest(
-        sdkConfig.url,
-        apiKey,
-        '/identify',
-        libraryUsage ? { [LIBRARY_USAGE_HEADER]: libraryUsage } : undefined,
-      ))
+      (await postRequest(sdkConfig.url, apiKey, '/identify'))
     sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
     return identityId
   }
