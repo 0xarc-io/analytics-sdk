@@ -381,7 +381,6 @@ export class ArcxAnalyticsSdk {
       event,
       attributes,
       url: window.location.href,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       libraryType: getLibraryType(),
     })
   }
