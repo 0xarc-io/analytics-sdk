@@ -107,7 +107,7 @@ export class ArcxAnalyticsSdk {
       sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
     }
 
-    return this.page()
+    return this.page(true)
   }
 
   private _trackPagesChange() {
@@ -375,13 +375,13 @@ export class ArcxAnalyticsSdk {
   /**
    * Flexible event reporting method to be used internally.
    */
-  private _event(event: Event, attributes?: Attributes) {
+  private _event(event: Event, attributes?: Attributes, ignoreLibraryUsage?: boolean) {
     // If the socket is not connected, the event will be buffered until reconnection and sent then
     this.socket.emit('submit-event', {
       event,
       attributes,
       url: window.location.href,
-      libraryType: getLibraryType(),
+      ...(!ignoreLibraryUsage && { libraryType: getLibraryType() }),
     })
   }
 
@@ -467,10 +467,14 @@ export class ArcxAnalyticsSdk {
   /**
    * Logs the current page
    */
-  page(): void {
-    return this._event(Event.PAGE, {
-      referrer: document.referrer,
-    })
+  page(ignoreLibraryUsage?: boolean): void {
+    return this._event(
+      Event.PAGE,
+      {
+        referrer: document.referrer,
+      },
+      ignoreLibraryUsage,
+    )
   }
 
   /**

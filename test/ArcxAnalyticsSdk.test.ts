@@ -95,9 +95,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
       expect(socketStub.emit.firstCall).calledWith(
         'submit-event',
-        getAnalyticsData(Event.PAGE, {
-          referrer: TEST_REFERRER,
-        }),
+        getAnalyticsData(
+          Event.PAGE,
+          {
+            referrer: TEST_REFERRER,
+          },
+          true,
+        ),
       )
     })
 
@@ -256,7 +260,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             referrer: TEST_REFERRER,
           }
           sdk.page()
-          expect(eventStub).calledOnceWithExactly(Event.PAGE, attributes)
+          expect(eventStub).calledOnceWithExactly(Event.PAGE, attributes, undefined)
         })
       })
 
@@ -721,9 +725,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           sdk['sdkConfig'].trackPages = true
 
           sdk['_trackFirstPageVisit']()
-          expect(eventStub).calledOnceWithExactly(Event.PAGE, {
-            referrer: TEST_REFERRER,
-          })
+          expect(eventStub).calledOnceWithExactly(
+            Event.PAGE,
+            {
+              referrer: TEST_REFERRER,
+            },
+            true,
+          )
 
           sdk['sdkConfig'].trackPages = false
         })
@@ -732,9 +740,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           sdk['sdkConfig'].trackPages = true
 
           sdk['_trackFirstPageVisit']()
-          expect(eventStub).calledOnceWithExactly(Event.PAGE, {
-            referrer: TEST_REFERRER,
-          })
+          expect(eventStub).calledOnceWithExactly(
+            Event.PAGE,
+            {
+              referrer: TEST_REFERRER,
+            },
+            true,
+          )
 
           sdk['sdkConfig'].trackPages = false
         })
@@ -1120,12 +1132,12 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
   })
 
-  function getAnalyticsData(event: Event, attributes: any) {
+  function getAnalyticsData(event: Event, attributes: any, ignoreLibraryUsage?: boolean) {
     return {
       event,
       attributes,
       url: TEST_JSDOM_URL,
-      libraryType: 'npm-package',
+      ...(!ignoreLibraryUsage && { libraryType: 'npm-package' }),
     }
   }
 })
