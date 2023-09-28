@@ -260,7 +260,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             referrer: TEST_REFERRER,
           }
           sdk.page()
-          expect(eventStub).calledOnceWithExactly(Event.PAGE, attributes, undefined)
+          expect(eventStub).calledOnceWithExactly(Event.PAGE, attributes)
         })
       })
 
