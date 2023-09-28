@@ -107,7 +107,13 @@ export class ArcxAnalyticsSdk {
       sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
     }
 
-    return this.page(true)
+    return this._event(
+      Event.PAGE,
+      {
+        referrer: document.referrer,
+      },
+      true,
+    )
   }
 
   private _trackPagesChange() {
@@ -467,14 +473,10 @@ export class ArcxAnalyticsSdk {
   /**
    * Logs the current page
    */
-  page(ignoreLibraryUsage?: boolean): void {
-    return this._event(
-      Event.PAGE,
-      {
-        referrer: document.referrer,
-      },
-      ignoreLibraryUsage,
-    )
+  page(): void {
+    return this._event(Event.PAGE, {
+      referrer: document.referrer,
+    })
   }
 
   /**
