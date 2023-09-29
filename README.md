@@ -352,7 +352,7 @@ If your dApp supports multiple wallets, you must use the manual event tracking m
 To run a local version of the script:
 
 1. Run `yarn build` at root level to build the script.
-2. Run `yarn copy-build-example` to build example.
-3. Make a copy of `.env.example` and rename it to `.env`
-4. Make sure to add your ARCx API key to the `.env` file (`REACT_APP_ARCX_API_KEY`)
+2. Run `yarn copy-build-example` to copy the built contents into the `example/cra-script-tag` project.
+3. Make a copy of `.env.example` and rename it to `.env` in the `example/cra-script-tag` folder.
+4. Make sure to add your ARCx API + Alchemy keys to the `.env` file (find `YOUR_KEY_HERE`).
 5. Run `cd example/cra-script-tag && yarn && yarn start` to start the example app.
