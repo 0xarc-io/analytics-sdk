@@ -270,9 +270,7 @@ export class ArcxAnalyticsSdk {
         }
 
         if (!this.currentChainId) {
-          this._reportErrorAndThrow(
-            'ArcxAnalyticsSdk::_trackTransactions: currentChainId is not set',
-          )
+          this._report('error', 'ArcxAnalyticsSdk::_trackTransactions: currentChainId is not set')
         }
 
         this._event(Event.TRANSACTION_TRIGGERED, {
