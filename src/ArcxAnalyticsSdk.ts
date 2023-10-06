@@ -100,13 +100,6 @@ export class ArcxAnalyticsSdk {
       return
     }
 
-    const attributes: FirstVisitPageType = {}
-
-    attributes.url = window.location.href
-    if (sessionStorage.getItem(CURRENT_URL_KEY) === null) {
-      sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
-    }
-
     return this._event(
       Event.PAGE,
       {
@@ -423,6 +416,25 @@ export class ArcxAnalyticsSdk {
     this._initializeWeb3Tracking()
   }
 
+  private static async _getIdentitityId(sdkConfig: SdkConfig, apiKey: string) {
+    const identityId =
+      (sdkConfig?.cacheIdentity && window.localStorage.getItem(IDENTITY_KEY)) ||
+      (await postRequest(sdkConfig.url, apiKey, '/identify'))
+    sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
+    return identityId
+  }
+
+  private static _getSessionId(identityId: string) {
+    const existingSessionId = window.sessionStorage.getItem(SESSION_STORAGE_ID_KEY)
+    if (existingSessionId) {
+      return existingSessionId
+    }
+
+    const newSessionId = generateUniqueID(identityId)
+    window.sessionStorage.setItem(SESSION_STORAGE_ID_KEY, newSessionId)
+    return newSessionId
+  }
+
   /********************/
   /** PUBLIC METHODS **/
   /********************/
@@ -447,25 +459,6 @@ export class ArcxAnalyticsSdk {
     })
 
     return new ArcxAnalyticsSdk(apiKey, identityId, sdkConfig, websocket)
-  }
-
-  private static async _getIdentitityId(sdkConfig: SdkConfig, apiKey: string) {
-    const identityId =
-      (sdkConfig?.cacheIdentity && window.localStorage.getItem(IDENTITY_KEY)) ||
-      (await postRequest(sdkConfig.url, apiKey, '/identify'))
-    sdkConfig?.cacheIdentity && window.localStorage.setItem(IDENTITY_KEY, identityId)
-    return identityId
-  }
-
-  private static _getSessionId(identityId: string) {
-    const existingSessionId = window.sessionStorage.getItem(SESSION_STORAGE_ID_KEY)
-    if (existingSessionId) {
-      return existingSessionId
-    }
-
-    const newSessionId = generateUniqueID(identityId)
-    window.sessionStorage.setItem(SESSION_STORAGE_ID_KEY, newSessionId)
-    return newSessionId
   }
 
   /**
@@ -641,16 +634,5 @@ export class ArcxAnalyticsSdk {
       name,
       attributes,
     })
-  }
-}
-
-type FirstVisitPageType = {
-  url?: string
-  referrer?: string
-  utm?: {
-    source: string | null
-    medium: string | null
-    campaign: string | null
-    content: string | null
   }
 }
