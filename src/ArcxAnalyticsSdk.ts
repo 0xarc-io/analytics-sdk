@@ -266,15 +266,39 @@ export class ArcxAnalyticsSdk {
           nonce = parseInt(nonce).toString()
         }
 
-        if (!this.currentChainId) {
-          this._report('error', 'ArcxAnalyticsSdk::_trackTransactions: currentChainId is not set')
+        if (this.currentChainId) {
+          this._event(Event.TRANSACTION_TRIGGERED, {
+            ...transactionParams,
+            chainId: this.currentChainId,
+            nonce,
+          })
+        } else {
+          provider
+            .request({
+              method: 'eth_chainId',
+            })
+            .then((chainIdHex) => {
+              if (typeof chainIdHex === 'string' && chainIdHex) {
+                this.currentChainId = parseInt(chainIdHex).toString()
+                this._event(Event.TRANSACTION_TRIGGERED, {
+                  ...transactionParams,
+                  chainId: this.currentChainId,
+                  nonce,
+                })
+              } else {
+                this._report(
+                  'error',
+                  `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${chainIdHex}"`,
+                )
+              }
+            })
+            .catch((err) => {
+              this._report(
+                'error',
+                `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${err}"`,
+              )
+            })
         }
-
-        this._event(Event.TRANSACTION_TRIGGERED, {
-          ...transactionParams,
-          chainId: this.currentChainId,
-          nonce,
-        })
       }
       return request({ method, params })
     }
