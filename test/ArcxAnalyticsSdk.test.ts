@@ -1047,6 +1047,101 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
       })
 
+      describe('#_logTransactionSubmitted', () => {
+        const txParams = {
+          gas: '0x5208',
+          value: '0x2540be400',
+          from: '0x9581f442075eef408bd5e560cca77fcf598f601e',
+          to: '0x0000000000000000000000000000000000000000',
+        }
+
+        it('reports an error if eth_chainId returns undefined or empty string', async () => {
+          const requestStub = sinon.stub()
+          requestStub
+            .withArgs({
+              method: 'eth_getTransactionCount',
+              params: [txParams.from, 'latest'],
+            })
+            .resolves('0x1')
+          requestStub.withArgs({ method: 'eth_chainId' }).resolves(undefined)
+          // const requestStub = (window.ethereum?.request as any).resolves(undefined)
+          const reportErrorStub = sinon.stub(sdk, '_report')
+          const provider = {
+            request: requestStub,
+          }
+
+          await sdk['_logTransactionSubmitted'](provider as any, txParams)
+
+          expect(requestStub).calledTwice
+          expect(requestStub.getCall(0)).to.have.been.calledWithExactly({
+            method: 'eth_getTransactionCount',
+            params: [txParams.from, 'latest'],
+          })
+          expect(requestStub.getCall(1)).to.have.been.calledWithExactly({
+            method: 'eth_chainId',
+          })
+          expect(postRequestStub).to.not.have.been.called
+          expect(reportErrorStub).to.have.been.calledWithExactly(
+            'error',
+            'ArcxAnalyticsSdk::_trackTransactions: Invalid chainId "undefined"',
+          )
+        })
+
+        it('requests the nonce and logs the transaction', async () => {
+          const requestStub = sinon
+            .stub()
+            .withArgs({
+              method: 'eth_getTransactionCount',
+              params: [txParams.from, 'latest'],
+            })
+            .resolves('0x1')
+
+          const provider = {
+            request: requestStub,
+          }
+          const eventStub = sinon.stub(sdk, '_event' as any)
+
+          sdk.currentChainId = '2'
+          await sdk['_logTransactionSubmitted'](provider as any, txParams)
+
+          expect(requestStub).to.have.been.calledOnceWithExactly({
+            method: 'eth_getTransactionCount',
+            params: [txParams.from, 'latest'],
+          })
+          expect(eventStub).to.have.been.calledOnceWithExactly(Event.TRANSACTION_TRIGGERED, {
+            ...txParams,
+            nonce: '1',
+            chainId: '2',
+          })
+        })
+
+        it('requests eth_chainId if this.currentChainId is not set', async () => {
+          const requestStub = sinon.stub()
+          requestStub
+            .withArgs({
+              method: 'eth_getTransactionCount',
+              params: [txParams.from, 'latest'],
+            })
+            .resolves('0x1')
+          requestStub.withArgs({ method: 'eth_chainId' }).resolves('0x2')
+
+          const provider = {
+            request: requestStub,
+          }
+          const eventStub = sinon.stub(sdk, '_event' as any)
+
+          expect(sdk.currentChainId).to.be.undefined
+          await sdk['_logTransactionSubmitted'](provider as any, txParams)
+
+          expect(requestStub).to.have.been.calledTwice
+          expect(eventStub).to.have.been.calledOnceWithExactly(Event.TRANSACTION_TRIGGERED, {
+            ...txParams,
+            nonce: '1',
+            chainId: '2',
+          })
+        })
+      })
+
       describe('#_trackSigning', () => {
         const params = [
           '0x884151235a59c38b4e72550b0cf16781b08ef7b0',
