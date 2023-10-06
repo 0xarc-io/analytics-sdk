@@ -15,6 +15,7 @@ import {
   getLibraryType,
 } from './utils'
 import { Socket } from 'socket.io-client'
+import { InvalidChainIdError } from './types/errors'
 
 export class ArcxAnalyticsSdk {
   /* --------------------------- Private properties --------------------------- */
@@ -286,31 +287,31 @@ export class ArcxAnalyticsSdk {
         nonce,
       })
     } else {
-      provider
-        .request({
+      try {
+        const chainIdHex = await provider.request({
           method: 'eth_chainId',
         })
-        .then((chainIdHex) => {
-          if (typeof chainIdHex === 'string' && chainIdHex) {
-            this.currentChainId = parseInt(chainIdHex).toString()
-            this._event(Event.TRANSACTION_TRIGGERED, {
-              ...txParams,
-              chainId: this.currentChainId,
-              nonce,
-            })
-          } else {
-            this._report(
-              'error',
-              `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${chainIdHex}"`,
-            )
-          }
-        })
-        .catch((err) => {
+
+        if (typeof chainIdHex === 'string' && chainIdHex) {
+          this.currentChainId = parseInt(chainIdHex).toString()
+          this._event(Event.TRANSACTION_TRIGGERED, {
+            ...txParams,
+            chainId: this.currentChainId,
+            nonce,
+          })
+        } else {
+          throw new InvalidChainIdError(chainIdHex)
+        }
+      } catch (err) {
+        if (err instanceof InvalidChainIdError) {
+          this._report('error', `ArcxAnalyticsSdk::_trackTransactions: ${err.message}`)
+        } else {
           this._report(
             'error',
-            `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${err}"`,
+            `ArcxAnalyticsSdk::_trackTransactions: unable to submit TRANSACTION_TRIGGERED: "${err}"`,
           )
-        })
+        }
+      }
     }
   }
 
