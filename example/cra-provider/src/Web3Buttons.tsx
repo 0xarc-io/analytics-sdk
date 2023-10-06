@@ -1,13 +1,37 @@
 import { useWeb3React } from '@web3-react/core'
-import { Connector } from '@web3-react/types'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useArcxAnalytics } from '@arcxmoney/analytics'
 import { metamask, walletConnect } from './connectors'
 
 export const Web3Buttons = () => {
   const sdk = useArcxAnalytics()
   const { account, connector, chainId, provider } = useWeb3React()
+  const knownChainId = useRef(chainId)
+  const knownAccount = useRef(account)
   const [connectedWallet, setConnectedWallet] = useState<'metamask' | 'walletConnect' | undefined>()
+
+  useEffect(() => {
+    if (!sdk) return
+
+    if (knownAccount.current !== account && account && chainId) {
+      if (account) {
+        // Connect
+        sdk.wallet({
+          chainId,
+          account,
+        })
+      } else {
+        // Disconnect
+        sdk.wallet({
+          chainId,
+          account: '',
+        })
+      }
+      knownAccount.current = account
+    } else if (knownChainId.current !== chainId && chainId) {
+      sdk.chain({ chainId })
+    }
+  }, [account, chainId, sdk])
 
   useEffect(() => {
     if (sdk && sdk.provider && !provider) {
@@ -16,7 +40,7 @@ export const Web3Buttons = () => {
     }
   }, [sdk, provider])
 
-  const onConnectWalletClicked = async (givenConnector: Connector, chainId?: number) => {
+  const onConnectWalletClicked = async (givenConnector: any, chainId?: number) => {
     try {
       if (givenConnector === metamask) {
         await givenConnector.activate(chainId)
@@ -54,7 +78,7 @@ export const Web3Buttons = () => {
         {connectedWallet !== 'metamask' && (
           <button
             className="rounded-full bg-orange-500 px-4 py-2 hover:bg-orange-400 font-bold text-black"
-            onClick={() => onConnectWalletClicked(metamask, 1)}
+            onClick={() => onConnectWalletClicked(metamask, 5)}
           >
             Connect Metamask
           </button>
@@ -62,7 +86,7 @@ export const Web3Buttons = () => {
         {connectedWallet !== 'walletConnect' && (
           <button
             className="rounded-full bg-blue-500 px-4 py-2 hover:bg-blue-400 font-bold text-white"
-            onClick={() => onConnectWalletClicked(walletConnect, 1)}
+            onClick={() => onConnectWalletClicked(walletConnect, 5)}
           >
             Connect WalletConnect
           </button>

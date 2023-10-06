@@ -1,5 +1,4 @@
 import { Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
-import { Connector } from '@web3-react/types'
 import { ConsoleView } from './ConsoleView'
 import { TestEventButtons } from './TestEventButtons'
 import { TestPageButtons } from './TestPageButtons'
@@ -11,7 +10,7 @@ import { Web3Buttons } from './Web3Buttons'
 import { metamask, metamaskHooks, walletConnect, walletConnectHooks } from './connectors'
 import { EthereumEventsButtons } from './EthereumEventsButtons'
 
-const connectors: [Connector, Web3ReactHooks][] = [
+const connectors: [any, Web3ReactHooks][] = [
   [metamask, metamaskHooks],
   [walletConnect, walletConnectHooks],
 ]
