@@ -100,6 +100,10 @@ export class ArcxAnalyticsSdk {
       return
     }
 
+    if (sessionStorage.getItem(CURRENT_URL_KEY) === null) {
+      sessionStorage.setItem(CURRENT_URL_KEY, window.location.href)
+    }
+
     return this._event(
       Event.PAGE,
       {
