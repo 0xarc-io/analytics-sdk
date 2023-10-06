@@ -1,7 +1,9 @@
+import { useArcxAnalytics } from '@arcxmoney/analytics'
 import { useWeb3React } from '@web3-react/core'
 
 export const EthereumEventsButtons = () => {
   const { isActive, provider, chainId } = useWeb3React()
+  const sdk = useArcxAnalytics()
 
   const sendTransaction = async () => {
     if ([137, 1].includes(chainId!)) {
@@ -9,16 +11,29 @@ export const EthereumEventsButtons = () => {
       return
     }
     const signer = provider?.getSigner()
-    await signer?.sendTransaction({
+    const tx = await signer?.sendTransaction({
       to: '0x0000000000000000000000000000000000000000',
       value: '10000000000',
     })
+
+    if (tx && sdk) {
+      sdk.transaction({
+        transactionHash: tx.hash,
+      })
+    }
   }
 
   const signMessage = async () => {
     const exampleMessage = 'Example `personal_sign` message'
     const signer = provider?.getSigner()
-    return signer?.signMessage(exampleMessage)
+    const signature = await signer?.signMessage(exampleMessage)
+
+    if (signature && sdk) {
+      sdk.signature({
+        message: exampleMessage,
+        signatureHash: signature,
+      })
+    }
   }
 
   if (!isActive) {
