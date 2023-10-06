@@ -252,58 +252,66 @@ export class ArcxAnalyticsSdk {
       return false
     }
 
+    const _logTransactionSubmitted = this._logTransactionSubmitted.bind(this)
+
     // Deliberately not using this._original request to not intefere with the signature tracking's
     // request modification
     const request = provider.request.bind(provider)
     provider.request = async ({ method, params }: RequestArguments) => {
       if (Array.isArray(params) && method === 'eth_sendTransaction') {
-        const transactionParams = params[0] as Record<string, unknown>
-        let nonce = await provider.request<string>({
-          method: 'eth_getTransactionCount',
-          params: [transactionParams.from, 'latest'],
-        })
-        if (nonce) {
-          nonce = parseInt(nonce).toString()
-        }
-
-        if (this.currentChainId) {
-          this._event(Event.TRANSACTION_TRIGGERED, {
-            ...transactionParams,
-            chainId: this.currentChainId,
-            nonce,
-          })
-        } else {
-          provider
-            .request({
-              method: 'eth_chainId',
-            })
-            .then((chainIdHex) => {
-              if (typeof chainIdHex === 'string' && chainIdHex) {
-                this.currentChainId = parseInt(chainIdHex).toString()
-                this._event(Event.TRANSACTION_TRIGGERED, {
-                  ...transactionParams,
-                  chainId: this.currentChainId,
-                  nonce,
-                })
-              } else {
-                this._report(
-                  'error',
-                  `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${chainIdHex}"`,
-                )
-              }
-            })
-            .catch((err) => {
-              this._report(
-                'error',
-                `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${err}"`,
-              )
-            })
-        }
+        _logTransactionSubmitted(provider, params[0] as Record<string, unknown>)
       }
       return request({ method, params })
     }
 
     return true
+  }
+
+  private async _logTransactionSubmitted(
+    provider: EIP1193Provider,
+    txParams: Record<string, unknown>,
+  ) {
+    let nonce = await provider.request<string>({
+      method: 'eth_getTransactionCount',
+      params: [txParams.from, 'latest'],
+    })
+    if (nonce) {
+      nonce = parseInt(nonce).toString()
+    }
+
+    if (this.currentChainId) {
+      this._event(Event.TRANSACTION_TRIGGERED, {
+        ...txParams,
+        chainId: this.currentChainId,
+        nonce,
+      })
+    } else {
+      provider
+        .request({
+          method: 'eth_chainId',
+        })
+        .then((chainIdHex) => {
+          if (typeof chainIdHex === 'string' && chainIdHex) {
+            this.currentChainId = parseInt(chainIdHex).toString()
+            this._event(Event.TRANSACTION_TRIGGERED, {
+              ...txParams,
+              chainId: this.currentChainId,
+              nonce,
+            })
+          } else {
+            this._report(
+              'error',
+              `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${chainIdHex}"`,
+            )
+          }
+        })
+        .catch((err) => {
+          this._report(
+            'error',
+            `ArcxAnalyticsSdk::_trackTransactions: unable to get chain id hex. It returned "${err}"`,
+          )
+        })
+    }
   }
 
   private _trackSigning() {
