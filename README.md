@@ -150,7 +150,25 @@ sdk.signature({
 - `signatureHash`: (Optional, string) - The hash associated with the signature. While not compulsory, including this detail can help us confirm whether the signature is valid.
 - `account`: (Optional, string) - The account involved in signing the message. In instances where it is not provided, the SDK will refer to the most recently recorded account either from the last `connectWallet()` call or discovered automatically on Metamask given the `trackWalletConnections` option is turned on.
 
-#### 5. Events (optional)
+#### 5. Wallet Disconnects (optional)
+
+The `disconnection` function is designed to log a wallet disconnection event. It also clears the cached known chain ID and account. Utilizing this function allows for accurate tracking of wallet disconnection events. Below is the syntax for using the function:
+
+```typescript
+sdk.disconnection({
+  account, // optional(string) - The account that got disconnected
+  chainId, // optional(string | number) - The chain ID from which the wallet disconnected
+})
+```
+
+**Parameters:**
+
+- `account`: (Optional, string) - Specifies the account that was disconnected. If this parameter is not provided, the SDK will use the most recently recorded account.
+- `chainId`: (Optional, string or number) - Indicates the chain ID from which the wallet was disconnected. If this parameter is not provided, the SDK will use the most recently recorded chain ID.
+
+If neither `account` nor `chainId` are provided, the function will return without logging the event, assuming that the disconnection has already been accounted for.
+
+#### 6. Events (optional)
 
 ---
 
@@ -174,9 +192,7 @@ The configuration options are:
 | Config key               | Type    | Description                                                                                         | Default |
 | ------------------------ | ------- | --------------------------------------------------------------------------------------------------- | ------- |
 | `cacheIdentity`          | boolean | Caches the identity of users in the browser's local storage to capture cross-session behaviours     | `true`  |
-| `trackReferrer`          | boolean | Whether or not to emit an initial `REFERRER` event containing the referrer attribute                | `true`  |
 | `trackPages`             | boolean | Tracks whenever there is a URL change during the session and logs it automatically.                 | `true`  |
-| `trackUTM`               | boolean | Automatically reports the UTM tags (`utm_campaign, utm_medium, utm_source`) of the first page visit | `true`  |
 | `trackWalletConnections` | boolean | Automatically track wallet connections (Metamask only)                                              | `true`  |
 | `trackChainChanges`      | boolean | Automatically track chain ID changes (Metamask only)                                                | `true`  |
 | `trackTransactions`      | boolean | Automatically track transaction requests (Metamask only)                                            | `true`  |
