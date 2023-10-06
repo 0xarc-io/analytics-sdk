@@ -53,7 +53,7 @@ export const Web3Buttons = () => {
         {connectedWallet !== 'metamask' && (
           <button
             className="rounded-full bg-orange-500 px-4 py-2 hover:bg-orange-400 font-bold text-black"
-            onClick={() => onConnectWalletClicked(metamask, 1)}
+            onClick={() => onConnectWalletClicked(metamask, 5)}
           >
             Connect Metamask
           </button>
@@ -61,7 +61,7 @@ export const Web3Buttons = () => {
         {connectedWallet !== 'walletConnect' && (
           <button
             className="rounded-full bg-blue-500 px-4 py-2 hover:bg-blue-400 font-bold text-white"
-            onClick={() => onConnectWalletClicked(walletConnect, 1)}
+            onClick={() => onConnectWalletClicked(walletConnect, 5)}
           >
             Connect WalletConnect
           </button>
