@@ -50,7 +50,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       referrer: TEST_REFERRER,
     })
 
-    window.ethereum = sinon.createStubInstance(MockEthereum)
+    window.ethereum = new MockEthereum()
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
     socketStub = sinon.createStubInstance(Socket) as any
     socketStub.connected = true
@@ -142,14 +142,81 @@ describe('(unit) ArcxAnalyticsSdk', () => {
     })
 
     describe('trackChainChanges', () => {
-      it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
-        const provider = new MockEthereum()
-        window.ethereum = provider
-        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
+      let sdk: ArcxAnalyticsSdk
 
+      beforeEach(async () => {
+        sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
+      })
+
+      it('reports an error if provider is not set', async () => {
+        const reportErrorStub = sinon.stub(sdk, '_report' as any)
+        const eventStub = sinon.stub(sdk, '_event' as any)
+        sdk['_provider'] = undefined
+
+        expect(sdk.provider).to.be.undefined
+        await sdk['_onChainChanged'](TEST_CHAIN_ID)
+        expect(reportErrorStub).calledOnceWithExactly(
+          'error',
+          'ArcxAnalyticsSdk::_onChainChanged: provider not found. CHAIN_CHANGED not reported',
+        )
+        expect(eventStub).to.not.have.been.called
+      })
+
+      it('reports an error if this.currentConnectedAccount is not set and eth_requestAccounts returns an empty array', async () => {
+        const reportErrorStub = sinon.stub(sdk, '_report' as any)
+        const eventStub = sinon.stub(sdk, '_event' as any)
+
+        expect(sdk.provider).to.not.be.undefined
+        sdk.provider!.request = sinon.stub().resolves([])
+
+        expect(sdk.currentConnectedAccount).to.be.undefined
+        await sdk['_onChainChanged'](TEST_CHAIN_ID)
+        expect(reportErrorStub).calledOnceWithExactly(
+          'error',
+          'ArcxAnalyticsSdk::_onChainChanged: unable to get account. eth_requestAccounts returned empty',
+        )
+        expect(eventStub).to.not.have.been.called
+      })
+
+      it('reports an error if this.provider.request throws an error that does not contain {code: 4001}', async () => {
+        const reportErrorStub = sinon.stub(sdk, '_report' as any)
+        const eventStub = sinon.stub(sdk, '_event' as any)
+
+        expect(sdk.provider).to.not.be.undefined
+        const testError = new Error('TestError')
+        sdk.provider!.request = sinon.stub().throws(testError)
+
+        expect(sdk.currentConnectedAccount).to.be.undefined
+        await sdk['_onChainChanged'](TEST_CHAIN_ID)
+        expect(reportErrorStub).calledOnceWithExactly(
+          'error',
+          'ArcxAnalyticsSdk::_onChainChanged: unable to get account. eth_requestAccounts threw an error',
+          testError,
+        )
+        expect(eventStub).to.not.have.been.called
+      })
+
+      it('requests eth_requestAccounts on provider if this.currentConnectedAccount is undefined', async () => {
+        const eventStub = sinon.stub(sdk, '_event' as any)
+
+        expect(sdk.provider).to.not.be.undefined
+        sdk.provider!.request = sinon.stub().resolves([TEST_ACCOUNT])
+
+        expect(sdk.currentConnectedAccount).to.be.undefined
+        await sdk['_onChainChanged'](TEST_CHAIN_ID)
+
+        expect(sdk.currentConnectedAccount).to.eq(TEST_ACCOUNT)
+        expect(sdk.provider!.request).calledOnceWithExactly({ method: 'eth_requestAccounts' })
+        expect(eventStub).calledOnceWithExactly(Event.CHAIN_CHANGED, {
+          chainId: TEST_CHAIN_ID,
+          account: TEST_ACCOUNT,
+        })
+      })
+
+      it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
         const onChainChangedStub = sinon.stub(sdk, '_onChainChanged' as any)
 
-        provider.emit('chainChanged', TEST_CHAIN_ID)
+        window.ethereum!.emit('chainChanged', TEST_CHAIN_ID)
         expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
         expect(sdk['_registeredProviderListeners']['chainChanged']).to.not.be.null
       })
@@ -664,7 +731,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
               on: sinon.stub(),
               removeListener: sinon.stub(),
               request: sinon.stub(),
-            } as EIP1193Provider)
+            } as unknown as EIP1193Provider)
 
             expect((window.ethereum as any as EventEmitter).listenerCount('accountsChanged')).to.eq(
               0,

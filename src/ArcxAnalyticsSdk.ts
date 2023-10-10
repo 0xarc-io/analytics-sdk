@@ -197,11 +197,46 @@ export class ArcxAnalyticsSdk {
     return this._event(Event.DISCONNECT, disconnectAttributes)
   }
 
-  private _onChainChanged(chainIdHex: string) {
+  private async _onChainChanged(chainIdHex: string) {
     this.currentChainId = parseInt(chainIdHex).toString()
+    if (!this.currentConnectedAccount) {
+      if (!this.provider) {
+        this._report(
+          'error',
+          'ArcxAnalyticsSdk::_onChainChanged: provider not found. CHAIN_CHANGED not reported',
+        )
+        return
+      }
+
+      try {
+        const res: string[] | null | undefined = await this.provider.request({
+          method: 'eth_requestAccounts',
+        })
+        if (!res || res.length === 0) {
+          this._report(
+            'error',
+            'ArcxAnalyticsSdk::_onChainChanged: unable to get account. eth_requestAccounts returned empty',
+          )
+          return
+        }
+
+        this.currentConnectedAccount = res[0]
+      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if ((err as any).code !== 4001) {
+          this._report(
+            'error',
+            `ArcxAnalyticsSdk::_onChainChanged: unable to get account. eth_requestAccounts threw an error`,
+            err,
+          )
+          return
+        }
+      }
+    }
 
     return this.chain({
       chainId: this.currentChainId,
+      account: this.currentConnectedAccount,
     })
   }
 
@@ -387,14 +422,18 @@ export class ArcxAnalyticsSdk {
   }
 
   /** Report error to the server in order to better understand edge cases which can appear */
-  _report(logLevel: 'error' | 'log' | 'warning', content: string, error?: object): Promise<string> {
+  _report(
+    logLevel: 'error' | 'log' | 'warning',
+    content: string,
+    error?: unknown,
+  ): Promise<string> {
     return postRequest(this.sdkConfig.url, this.apiKey, '/log-sdk', {
       logLevel,
       data: {
         msg: content,
         identityId: this.identityId,
         apiKey: this.apiKey,
-        ...(error && { error: error }),
+        ...(error !== undefined && error !== null && { error: error }),
         url: window.location.href,
       },
     })
