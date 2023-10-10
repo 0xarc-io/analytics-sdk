@@ -50,7 +50,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       referrer: TEST_REFERRER,
     })
 
-    window.ethereum = new MockEthereum()
+    window.ethereum = sinon.createStubInstance(MockEthereum)
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
     socketStub = sinon.createStubInstance(Socket) as any
     socketStub.connected = true
@@ -146,6 +146,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
 
       beforeEach(async () => {
         sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
+        window.ethereum = new MockEthereum()
       })
 
       it('reports an error if provider is not set', async () => {
@@ -214,9 +215,13 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       it('calls _onChainChanged when chainChanged is fired and trackChainChanges is true', async () => {
+        const provider = new MockEthereum()
+        window.ethereum = provider
+        const sdk = await ArcxAnalyticsSdk.init(TEST_API_KEY, { trackChainChanges: true })
+
         const onChainChangedStub = sinon.stub(sdk, '_onChainChanged' as any)
 
-        window.ethereum!.emit('chainChanged', TEST_CHAIN_ID)
+        provider.emit('chainChanged', TEST_CHAIN_ID)
         expect(onChainChangedStub).calledOnceWithExactly(TEST_CHAIN_ID)
         expect(sdk['_registeredProviderListeners']['chainChanged']).to.not.be.null
       })
@@ -979,14 +984,15 @@ describe('(unit) ArcxAnalyticsSdk', () => {
       })
 
       describe('#_onChainChanged', () => {
-        it('converts hex chain id to decimal and fires event', () => {
+        it('converts hex chain id to decimal and fires event', async () => {
           const eventStub = sinon.stub(sdk, '_event' as any)
 
-          sdk['_onChainChanged']('0x1')
+          sdk.currentConnectedAccount = TEST_ACCOUNT
+          await sdk['_onChainChanged']('0x1')
 
           expect(eventStub).calledOnceWithExactly(Event.CHAIN_CHANGED, {
             chainId: TEST_CHAIN_ID,
-            account: undefined,
+            account: TEST_ACCOUNT,
           })
         })
       })
