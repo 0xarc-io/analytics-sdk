@@ -224,6 +224,7 @@ export class ArcxAnalyticsSdk {
       } catch (err) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((err as any).code !== 4001) {
+          // 4001: The request is rejected by the user , see https://docs.metamask.io/wallet/reference/provider-api/#errors
           this._report(
             'error',
             `ArcxAnalyticsSdk::_onChainChanged: unable to get account. eth_requestAccounts threw an error`,
