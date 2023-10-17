@@ -439,6 +439,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
 
         it('throws if chainId is not a valid hex or decimal number', async () => {
+          sdk.currentConnectedAccount = TEST_ACCOUNT
           try {
             await sdk.chain({
               chainId: 'eth',
@@ -453,6 +454,8 @@ describe('(unit) ArcxAnalyticsSdk', () => {
         })
 
         it('sets currentChainId to the given chainId', async () => {
+          sdk.currentConnectedAccount = TEST_ACCOUNT
+
           expect(sdk.currentChainId).to.be.undefined
 
           await sdk.chain({
