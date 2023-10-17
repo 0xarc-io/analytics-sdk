@@ -173,7 +173,7 @@ export class ArcxAnalyticsSdk {
   }
 
   private _handleAccountDisconnected() {
-    if (!this.currentChainId && !this.currentConnectedAccount) {
+    if (!this.currentConnectedAccount) {
       /**
        * It is possible that this function has already been called once and the cached values
        * have been cleared. This can happen in the following scenario:
@@ -189,7 +189,7 @@ export class ArcxAnalyticsSdk {
 
     const disconnectAttributes = {
       account: this.currentConnectedAccount,
-      chain: this.currentChainId,
+      chainId: this.currentChainId,
     }
     this.currentChainId = undefined
     this.currentConnectedAccount = undefined

@@ -1297,6 +1297,33 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           expect(provider.listenerCount('chainChanged')).to.eq(1)
         })
       })
+
+      describe('#_handleAccountDisconnected', () => {
+        it('does not call _event if currentChainId or currentConnectedAccount are undefined', async () => {
+          const eventStub = sinon.stub(sdk, '_event' as any)
+          sdk.currentConnectedAccount = undefined
+          await sdk['_handleAccountDisconnected']()
+          expect(eventStub).to.not.have.been.called
+
+          sdk.currentConnectedAccount = TEST_ACCOUNT
+          sdk.currentChainId = undefined
+          await sdk['_handleAccountDisconnected']()
+          expect(eventStub).to.have.been.called
+        })
+
+        it('calls _event with chainId and account and sets currentChainId and currentConnectedAccount to undefined', async () => {
+          const eventStub = sinon.stub(sdk, '_event' as any)
+          sdk.currentConnectedAccount = TEST_ACCOUNT
+          sdk.currentChainId = TEST_CHAIN_ID
+          await sdk['_handleAccountDisconnected']()
+          expect(eventStub).calledOnceWithExactly(Event.DISCONNECT, {
+            chainId: TEST_CHAIN_ID,
+            account: TEST_ACCOUNT,
+          })
+          expect(sdk.currentConnectedAccount).to.be.undefined
+          expect(sdk.currentChainId).to.be.undefined
+        })
+      })
     })
   })
 
