@@ -612,6 +612,12 @@ export class ArcxAnalyticsSdk {
       throw new Error('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty or 0')
     }
 
+    if (!account && !this.currentConnectedAccount) {
+      throw new Error(
+        'ArcxAnalyticsSdk::chainChanged: account was empty and no previous account has been recorded. You can either pass an account or call wallet() first',
+      )
+    }
+
     if (isNaN(Number(chainId))) {
       throw new Error(
         'ArcxAnalyticsSdk::chainChanged: chainId must be a valid hex or decimal number',
