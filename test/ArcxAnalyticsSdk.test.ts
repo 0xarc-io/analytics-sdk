@@ -430,9 +430,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
               chainId: '0',
             })
           } catch (err: any) {
-            expect(err.message).to.eq(
-              'ArcxAnalyticsSdk::chainChanged: chainId cannot be empty or 0',
-            )
+            expect(err.message).to.eq('ArcxAnalyticsSdk::chain: chainId cannot be empty or 0')
             return
           }
           fail('should throw')
@@ -446,7 +444,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             })
           } catch (err: any) {
             expect(err.message).to.eq(
-              'ArcxAnalyticsSdk::chainChanged: chainId must be a valid hex or decimal number',
+              'ArcxAnalyticsSdk::chain: chainId must be a valid hex or decimal number',
             )
             return
           }
@@ -561,7 +559,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
               message: '',
             })
           } catch (err: any) {
-            expect(err.message).to.eq('ArcxAnalyticsSdk::signedMessage: message cannot be empty')
+            expect(err.message).to.eq('ArcxAnalyticsSdk::signature: message cannot be empty')
             return
           }
           fail('should throw')
@@ -576,7 +574,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
             })
           } catch (err: any) {
             expect(err.message).to.eq(
-              'ArcxAnalyticsSdk::signedMessage: account cannot be empty and was not previously recorded',
+              'ArcxAnalyticsSdk::signature: account cannot be empty and was not previously recorded',
             )
             return
           }
@@ -1159,7 +1157,7 @@ describe('(unit) ArcxAnalyticsSdk', () => {
           expect(postRequestStub).to.not.have.been.called
           expect(reportErrorStub).to.have.been.calledWithExactly(
             'error',
-            'ArcxAnalyticsSdk::_trackTransactions: Invalid chainId "undefined"',
+            'ArcxAnalyticsSdk::_logTransactionSubmitted: Invalid chainId "undefined"',
           )
         })
 

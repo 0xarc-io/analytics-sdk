@@ -340,11 +340,11 @@ export class ArcxAnalyticsSdk {
         }
       } catch (err) {
         if (err instanceof InvalidChainIdError) {
-          this._report('error', `ArcxAnalyticsSdk::_trackTransactions: ${err.message}`)
+          this._report('error', `ArcxAnalyticsSdk::_logTransactionSubmitted: ${err.message}`)
         } else {
           this._report(
             'error',
-            `ArcxAnalyticsSdk::_trackTransactions: unable to submit TRANSACTION_TRIGGERED: "${err}"`,
+            `ArcxAnalyticsSdk::_logTransactionSubmitted: unable to submit TRANSACTION_TRIGGERED: "${err}"`,
           )
         }
       }
@@ -353,15 +353,12 @@ export class ArcxAnalyticsSdk {
 
   private _trackSigning() {
     if (!this.provider) {
-      this._report('error', 'ArcxAnalyticsSdk::_trackTransactions: provider not found')
+      this._report('error', 'ArcxAnalyticsSdk::_trackSigning: provider not found')
       return false
     }
 
     if (Object.getOwnPropertyDescriptor(this.provider, 'request')?.writable === false) {
-      this._report(
-        'warning',
-        'ArcxAnalyticsSdk::_trackTransactions: provider.request is not writable',
-      )
+      this._report('warning', 'ArcxAnalyticsSdk::_trackSigning: provider.request is not writable')
       return false
     }
 
@@ -605,23 +602,22 @@ export class ArcxAnalyticsSdk {
    * @param chainId The new chain ID the wallet connected to.
    * Either in hexadeciaml or decimal format.
    * @param account (optional) The connected account.
-   * If not passed, the previously recorded account by the SDK will be used.
+   * If not passed, the previously recorded account by the SDK will be used. And if no previously
+   * recorded account is found, it will throw an error.
    */
   chain({ chainId, account }: { chainId: ChainID; account?: string }) {
     if (!chainId || Number(chainId) === 0) {
-      throw new Error('ArcxAnalyticsSdk::chainChanged: chainId cannot be empty or 0')
+      throw new Error('ArcxAnalyticsSdk::chain: chainId cannot be empty or 0')
     }
 
     if (!account && !this.currentConnectedAccount) {
       throw new Error(
-        'ArcxAnalyticsSdk::chainChanged: account was empty and no previous account has been recorded. You can either pass an account or call wallet() first',
+        'ArcxAnalyticsSdk::chain: account was empty and no previous account has been recorded. You can either pass an account or call wallet() first',
       )
     }
 
     if (isNaN(Number(chainId))) {
-      throw new Error(
-        'ArcxAnalyticsSdk::chainChanged: chainId must be a valid hex or decimal number',
-      )
+      throw new Error('ArcxAnalyticsSdk::chain: chainId must be a valid hex or decimal number')
     }
 
     this.currentChainId = chainId.toString()
@@ -691,12 +687,12 @@ export class ArcxAnalyticsSdk {
     account?: string
   }) {
     if (!message) {
-      throw new Error('ArcxAnalyticsSdk::signedMessage: message cannot be empty')
+      throw new Error('ArcxAnalyticsSdk::signature: message cannot be empty')
     }
 
     if (!account && !this.currentConnectedAccount) {
       throw new Error(
-        'ArcxAnalyticsSdk::signedMessage: account cannot be empty and was not previously recorded',
+        'ArcxAnalyticsSdk::signature: account cannot be empty and was not previously recorded',
       )
     }
 
