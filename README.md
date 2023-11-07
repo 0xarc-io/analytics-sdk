@@ -46,7 +46,7 @@ Then, put the `ArcxAnalyticsProvider` anywhere at top of your component tree.
 )
 ```
 
-Now, you can use the `useArcxAnalytics()` hook in all of its child components to access the `sdk` object to log custom events or data.
+Now, you can use the `useArcxAnalytics()` hook in all of its child components to access the `sdk` object to log custom events or data. By default, only "click" and "page" events are automatically logged. To track transactions, signatures and wallets, you **must make the required calls for each**, as described in the [manual event tracking section below](#manual-event-tracking).
 
 ```html
 // ChildComponent.jsx
