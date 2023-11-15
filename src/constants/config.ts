@@ -14,4 +14,4 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
 export const IDENTITY_KEY = 'identity'
 export const SESSION_STORAGE_ID_KEY = 'arcx-session-id'
 export const CURRENT_URL_KEY = 'arcx-analytics-current-url'
-export const SDK_VERSION = 'local'
+export const SDK_VERSION = '2.0.0'

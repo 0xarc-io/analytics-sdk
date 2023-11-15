@@ -4,7 +4,12 @@ import { ArcxAnalyticsProviderProps } from './types'
 
 export const ArcxAnalyticsContext = createContext<ArcxAnalyticsSdk | undefined>(undefined)
 
-export const ArcxAnalyticsProvider = ({ apiKey, config, children }: ArcxAnalyticsProviderProps) => {
+export const ArcxAnalyticsProvider = ({
+  apiKey,
+  config,
+  disabled,
+  children,
+}: ArcxAnalyticsProviderProps) => {
   const [sdk, setSdk] = useState<ArcxAnalyticsSdk | undefined>()
   const initializedStartedRef = useRef(false)
 
@@ -12,6 +17,8 @@ export const ArcxAnalyticsProvider = ({ apiKey, config, children }: ArcxAnalytic
     if (!apiKey) {
       throw new Error('ArcxAnalyticxProvider: No API key provided')
     }
+    if (disabled) return
+
     if (initializedStartedRef.current) return
     initializedStartedRef.current = true
 
@@ -22,7 +29,7 @@ export const ArcxAnalyticsProvider = ({ apiKey, config, children }: ArcxAnalytic
       trackTransactions: false,
       trackSigning: false,
     }).then((sdk) => setSdk(sdk))
-  }, [apiKey])
+  }, [apiKey, disabled])
 
   return <ArcxAnalyticsContext.Provider value={sdk}>{children}</ArcxAnalyticsContext.Provider>
 }
