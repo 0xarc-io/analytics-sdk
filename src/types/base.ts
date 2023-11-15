@@ -24,6 +24,11 @@ export type SdkConfig = {
 export type ArcxAnalyticsProviderProps = {
   apiKey: string
   children?: ReactNode
+  /**
+   * If you want to disable analytics for a specific environment, you can do so by setting this prop
+   * to true.
+   */
+  disabled?: boolean
   config?: Omit<
     Partial<SdkConfig>,
     | 'trackWalletConnections'

@@ -119,6 +119,11 @@ describe('(int) ArcxAnalyticxProvider', () => {
       expect(postRequestStub.called).to.be.false
     })
 
+    it('does not initialize if disabled is true', async () => {
+      render(<TestProvider providerOverrides={{ disabled: true }} />)
+      expect(postRequestStub.called).to.be.false
+    })
+
     describe('#trackClicks', () => {
       let screen: RenderResult
 
