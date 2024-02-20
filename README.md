@@ -50,41 +50,91 @@ npm install @arcxmoney/analytics --save
 
 2. Use the `ArcxAnalyticsProvider` anywhere at the top of your component tree.
 
-```html
-import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
+```jsx
+import React from 'react';
+import ReactDOM from 'react-dom';
+import { ArcxAnalyticsProvider } from '@arcxmoney/analytics';
+import App from './App'; // Import your main App component
 
-export default App = () => (
-<ArcxAnalyticsProvider apiKey="{YOUR_APY_KEY}">
-  {/* Your other components here */}
-</ArcxAnalyticsProvider>
-)
+const apiKey = "YOUR_API_KEY"; // Replace with your actual ARCx analytics API key
+
+const RootComponent = () => (
+  <ArcxAnalyticsProvider apiKey={apiKey}>
+    <App />
+  </ArcxAnalyticsProvider>
+);
+
+ReactDOM.render(<RootComponent />, document.getElementById('root'));
+
 ```
 
 
 
-3. Get the instance of the `sdk` from `useArcxAnalytics()` and track the blockchain-related or custom events. To make the most of the analytics platform, you *must* call the `wallet` and `transaction` methods. For example:
+3. Track wallet connection events whenever a wallet is connected
 
-```html
-// Component.jsx
-import { useArcxAnalytics } from '@arcxmoney/analytics'
+```jsx
+const WalletConnectionTracker = () => {
+  const { account, chainId } = useWeb3React();
+  const sdk = useArcxAnalytics();
 
-export const Component = () => {
-  const sdk = useArcxAnalytics()
+  useEffect(() => {
+    if (account && chainId) {
+      // Track the wallet connection with the SDK
+      sdk.wallet({
+        chainId,
+        account,
+      });
+    }
+  }, [account, chainId, sdk]); // Re-run this effect if account or chainId changes
 
-	const onTxBtnClicked = async () => {
-		// Submit your transaction here
-		const txHash = await provider.sendTransactions(params)
-		
-		sdk.transaction({ transactionHash: txHash })
-	}
+  return <div>Tracking wallet connections with useWeb3React.</div>;
+};
+
+```
+
+
+
+4. Track transactions
+
+```jsx
+const TransactionButton = () => {
+  const { account, chainId } = useWeb3React();
+  const arcxAnalytics = useArcxAnalytics();
+
+  const handleTransactionSubmit = async () => {
+    // Example: Simulating a transaction call
+    // In a real scenario, you would replace this with your transaction logic,
+    // for example, using ethers.js or web3.js to interact with a smart contract
+    
+    const transactionHash = '0x023c0e7...'; // Placeholder for the actual transaction hash
+
+    // Assuming the transaction was successful and you have the hash
+    // Now, track the transaction using the analytics SDK
+    arcxAnalytics.transaction({
+      transactionHash,
+      account, // Optional: if not passed, the SDK will use the account from the last wallet() call
+      chainId, // Optional: if not passed, the SDK will use the chainId from the last chain or wallet call
+      metadata: {
+        // Example metadata
+        action: 'User Initiated Transaction',
+      },
+    });
+
+    console.log('Transaction tracked!');
+  };
 
   return (
-    <button onClick={onTxBtnClicked}>Click to submit a tx</button>
-  )
-}
+    <button onClick={handleTransactionSubmit}>Submit Transaction</button>
+  );
+};
+
 ```
 
-#### Available SDK methods:
+
+
+You are now ready to go! For additional methods supported, please see below.
+
+#### Available SDK methods
 
 | Method          | Parameters                                                   | Description                                                  |
 | --------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
