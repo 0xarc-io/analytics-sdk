@@ -8,7 +8,7 @@
 
 ---
 
-This is the simplest option to get started with ARCx Analytics, all you need to do is add this to the `HEAD` of your `index.html` file:
+Add the following to your `index.html`:
 
 ```html
 <script>
@@ -34,48 +34,91 @@ You will now have access to the ARCx SDK instance via `window.arcx` anywhere in 
 
 ---
 
-To get started, simply install the SDK into your Typescript/Javascript project by running `npm add @arcxmoney/analytics` or `yarn add @arcxmoney/analytics` (whatever you prefer) ⭐️
+1. Install the npm package:
 
-Then, put the `ArcxAnalyticsProvider` anywhere at top of your component tree.
+```
+yarn add @arcxmoney/analytics
+```
+
+or
+
+```
+npm install @arcxmoney/analytics --save
+```
+
+
+
+2. Use the `ArcxAnalyticsProvider` anywhere at the top of your component tree.
 
 ```html
-// App.jsx import { ArcxAnalyticsProvider } from '@arcxmoney/analytics' export default App = () => (
+import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
+
+export default App = () => (
 <ArcxAnalyticsProvider apiKey="{YOUR_APY_KEY}">
-  {/* Your other components here, such as <ChildComponent /> */}
+  {/* Your other components here */}
 </ArcxAnalyticsProvider>
 )
 ```
 
-Now, you can use the `useArcxAnalytics()` hook in all of its child components to access the `sdk` object to log custom events or data. By default, only "click" and "page" events are automatically logged. To track transactions, signatures and wallets, you **must make the required calls for each**, as described in the [manual event tracking section below](#manual-event-tracking).
+
+
+3. Get the instance of the `sdk` from `useArcxAnalytics()` and track the blockchain-related or custom events. To make the most of the analytics platform, you *must* call the `wallet` and `transaction` methods. For example:
 
 ```html
-// ChildComponent.jsx
+// Component.jsx
 import { useArcxAnalytics } from '@arcxmoney/analytics'
 
-export const ChildComponent = () => {
+export const Component = () => {
   const sdk = useArcxAnalytics()
 
-  if (!sdk) return (
-    <div>loading...</div>
-  )
+	const onTxBtnClicked = async () => {
+		// Submit your transaction here
+		const txHash = await provider.sendTransactions(params)
+		
+		sdk.transaction({ transactionHash: txHash })
+	}
 
   return (
-    <button onClick={() => sdk.event('BUTTON_CLICKED')}>Emit event</button>
+    <button onClick={onTxBtnClicked}>Click to submit a tx</button>
   )
 }
 ```
 
-If you want to disable any of the default features, you can pass an optional `config` prop to the `ArcxAnalyticsProvider` component.
+#### Available SDK methods:
+
+| Method          | Parameters                                                   | Description                                                  |
+| --------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `wallet`        | - `chainId`: string or number<br />- `account`: string       | Track a wallet connection event                              |
+| `chain`         | - `chainId`: string or number<br />- `account`: string (optional). Will use the `account` value in the `wallet()` call if not passed | Track a chain changed event                                  |
+| `transaction`   | - `transactionHash`: string<br />- `account`: string (optional). Will use the `account` value in the `wallet()` call if not passed<br />- `chainId`: string or number (optional). If not provided, the previously recorded chainID will be used<br />- `metadata`: dictionary (optional). This is additional information about the transaction you might want to pass | Track a transaction event                                    |
+| `signature`     | - `message`: string - message that was signed<br />- `signatureHash`: string (optional)<br />- `account`: string. Will use the `account` value in the `wallet()` call if not passed | Track a signature transaction                                |
+| `disconnection` | - `account`: string (optional). The disconnected account. Will use the previously recorded account if not passed<br />- `chainId`: string or number (optional). Will use the previously recorded chain ID if not passed. | Track a wallet disconnection event.                          |
+| `event`         | - `name`: string. The name of the event<br />- `attributes`: dictionary (optional) | Track a custom event                                         |
+| `page`          |                                                              | Track a page view (current page). Note that you only have to call this if `trackPages` is set to `false` in the config. |
+
+
 
 ## Option 3 (via manual instantiation)
 
 ---
 
-This is for those that would like to have very granular control over what is sent and how tracking is implemented.
+---
 
-To get started, simply install the SDK into your Typescript/Javascript project by running `npm add @arcxmoney/analytics` or `yarn add @arcxmoney/analytics` (whatever you prefer) ⭐️
+1. Install the npm package:
 
-Once you’ve done that, you’ll need to initialise the SDK and keep an instance of it ready to reference in other parts of your app. In order to do this, add the following code on your app’s load:
+```
+yarn add @arcxmoney/analytics
+```
+
+or
+
+```
+npm install @arcxmoney/analytics --save
+```
+
+
+
+2. Initialize the SDK and keep an instance of it ready to reference in other parts of your app. To do this, add the following code on your app’s load:
 
 ```jsx
 import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
@@ -87,101 +130,11 @@ const sdk = await ArcxAnalyticsSdk.init(API_KEY, {
 })
 ```
 
-### Manual event tracking
 
-**Note:** the `sdk` instance in this section comes from the react hook (`sdk = useArcxAnalytics()`, option 2) or the manual instantiation as showin in option 3.
 
-#### 1. Wallet Connects
+3. Track the blockchain-related and custom events you want using the method list from step 2 above.
 
----
 
-A critical part of the ARCx analytics product is associating off-chain behaviour with on-chain wallet activity. In order to do this, we need to be able to link your wallet to the currently active session and the chain that the user is connected to. The chain field should contain the numeric chain ID passed as a string.
-
-```jsx
-sdk.wallet({ account: '0x1234', chainId: '1' })
-```
-
-#### 2. Chain changes
-
----
-
-To effectively track and log the changes in the blockchain that the wallet is connected to, the ARCx analytics SDK offers a `chain` function. Utilize this function to note the alterations in the chain ID, fostering more substantial and dynamic analytics. Here is a breakdown of how you can employ this function in your SDK:
-
-```typescript
-sdk.chain({ chainId: 1, account: '0x1234' })
-```
-
-**Parameters:**
-
-- `chainId`: (**Required**, number | string) - The new chain ID to which the wallet is connected. It can be in either hexadecimal or decimal format. The function records the current state of the chain ID, facilitating data capture on blockchain dynamics.
-- `account`: (Optional, string) - The wallet account involved in the change. If not passed, the SDK will resort to the last recorded account from a previous `connectWallet()` invocation or automatically retrieve it if Metamask is in use.
-
-#### 3. Transactions
-
----
-
-The final piece for a bare-bone installation of ARCx analytics is registering transactions that occur on-chain. In addition to passing the transaction hash, we need the ID of the chain the transaction is occurring on and optionally, any attributes you’d like to pass to further segment the event.
-
-```jsx
-sdk.transaction({
-  chain, // required(string) - chain ID that the transaction is taking place on
-  transactionHash, // required(string) - hash of the transaction
-  metadata, // optional(object) - additional information about the transaction
-})
-```
-
-> 🔥 Hurray! You’ve completed the bare-bone installation of the ARCx analytics SDK. The following steps beyond this are optional but can given greater resolution and insights if implemented.
-
-#### 4. Signatures
-
-Signing events can occur when a user signs a message through their wallet. The ARCx analytics SDK allows tracking these events through the signedMessage function. Leveraging this function enables the capturing of intricate details surrounding signed messages, enhancing the granularity of analytics derived from user interactions. Here’s how to use the function:
-
-```typescript
-sdk.signature({
-  message, // required(string) - The message that was signed
-  signatureHash, // optional(string) - The hash of the signature
-  account, // optional(string) - The account that signed the message. If not passed, the previously recorded account by the SDK will be utilized
-})
-```
-
-**Parameters:**
-
-- `message`: (**Required**, string) - The message that was signed. This parameter cannot be empty; attempting to pass an empty string will throw an error, ensuring that meaningful data is always captured.
-- `signatureHash`: (Optional, string) - The hash associated with the signature. While not compulsory, including this detail can help us confirm whether the signature is valid.
-- `account`: (Optional, string) - The account involved in signing the message. In instances where it is not provided, the SDK will refer to the most recently recorded account either from the last `connectWallet()` call or discovered automatically on Metamask given the `trackWalletConnections` option is turned on.
-
-#### 5. Wallet Disconnects (optional)
-
-The `disconnection` function is designed to log a wallet disconnection event. It also clears the cached known chain ID and account. Utilizing this function allows for accurate tracking of wallet disconnection events. Below is the syntax for using the function:
-
-```typescript
-sdk.disconnection({
-  account, // optional(string) - The account that got disconnected
-  chainId, // optional(string | number) - The chain ID from which the wallet disconnected
-})
-```
-
-**Parameters:**
-
-- `account`: (Optional, string) - Specifies the account that was disconnected. If this parameter is not provided, the SDK will use the most recently recorded account.
-- `chainId`: (Optional, string or number) - Indicates the chain ID from which the wallet was disconnected. If this parameter is not provided, the SDK will use the most recently recorded chain ID.
-
-If neither `account` nor `chainId` are provided, the function will return without logging the event, assuming that the disconnection has already been accounted for.
-
-#### 6. Events (optional)
-
----
-
-Tracking key events inside your app allows the product to provide detailed information such as what percentage of whales convert through your product funnel relative to new users. The more event data we have, the more insights we can provide to help improve your product.
-
-```jsx
-sdk.event(
-  eventName, // required(string) - the name of the event (eg. "clicked-tab")
-  attributes, // optional(object) - additional information about the event
-)
-```
-
-> ✅ That’s all there is to it. Leave all the magic on-chain wizardry to us from beyond here.
 
 # SDK Configuration
 
@@ -253,13 +206,12 @@ is set to `false`.
 
 **Parameters:**
 
-- `attributes` **(object)**
-  - `url` **(string)** - the new URL that the user has navigated to.
+- (none)
 
 **Example:**
 
 ```js
-await analytics.page({ url: 'https://dapp.com/subpage/' })
+await analytics.page()
 ```
 
 ### `wallet`
@@ -269,7 +221,7 @@ Logs when a user connects their wallet to the dApp.
 **Parameters:**
 
 - `attributes` **(object)**
-  - `chainId` **(number)** - the chain ID which this address applied to.
+  - `chainId` **(number)** - the chain ID to which this address is connected on.
   - `account` **(string)** - the address of the connected wallet on the supplied chain.
 
 **Example:**
@@ -302,7 +254,7 @@ await analytics.disconnection({
 
 ### `chain`
 
-Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behavior associated with different chains, facilitating a richer analysis in your ARCx analytics setup.
+Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behaviour associated with different chains, facilitating a richer analysis in your ARCx analytics setup.
 
 **Parameters:**
 
@@ -357,17 +309,17 @@ await analytics.signature({
 })
 ```
 
-# Important Note
+# Important Notes
 
 We do not support automatic wallet activity tracking with wallets other than Metamask.
 
-If your dApp supports multiple wallets, you must use the manual event tracking method (installation Option 2).
+Unless your dApp uses *only* Metamask, you need to either use the installation option 2 or 3.
 
 # Development notes
 
 To run a local version of the script:
 
-1. Run `yarn build` at root level to build the script.
+1. Run `yarn build` at the root level to build the script.
 2. Run `yarn copy-build-example` to copy the built contents into the `example/cra-script-tag` project.
 3. Make a copy of `.env.example` and rename it to `.env` in the `example/cra-script-tag` folder.
 4. Make sure to add your ARCx API + Alchemy keys to the `.env` file (find `YOUR_KEY_HERE`).
