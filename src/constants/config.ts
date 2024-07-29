@@ -9,8 +9,8 @@ export const DEFAULT_SDK_CONFIG: SdkConfig = {
   trackSigning: true,
   trackClicks: true,
   // TODO: Add back in once GCP Certificates are fixed (potentially linked to CrowdStrike)
-  // url: 'https://prod.clickstream.api.0xarc.io/v1',
-  url: 'https://prod.analytics.api.arcx.money/v1',
+  url: 'https://prod.clickstream.api.0xarc.io/v1',
+  // url: 'https://prod.analytics.api.arcx.money/v1',
 }
 
 export const IDENTITY_KEY = '0xArc-identity'
