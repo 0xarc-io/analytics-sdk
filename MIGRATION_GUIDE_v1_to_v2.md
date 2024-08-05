@@ -7,8 +7,6 @@ Upgrade to v2 for bug fixes, new features, and better data quality. The SDK v2 h
 - **Signature Hash**: Optionally pass in `signature()`.
 - **Device Info**: Including user agent, language, browser data, OS, and resolution.
 
-  
-
 ## Technical Changes
 
 #### Changed
@@ -28,8 +26,6 @@ Upgrade to v2 for bug fixes, new features, and better data quality. The SDK v2 h
 - `signature()`: To track signature events.
 - `disconnection()`: New function to track wallet disconnects.
 
-
-
 ## Migration Guide
 
 ### For Metamask-only dApps
@@ -45,13 +41,11 @@ You're set with the script tag. No changes needed.
 
 **For React Users**
 
-- Follow [Option 2](https://github.com/arcxmoney/analytics-sdk#option-3-via-manual-instantiation) to install. Use the saved API key like this: `<ArcxAnalyticsProvider apiKey={YOUR_API_KEY} />`.
+- Follow [Option 2](https://github.com/0xarc-io/analytics-sdk#option-3-via-manual-instantiation) to install. Use the saved API key like this: `<ArcxAnalyticsProvider apiKey={YOUR_API_KEY} />`.
 
 **For Non-React Users**
 
-- Check out [Option 3](https://github.com/arcxmoney/analytics-sdk#option-3-via-manual-instantiation) for installation steps.
-
-
+- Check out [Option 3](https://github.com/0xarc-io/analytics-sdk#option-3-via-manual-instantiation) for installation steps.
 
 #### NPM Package Users
 
@@ -63,6 +57,4 @@ You're set with the script tag. No changes needed.
 4. Rename: `connectWallet()` -> `wallet()`.
 5. Implement: `transaction()`, `wallet()`, `chain()`, `signature()`.
 
-
-
-[Consult the API Docs for more info](https://github.com/arcxmoney/analytics-sdk)
+[Consult the API Docs for more info](https://github.com/0xarc-io/analytics-sdk)
