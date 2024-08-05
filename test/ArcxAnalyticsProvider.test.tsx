@@ -65,7 +65,7 @@ describe('(int) ArcxAnalyticxProvider', () => {
     postRequestStub = sinon.stub(postRequestModule, 'postRequest').resolves(TEST_IDENTITY)
 
     // Stub _trackPagesChange because requestAnimationFrame throws during testing
-    // To be fixed in https://github.com/arcxmoney/analytics-sdk/issues/23
+    // To be fixed in https://github.com/0xarc-io/analytics-sdk/issues/23
     sinon.stub(ArcxAnalyticsSdk.prototype, '_trackPagesChange' as any)
   })
 
