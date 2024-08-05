@@ -18,4 +18,4 @@ Then, in children components, you will have access to the `useArcxAnalytics()` h
 
 ## Note
 
-You can test this app with the local package by linking it locally with [yarn link](https://classic.yarnpkg.com/lang/en/docs/cli/link/). If you face "two copies of react" problems, you can fix it by removing the packages `react, react-dom, @types/react` from `/` after you have built the package.
+You can test this app with the local package by linking it locally with [yarn link](https://classic.yarnpkg.com/lang/en/docs/cli/link/). If you face "two copies of React" problems, you can fix it by removing the packages `react, react-dom, @types/react` from `/` after you have built the package.
