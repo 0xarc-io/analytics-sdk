@@ -1,12 +1,12 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-# Usage of ARCx Analytics through a script tag
+# Usage of 0xArc Analytics through a script tag
 
 Simply add the following script in the header of your application:
 
 ```html
 <script>
-  const script = document.createElement('script');
+  const script = document.createElement('script')
   const apiKey = YOUR_API_KEY
   script.src = 'https://unpkg.com/@arcxmoney/analytics'
   script.onload = function () {

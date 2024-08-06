@@ -59,7 +59,7 @@ function App() {
       <div className="container mx-auto">
         <div className="flex flex-col justify-center items-center mt-24 gap-4">
           <h1 className="text-5xl font-bold">
-            ARCx Analytics Example Page |{' '}
+            0xArc Analytics Example Page |{' '}
             <span>
               <Routes>
                 <Route path="/" element="Home" />
@@ -70,7 +70,7 @@ function App() {
             </span>
           </h1>
           <p className="text-center">
-            Welcome to the ARCx Analytics example page!
+            Welcome to the 0xArc Analytics example page!
             <br />
             Click on the buttons below to change routes and fire events. You can observe what is
             being sent to the API below

@@ -1,6 +1,6 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-# Usage of ARCx Analytics React Provider
+# Usage of 0xArc Analytics React Provider
 
 If you have a React app, one easy way to integrate the SDK is to simply add the `ArcxAnalyticsProvider` at the root of your application:
 
