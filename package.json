@@ -16,6 +16,9 @@
     }
   },
   "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
   "license": "MIT",
   "dependencies": {
     "@restless/sanitizers": "^0.2.5",
