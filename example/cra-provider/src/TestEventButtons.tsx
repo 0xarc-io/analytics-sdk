@@ -1,4 +1,4 @@
-import { useArcxAnalytics } from '@arcxmoney/analytics'
+import { useArcxAnalytics } from '@0xarc-io/analytics'
 
 export const TestEventButtons = () => {
   const sdk = useArcxAnalytics()
@@ -21,7 +21,7 @@ export const TestEventButtons = () => {
         </button>
         <button
           className="rounded-full bg-red-500 px-4 py-2 hover:bg-red-300 font-bold"
-          onClick={() => sdk?.["_report"]('warning', 'Example report')}
+          onClick={() => sdk?.['_report']('warning', 'Example report')}
         >
           Report example warning
         </button>

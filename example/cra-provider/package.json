@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@arcxmoney/analytics": "^2.0.1",
+    "@0xarc-io/analytics": "^2.0.1",
     "@babel/plugin-syntax-flow": "^7.14.5",
     "@babel/plugin-transform-react-jsx": "^7.14.9",
     "@types/node": "^16.7.13",

@@ -1,4 +1,4 @@
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![npm version](https://badge.fury.io/js/@arcxmoney%2Fanalytics.svg)](https://badge.fury.io/js/@arcxmoney%2Fanalytics) [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/) [![npm version](https://badge.fury.io/js/@0xarc-io%2Fanalytics.svg)](https://badge.fury.io/js/@0xarc-io%2Fanalytics) [![semantic-release: angular](https://img.shields.io/badge/semantic--release-angular-e10079?logo=semantic-release)](https://github.com/semantic-release/semantic-release)
 
 > The 0xArc Analytics SDK is a simple SDK that helps provide higher fidelity analytics by merging on-chain data with off-chain data from front-ends. We value user privacy and do not collect IP addresses or scrape any information without your permission.
 
@@ -15,7 +15,7 @@ Add the following to your `index.html`:
   const script = document.createElement('script')
   const apiKey = YOUR_API_KEY
   const config = {} // Add any configuration parameters you'd like here
-  script.src = '<https://unpkg.com/@arcxmoney/analytics>'
+  script.src = '<https://unpkg.com/@0xarc-io/analytics>'
   script.onload = function () {
     ArcxAnalyticsSdk.init(apiKey, config, 'script-tag').then(function (sdk) {
       window.arcx = sdk
@@ -37,13 +37,13 @@ You will now have access to the 0xArc SDK instance via `window.arcx` anywhere in
 1. Install the npm package:
 
 ```
-yarn add @arcxmoney/analytics
+yarn add @0xarc-io/analytics
 ```
 
 or
 
 ```
-npm install @arcxmoney/analytics --save
+npm install @0xarc-io/analytics --save
 ```
 
 2. Use the `ArcxAnalyticsProvider` anywhere at the top of your component tree.
@@ -51,7 +51,7 @@ npm install @arcxmoney/analytics --save
 ```jsx
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { ArcxAnalyticsProvider } from '@arcxmoney/analytics'
+import { ArcxAnalyticsProvider } from '@0xarc-io/analytics'
 import App from './App' // Import your main App component
 
 const apiKey = 'YOUR_API_KEY' // Replace with your actual 0xArc analytics API key
@@ -142,19 +142,19 @@ You are now ready to go! For additional methods supported, please see below.
 1. Install the npm package:
 
 ```
-yarn add @arcxmoney/analytics
+yarn add @0xarc-io/analytics
 ```
 
 or
 
 ```
-npm install @arcxmoney/analytics --save
+npm install @0xarc-io/analytics --save
 ```
 
 2. Initialize the SDK and keep an instance of it ready to reference in other parts of your app. To do this, add the following code on your app’s load:
 
 ```jsx
-import { ArcxAnalyticsSdk } from '@arcxmoney/analytics'
+import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
 
 const sdk = await ArcxAnalyticsSdk.init(API_KEY, {
   // list any features you'd like to disable here

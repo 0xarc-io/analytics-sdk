@@ -1,4 +1,4 @@
-import { useArcxAnalytics } from '@arcxmoney/analytics'
+import { useArcxAnalytics } from '@0xarc-io/analytics'
 import { useWeb3React } from '@web3-react/core'
 
 export const EthereumEventsButtons = () => {

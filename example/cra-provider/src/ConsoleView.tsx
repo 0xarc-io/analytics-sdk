@@ -1,4 +1,4 @@
-import { Attributes, useArcxAnalytics } from '@arcxmoney/analytics'
+import { Attributes, useArcxAnalytics } from '@0xarc-io/analytics'
 import { useEffect, useState } from 'react'
 import { Socket } from 'socket.io-client'
 import { CustomRequest } from './types'
