@@ -1,4 +1,4 @@
-import { Attributes } from '@arcxmoney/analytics'
+import { Attributes } from '@0xarc-io/analytics'
 
 export type CustomRequest = {
   method: string

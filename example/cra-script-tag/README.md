@@ -8,7 +8,7 @@ Simply add the following script in the header of your application:
 <script>
   const script = document.createElement('script')
   const apiKey = YOUR_API_KEY
-  script.src = 'https://unpkg.com/@arcxmoney/analytics'
+  script.src = 'https://unpkg.com/@0xarc-io/analytics'
   script.onload = function () {
     ArcxAnalyticsSdk.init(apiKey).then(function (sdk) {
       window.arcx = sdk

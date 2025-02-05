@@ -50,8 +50,8 @@ You're set with the script tag. No changes needed.
 #### NPM Package Users
 
 1. Update package:
-   - `yarn add @arcxmoney/analytics@^2.0.1` or
-   - `npm install @arcxmoney/analytics@^2.0.1`
+   - `yarn add @0xarc-io/analytics@^2.2.3` or
+   - `npm install @0xarc-io/analytics@^2.2.3`
 2. Remove: `setProvider()`
 3. Remove `trackReferrer`, `trackUTM` from the `config` param on the `ArcxAnalyticsProvider`, if present.
 4. Rename: `connectWallet()` -> `wallet()`.
