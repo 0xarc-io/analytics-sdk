@@ -6,8 +6,8 @@ import type * as Preset from '@docusaurus/preset-classic'
 
 const config: Config = {
   title: '0xArc Analytics SDK',
-  tagline: 'Dinosaurs are cool',
-  favicon: 'img/favicon.ico',
+  tagline: '0xArc Analytics SDK',
+  favicon: '/favicon-32x32.png',
 
   // Set the production url of your site here
   url: 'https://sdk.0xarc.io',
@@ -18,7 +18,7 @@ const config: Config = {
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
   organizationName: '0xArc', // Usually your GitHub org/user name.
-  projectName: 'SDK', // Usually your repo name.
+  projectName: 'analytics-sdk', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
@@ -67,12 +67,12 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
-    image: 'img/docusaurus-social-card.jpg',
+    // image: '/docusaurus-social-card.jpg',
     navbar: {
       title: '0xArc Analytics SDK',
       logo: {
         alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        src: '/logo.svg',
       },
       items: [
         {
