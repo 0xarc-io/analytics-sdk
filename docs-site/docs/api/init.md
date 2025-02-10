@@ -8,14 +8,14 @@ To initialize the Analytics SDK one should invoke the `init` method on the
 class. This configures the SDK with your API key and, optionally, configuration
 options.
 
-**Note**: you do not need to call this function if using the React provider. But the configuration options below are instead passed into the `config` prop of the `ArcxAnalyticsProvider` component. See [here](/docs/react/sdk-configuration-react#configuration-options) for React usage.
+**Note**: you do not need to call this function if using the React provider. But the configuration options below are instead passed into the `config` prop of the `ArcxAnalyticsProvider` component. See [here](/react/sdk-configuration-react#configuration-options) for React usage.
 
 ---
 
 ### Parameters
 
-- `apiKey` **(string)** - the 0xArc-provided API key. See [here](/docs/retrieve-api-key) for instructions on how to retrieve your API key.
-- `config` **(object)** - overrides of the default SDK configuration for [react](/docs/react/sdk-configuration-react) or [manual](/docs/manual/sdk-configuration-manual) usage.
+- `apiKey` **(string)** - the 0xArc-provided API key. See [here](/retrieve-api-key) for instructions on how to retrieve your API key.
+- `config` **(object)** - overrides of the default SDK configuration for [react](/react/sdk-configuration-react) or [manual](/manual/sdk-configuration-manual) usage.
 
 ---
 

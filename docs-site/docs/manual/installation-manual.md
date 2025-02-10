@@ -50,7 +50,7 @@ const sdk = await ArcxAnalyticsSdk.init('API_KEY', {
 
 ### 4. Configure the API key
 
-If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/docs/retrieve-api-key) docs.
+If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/retrieve-api-key) docs.
 
 Once you have your API key, pass the value of the API_KEY argument in the code snippet above to your API key.
 
@@ -60,4 +60,4 @@ Note that the api key is required. The key is a string that uniquely identifies 
 
 ### 5. Start tracking
 
-You are now ready to go! You can now [configure automatic tracking features in the SDK](/docs/manual/sdk-configuration-manual) or start [manually tracking blockchain and custom events](/docs/category/api-methods).
+You are now ready to go! You can now [configure automatic tracking features in the SDK](/manual/sdk-configuration-manual) or start [manually tracking blockchain and custom events](/category/api-methods).

@@ -59,7 +59,7 @@ ReactDOM.render(<RootComponent />, document.getElementById('root'))
 
 ### 4. Pass your API Key to the provider
 
-If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/docs/retrieve-api-key) docs.
+If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/retrieve-api-key) docs.
 
 Once you have your API key, pass it to the provider as a prop, as demonstrated in the example above.
 
@@ -67,4 +67,4 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 
 ---
 
-You are now ready to go! You can now [configure automatic tracking features in the SDK](/docs/react/sdk-configuration-react) or start [tracking events manually](/docs/react/usage-react).
+You are now ready to go! You can now [configure automatic tracking features in the SDK](/react/sdk-configuration-react) or start [tracking events manually](/react/usage-react).
