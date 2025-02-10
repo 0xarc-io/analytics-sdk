@@ -67,4 +67,4 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 
 ---
 
-You are now ready to go! You can now [configure automatic tracking features in the SDK](/docs/sdk-configuration) or start [tracking events manually](/docs/category/sdk-usage).
+You are now ready to go! You can now [configure automatic tracking features in the SDK](/docs/react/sdk-configuration-react) or start [tracking events manually](/docs/react/usage-react).
