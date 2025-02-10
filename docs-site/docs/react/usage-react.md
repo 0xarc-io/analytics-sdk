@@ -32,8 +32,8 @@ const WalletConnectionTracker = () => {
 
 ### 3. Track any events
 
-For a full list of events, see the [API Methods](/docs/category/api-methods) section.
+For a full list of events, see the [API Methods](/category/api-methods) section.
 
-See the [React Examples](/docs/react/examples) section for how the API methods are used in practice.
+See the [React Examples](/react/examples) section for how the API methods are used in practice.
 
 ---

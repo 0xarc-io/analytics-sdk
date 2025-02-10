@@ -12,7 +12,7 @@ You can disable any automatic tracking feature you want by passing an optional `
 
 The configuration options are passed into the `config` prop of the `ArcxAnalyticsProvider` component.
 
-All of the configuration options are the same as the ones described in the [Configuration](/docs/api/init#configuration-options) docs.
+All of the configuration options are the same as the ones described in the [Configuration](/api/init#configuration-options) docs.
 
 ---
 

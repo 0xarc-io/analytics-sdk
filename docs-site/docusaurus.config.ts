@@ -90,7 +90,7 @@ const config: Config = {
           items: [
             {
               label: 'SDK Documentation',
-              to: '/docs/intro',
+              to: '/',
             },
           ],
         },
