@@ -1,0 +1,8 @@
+{
+  "label": "Installation",
+  "position": 3,
+  "link": {
+    "type": "generated-index",
+    "description": "You can either install the SDK via a script tag or manually via NPM. Note that the script tag method only supports Metamask."
+  }
+}
