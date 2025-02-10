@@ -1,0 +1,70 @@
+---
+sidebar_position: 1
+---
+
+# React (via NPM)
+
+React is the recommended way to use the SDK.
+
+---
+
+### 1. Install the NPM package
+
+###### via NPM
+
+```
+npm install @0xarc-io/analytics --save
+```
+
+or
+
+###### via YARN
+
+```
+yarn add @0xarc-io/analytics
+```
+
+---
+
+### 2. Import the React Provider
+
+Import the SDK React Provider at the top of your component tree
+
+```jsx
+import { ArcxAnalyticsProvider } from '@0xarc-io/analytics'
+```
+
+---
+
+### 3. Wrap your tree with the provider
+
+```jsx
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { ArcxAnalyticsProvider } from '@0xarc-io/analytics'
+import App from './App' // Import your main App component
+
+const apiKey = 'YOUR_API_KEY' // Replace with your actual 0xArc analytics API key
+
+const RootComponent = () => (
+  <ArcxAnalyticsProvider apiKey={apiKey}>
+    <App />
+  </ArcxAnalyticsProvider>
+)
+
+ReactDOM.render(<RootComponent />, document.getElementById('root'))
+```
+
+---
+
+### 4. Pass your API Key to the provider
+
+If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/docs/retrieve-api-key) docs.
+
+Once you have your API key, pass it to the provider as a prop, as demonstrated in the example above.
+
+Note that the `apiKey` prop is required. The key is a string that uniquely identifies your project. Since it is a public key, you can safely expose it to the client.
+
+---
+
+You are now ready to go! For usage examples, please see the [SDK Usage](/docs/category/sdk-usage) docs.
