@@ -4,7 +4,7 @@
 
 # Documentation
 
-- See [https://sdk.0xarc.io](https://sdk.0xarc.io) for the full documentation
+- See [https://sdk.0xarc.io](https://sdk.0xarc.io)
 
 # Development notes
 
