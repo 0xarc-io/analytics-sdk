@@ -107,3 +107,26 @@ dist
 
 # Ignore test build folder in the example site
 example/cra-script-tag/public/analytics-sdk
+
+# --- docusaurus ---
+
+# Dependencies
+docs-site/node_modules
+
+# Production
+docs-site/build
+
+# Generated files
+docs-site/.docusaurus
+docs-site/.cache-loader
+
+# Misc
+docs-site/.DS_Store
+docs-site/.env.local
+docs-site/.env.development.local
+docs-site/.env.test.local
+docs-site/.env.production.local
+
+docs-site/npm-debug.log*
+docs-site/yarn-debug.log*
+docs-site/yarn-error.log*

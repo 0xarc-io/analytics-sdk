@@ -4,7 +4,7 @@
 
 # Documentation
 
-- TODO link documentation once deployed
+- See [https://sdk.0xarc.io](https://sdk.0xarc.io) for the full documentation
 
 # Development notes
 
