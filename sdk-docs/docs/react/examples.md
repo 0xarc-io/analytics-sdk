@@ -1,4 +1,8 @@
-3. Track wallet connection events whenever a wallet is connected
+# Examples
+
+### Track wallet connections
+
+Below is a basic example of how to track a wallet connection event.
 
 ```jsx
 const WalletConnectionTracker = () => {
@@ -19,7 +23,9 @@ const WalletConnectionTracker = () => {
 }
 ```
 
-4. Track transactions
+---
+
+### Track transactions
 
 ```jsx
 const TransactionButton = () => {

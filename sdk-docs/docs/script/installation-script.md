@@ -1,8 +1,12 @@
 ---
-sidebar_position: 3
+sidebar_position: 1
 ---
 
-# Script Tag (via CDN)
+# Installation (via CDN)
+
+Please note that the script tag method only supports Metamask.
+
+---
 
 ### 1. Add the script tag to your index.html
 
@@ -36,4 +40,4 @@ Note that the `apiKey` is required. The key is a string that uniquely identifies
 
 That’s it! The 0xArc SDK will automatically detect wallet connections, referrer data, button clicks, page tracks and transactions that occur on your front-end.
 
-You will now have access to the 0xArc SDK instance via `window.arcx` anywhere in the app, in case you want to use any specific functionality described in the [SDK Usage](/docs/category/sdk-usage) section.
+You will now have access to the 0xArc SDK instance via `window.arcx` anywhere in the app, in case you want to use any specific functionality described in the [API Methods](/docs/category/api-methods) section.

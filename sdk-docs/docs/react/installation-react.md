@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# React (via NPM)
+# Installation (via NPM)
 
 React is the recommended way to use the SDK.
 
@@ -67,4 +67,4 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 
 ---
 
-You are now ready to go! For usage examples, please see the [SDK Usage](/docs/category/sdk-usage) docs.
+You are now ready to go! You can now [configure automatic tracking features in the SDK](/docs/sdk-configuration) or start [tracking events manually](/docs/category/sdk-usage).
