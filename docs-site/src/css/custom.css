@@ -15,6 +15,7 @@
   --ifm-color-primary-lightest: #8f8eeb;
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+  --ifm-font-family-base: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
 
@@ -28,4 +29,109 @@
   --ifm-color-primary-lighter: #e4e6fc;
   --ifm-color-primary-lightest: #f0f2fd;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+}
+
+/* Reset all menu spacing first */
+.menu__list {
+  padding: 0;
+}
+
+.menu__list-item {
+  margin: 0;
+  position: relative;
+}
+
+/* Then add consistent spacing */
+.menu__list > .menu__list-item {
+  padding: 0.2rem 0;
+}
+
+/* Adjust nested items */
+.menu__list-item .menu__list {
+  padding-top: 0.1rem;
+  padding-bottom: 0.1rem;
+}
+
+.menu__list-item .menu__list .menu__list-item {
+  padding: 0.1rem 0;
+}
+
+/* Remove the previous spacing fixes */
+.menu__list-item + .menu__list-item {
+  margin-top: 0;
+}
+
+/* Menu item styling */
+.menu__link {
+  padding: 0.75rem 0.75rem;
+  color: #666666;  /* Light gray for regular items in light mode */
+  font-weight: 500;
+  border-radius: 6px;
+}
+
+/* Dark mode overrides */
+[data-theme='dark'] .menu__link {
+  color: #a7a7a7;  /* Lighter gray for better contrast in dark mode */
+}
+
+/* Selected/active item styling */
+.menu__link--active {
+  font-weight: 600;
+  color: #5b48b9;  /* Purple for active item */
+  background: rgba(91, 72, 185, 0.1);
+}
+
+/* Dark mode active state */
+[data-theme='dark'] .menu__link--active {
+  color: #aeb3f3;  /* Lighter purple in dark mode */
+  background: rgba(174, 179, 243, 0.1);  /* Adjusted background for dark mode */
+}
+
+/* Hover state */
+.menu__link:hover {
+  color: #5b48b9;
+  background: rgba(91, 72, 185, 0.05);
+}
+
+/* Dark mode hover */
+[data-theme='dark'] .menu__link:hover {
+  color: #aeb3f3;
+  background: rgba(174, 179, 243, 0.05);
+}
+
+/* Also style the active category header */
+[data-theme='dark'] .menu__list-item--collapsed .menu__link--active,
+[data-theme='dark'] .menu__list-item--collapsed .menu__link--sublist.menu__link--active {
+  color: #aeb3f3;
+}
+
+/* Style the dropdown caret container */
+.menu__caret {
+  padding: 0.3rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0.7rem;
+  right: 0.5rem;
+  border-radius: 50%;
+  background: rgba(91, 72, 185, 0.1);
+}
+
+/* Make the arrow smaller */
+.menu__caret:before {
+  width: 1.5rem;  /* Increased from 0.8rem */
+  height: 1.5rem;  /* Increased from 0.8rem */
+  background-size: 1.5rem 1.5rem;  /* Match the new size */
+}
+
+.menu__caret:hover {
+  background: rgba(91, 72, 185, 0.2);
+}
+
+/* Adjust the container for items with dropdowns */
+.menu__link--sublist {
+  padding-right: 2rem;
 }
