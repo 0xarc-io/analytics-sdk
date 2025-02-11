@@ -20,11 +20,31 @@ To manually track wallet disconnection events, use the `.disconnection()` method
 
 ---
 
-### Example
+### React Example
+
+```tsx
+import { useArcxAnalytics } from '@0xarc-io/analytics'
+
+const Component = () => {
+  const sdk = useArcxAnalytics()
+
+  const handleClick = async () => {
+    await sdk.disconnection({
+      account: '0x123',
+      chainId: 1,
+    })
+  }
+
+  return <button onClick={handleClick}>Send Event</button>
+}
+```
+
+### JS Example
 
 ```ts
-await sdk.disconnection({
-  account: '0x123',
-  chainId: 1,
-})
+import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
+
+const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY')
+
+await sdk.disconnection()
 ```

@@ -24,11 +24,13 @@ To manually track transaction submitted events, use the `.transaction()` method 
 ### React Example
 
 ```tsx
+import { useArcxAnalytics } from '@0xarc-io/analytics'
+
 const TransactionButton = () => {
   const { account, chainId } = useWeb3React()
-  const arcxAnalytics = useArcxAnalytics()
+  const sdk = useArcxAnalytics()
 
-  const handleTransactionSubmit = async () => {
+  const handleClick = async () => {
     // Example: Simulating a transaction call
     // In a real scenario, you would replace this with your transaction logic,
     // for example, using ethers.js or web3.js to interact with a smart contract
@@ -37,7 +39,7 @@ const TransactionButton = () => {
 
     // Assuming the transaction was successful and you have the hash
     // Now, track the transaction using the analytics SDK
-    arcxAnalytics.transaction({
+    sdk.transaction({
       transactionHash,
       account, // Optional: if not passed, the SDK will use the account from the last wallet() call
       chainId, // Optional: if not passed, the SDK will use the chainId from the last chain or wallet call
@@ -50,17 +52,32 @@ const TransactionButton = () => {
     console.log('Transaction tracked!')
   }
 
-  return <button onClick={handleTransactionSubmit}>Submit Transaction</button>
+  return <button onClick={handleClick}>Send Event</button>
 }
 ```
+
+Note: the `useWeb3React` hook is not required to track wallet connections. You can use any library you want to get the `account` and `chainId` values. This library is for demonstration purposes, from the [Uniswap web3-react library](https://github.com/Uniswap/web3-react).
 
 ---
 
 ### JS Example
 
-```ts
+```tsx
+import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
+
+const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY', { trackChainChanges: false })
+
+const transactionHash = '0x023c0e7...' // Placeholder for the actual transaction hash
+
+// Assuming the transaction was successful and you have the hash
+// Now, track the transaction using the analytics SDK
 await sdk.transaction({
-  chainId: 1,
-  transactionHash: '0xABCabc123',
+  transactionHash,
+  account, // Optional: if not passed, the SDK will use the account from the last wallet() call
+  chainId, // Optional: if not passed, the SDK will use the chainId from the last chain or wallet call
+  metadata: {
+    // Example metadata
+    action: 'User Initiated Transaction',
+  },
 })
 ```

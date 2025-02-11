@@ -2,7 +2,7 @@
 sidebar_position: 5
 ---
 
-# Chain Changed Events
+# Chain Change Events
 
 Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behaviour associated with different chains, facilitating a richer analysis in your 0xArc analytics setup.
 
@@ -20,8 +20,28 @@ To manually track chain change events, use the `.chain()` method on the SDK inst
 
 ---
 
-### Example
+### React Example
+
+```tsx
+import { useArcxAnalytics } from '@0xarc-io/analytics'
+
+const Component = () => {
+  const sdk = useArcxAnalytics()
+
+  const handleClick = async () => {
+    sdk.chain({ chainId: '1', account: '0x1234' })
+  }
+
+  return <button onClick={handleClick}>Send Event</button>
+}
+```
+
+### JS Example
 
 ```ts
-sdk.chain({ chainId: '1', account: '0x1234' })
+import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
+
+const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY', { trackChainChanges: false })
+
+await sdk.chain({ chainId: '1', account: '0x1234' })
 ```

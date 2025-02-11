@@ -61,5 +61,3 @@ await sdk.wallet({
   chainId: 1,
 })
 ```
-
----
