@@ -18,7 +18,7 @@ Logs when a user connects their wallet to the dApp.
 
 ### Example
 
-```js
+```ts
 await sdk.wallet({
   account: '0x123',
   chainId: 1,

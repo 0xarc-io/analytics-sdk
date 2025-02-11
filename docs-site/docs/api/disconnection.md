@@ -18,7 +18,7 @@ Logs a wallet disconnection event. This function will clear the cached known cha
 
 ### Example
 
-```typescript
+```ts
 await sdk.disconnection({
   account: '0x123',
   chainId: 1,

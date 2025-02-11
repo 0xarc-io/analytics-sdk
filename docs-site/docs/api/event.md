@@ -18,7 +18,7 @@ satisfy your requirements. This method can be used to track any event that you w
 
 ### Example
 
-```js
+```ts
 await sdk.event('CHANGED_PFP', {
   oldPFP: 'dingo',
   newPFP: 'unicorn',

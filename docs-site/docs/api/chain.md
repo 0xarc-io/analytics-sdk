@@ -18,6 +18,6 @@ Logs when there is a change in the blockchain the user’s wallet is connected t
 
 ### Example
 
-```typescript
+```ts
 sdk.chain({ chainId: '1', account: '0x1234' })
 ```

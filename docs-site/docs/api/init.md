@@ -21,9 +21,9 @@ options.
 
 ### Example
 
-```js
+```ts
 await sdk = await ArcxAnalyticsSdk.init(
-  YOUR_API_KEY, // The 0xArc-provided API key
+  'YOUR_API_KEY', // The 0xArc-provided API key
   {
     cacheIdentity: true,
     trackReferrer: true,

@@ -10,7 +10,7 @@ All of the SDK methods are available on the object returned by the `useArcxAnaly
 
 ### 1. Import the `useArcxAnalytics` React hook
 
-```jsx
+```tsx
 import { useArcxAnalytics } from '@0xarc-io/analytics'
 ```
 
@@ -20,7 +20,7 @@ import { useArcxAnalytics } from '@0xarc-io/analytics'
 
 Inside your React component, initialize the hook by calling `useArcxAnalytics()` and storing the result in a constant.
 
-```jsx
+```tsx
 const WalletConnectionTracker = () => {
   const sdk = useArcxAnalytics()
 

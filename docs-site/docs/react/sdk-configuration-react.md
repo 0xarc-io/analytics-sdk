@@ -18,7 +18,7 @@ All of the configuration options are the same as the ones described in the [Conf
 
 ## Example Usage
 
-```jsx
+```tsx
 <ArcxAnalyticsProvider
   apiKey="YOUR_API_KEY"
   config={{
