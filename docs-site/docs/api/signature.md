@@ -19,7 +19,7 @@ Logs a signing event when a message is signed.
 
 ### Example
 
-```typescript
+```ts
 await sdk.signature({
   message: 'Hello, world!',
   signatureHash: '0x123abc',

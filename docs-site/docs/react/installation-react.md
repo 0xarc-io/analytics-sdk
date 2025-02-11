@@ -12,7 +12,7 @@ React is the recommended way to use the SDK.
 
 ###### via NPM
 
-```
+```bash
 npm install @0xarc-io/analytics --save
 ```
 
@@ -20,7 +20,7 @@ or
 
 ###### via YARN
 
-```
+```bash
 yarn add @0xarc-io/analytics
 ```
 
@@ -30,7 +30,7 @@ yarn add @0xarc-io/analytics
 
 Import the SDK React Provider at the top of your component tree
 
-```jsx
+```tsx
 import { ArcxAnalyticsProvider } from '@0xarc-io/analytics'
 ```
 
@@ -38,7 +38,7 @@ import { ArcxAnalyticsProvider } from '@0xarc-io/analytics'
 
 ### 3. Wrap your tree with the provider
 
-```jsx
+```tsx
 import React from 'react'
 import ReactDOM from 'react-dom'
 import { ArcxAnalyticsProvider } from '@0xarc-io/analytics'

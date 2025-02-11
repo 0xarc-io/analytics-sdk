@@ -4,7 +4,7 @@
 
 Below is a basic example of how to track a wallet connection event.
 
-```jsx
+```tsx
 const WalletConnectionTracker = () => {
   const { account, chainId } = useWeb3React()
   const sdk = useArcxAnalytics()
@@ -27,7 +27,7 @@ const WalletConnectionTracker = () => {
 
 ### Track transactions
 
-```jsx
+```tsx
 const TransactionButton = () => {
   const { account, chainId } = useWeb3React()
   const arcxAnalytics = useArcxAnalytics()

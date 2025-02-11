@@ -16,6 +16,6 @@ Allows the manual logging of page visit events. Only use this method when the `t
 
 ### Example
 
-```jsx
+```ts
 await sdk.page()
 ```

@@ -12,7 +12,7 @@ Use this method if you are not using React.
 
 ###### via NPM
 
-```
+```bash
 npm install @0xarc-io/analytics --save
 ```
 
@@ -20,7 +20,7 @@ or
 
 ###### via YARN
 
-```
+```bash
 yarn add @0xarc-io/analytics
 ```
 
@@ -28,7 +28,7 @@ yarn add @0xarc-io/analytics
 
 ### 2. Import the SDK class
 
-```jsx
+```tsx
 import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
 ```
 
@@ -38,7 +38,7 @@ import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
 
 Initialize the SDK and keep an instance of it ready to reference in other parts of your app. To do this, add the following code on your app’s load:
 
-```jsx
+```tsx
 const sdk = await ArcxAnalyticsSdk.init('API_KEY', {
   // list any features you'd like to disable here
   trackPages: false,
@@ -52,7 +52,7 @@ const sdk = await ArcxAnalyticsSdk.init('API_KEY', {
 
 If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/retrieve-api-key) docs.
 
-Once you have your API key, pass the value of the API_KEY argument in the code snippet above to your API key.
+Once you have your API key, pass the value of the `API_KEY` argument in the code snippet above to your API key.
 
 Note that the api key is required. The key is a string that uniquely identifies your project. Since it is a public key, you can safely expose it to the client.
 

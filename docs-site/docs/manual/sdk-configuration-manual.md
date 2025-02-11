@@ -18,7 +18,7 @@ All of the configuration options are the same as the ones described in the [Conf
 
 ## Example Usage
 
-```jsx
+```ts
 const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY', {
   cacheIdentity: true,
   trackPages: true,

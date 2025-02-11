@@ -19,7 +19,7 @@ Logs when a transaction is submitted by a user.
 
 ### Example
 
-```js
+```ts
 await sdk.transaction({
   chainId: 1,
   transactionHash: '0xABCabc123',
