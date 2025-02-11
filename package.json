@@ -1,6 +1,6 @@
 {
   "name": "@0xarc-io/analytics",
-  "version": "1.4.0",
+  "version": "2.2.3",
   "repository": {
     "type": "git",
     "url": "https://github.com/0xarc-io/analytics-sdk.git"
