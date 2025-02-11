@@ -25,14 +25,14 @@ To manually track page events, use the `.page()` method on the SDK instance.
 ```tsx
 import { useArcxAnalytics } from '@0xarc-io/analytics'
 
-const PageEventTracker = () => {
+const Component = () => {
   const sdk = useArcxAnalytics()
 
-  const handlePageClick = async () => {
+  const handleClick = async () => {
     await sdk.page()
   }
 
-  return <button onClick={handlePageClick}>Track Page</button>
+  return <button onClick={handleClick}>Send Event</button>
 }
 ```
 
@@ -45,5 +45,3 @@ const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY', { trackPages: false })
 
 await sdk.page()
 ```
-
----
