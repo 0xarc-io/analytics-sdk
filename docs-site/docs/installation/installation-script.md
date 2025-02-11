@@ -1,8 +1,10 @@
 ---
-sidebar_position: 1
+sidebar_position: 3
 ---
 
-# Installation (via CDN)
+# Script Tag
+
+This method allows the 0xArc SDK to be added to your project via a HTML script tag, loaded in from a CDN.
 
 Please note that the script tag method only supports Metamask.
 

@@ -2,11 +2,15 @@
 sidebar_position: 5
 ---
 
-# `.chain()`
+# Chain Changed Events
 
 Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behaviour associated with different chains, facilitating a richer analysis in your 0xArc analytics setup.
 
 ---
+
+## Basic Usage
+
+To manually track chain change events, use the `.chain()` method on the SDK instance.
 
 ### Parameters
 

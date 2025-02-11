@@ -2,31 +2,13 @@
 sidebar_position: 1
 ---
 
-# Installation (via NPM)
+# React
 
 React is the recommended way to use the SDK.
 
 ---
 
-### 1. Install the NPM package
-
-###### via NPM
-
-```bash
-npm install @0xarc-io/analytics --save
-```
-
-or
-
-###### via YARN
-
-```bash
-yarn add @0xarc-io/analytics
-```
-
----
-
-### 2. Import the React Provider
+## 1. Import the React Provider
 
 Import the SDK React Provider at the top of your component tree
 
@@ -36,7 +18,7 @@ import { ArcxAnalyticsProvider } from '@0xarc-io/analytics'
 
 ---
 
-### 3. Wrap your tree with the provider
+## 2. Wrap your tree with the provider
 
 ```tsx
 import React from 'react'
@@ -57,7 +39,7 @@ ReactDOM.render(<RootComponent />, document.getElementById('root'))
 
 ---
 
-### 4. Pass your API Key to the provider
+## 3. Pass your API Key to the provider
 
 If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/retrieve-api-key) docs.
 
@@ -67,4 +49,29 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 
 ---
 
-You are now ready to go! You can now [configure automatic tracking features in the SDK](/react/sdk-configuration-react) or start [tracking events manually](/react/usage-react).
+## 4. Start tracking
+
+You are now ready to go! You now have two options for tracking events:
+
+1. You can utilise the [default configuration options](/react/sdk-configuration-react) for automatic tracking, or
+2. [Begin tracking events manually](/react/usage-react) for more fine-grained control
+
+### Manual Tracking
+
+To track events manually, you can use the `useArcxAnalytics` hook.
+
+All of the SDK methods are available on the object returned by the useArcxAnalytics hook.
+
+Import the hook from the NPM package. Then inside your React component, initialize the hook by calling `useArcxAnalytics()` and storing the result in a constant.
+
+```tsx
+import { useArcxAnalytics } from '@0xarc-io/analytics'
+
+const WalletConnectionTracker = () => {
+  const sdk = useArcxAnalytics()
+
+  return <div>Tracking wallet connections with useWeb3React.</div>
+}
+```
+
+For a full list of events, see the [Manual Tracking](/category/manual-tracking) section for how events are called in practice.
