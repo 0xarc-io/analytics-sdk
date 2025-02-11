@@ -42,4 +42,4 @@ Note that the `apiKey` is required. The key is a string that uniquely identifies
 
 That’s it! The 0xArc SDK will automatically detect wallet connections, referrer data, button clicks, page tracks and transactions that occur on your front-end.
 
-You will now have access to the 0xArc SDK instance via `window.arcx` anywhere in the app, in case you want to use any specific functionality described in the [API Methods](/category/api-methods) section.
+You will now have access to the 0xArc SDK instance via `window.arcx` anywhere in the app, in case you want to use any specific functionality described in the [Tracking Events](/category/5-tracking-events) section.

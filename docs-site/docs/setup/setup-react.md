@@ -57,8 +57,8 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 
 You are now ready to go! You now have two options for tracking events:
 
-1. You can utilise the [default configuration options](/react/sdk-configuration-react) for automatic tracking, or
-2. [Begin tracking events manually](/react/usage-react) for more fine-grained control
+1. You can utilise the [default configuration options](/tracking/automatic) for automatic tracking, or
+2. [Begin tracking events manually](/category/manual-tracking) for more fine-grained control
 
 ### Manual Tracking
 
