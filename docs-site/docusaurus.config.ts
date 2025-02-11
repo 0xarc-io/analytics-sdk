@@ -5,8 +5,8 @@ import type * as Preset from '@docusaurus/preset-classic'
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: '0xArc Analytics SDK',
-  tagline: '0xArc Analytics SDK',
+  title: '0xArc SDK',
+  tagline: '0xArc SDK',
   favicon: '/favicon-32x32.png',
 
   // Set the production url of your site here
@@ -38,10 +38,8 @@ const config: Config = {
         docs: {
           routeBasePath: '/', // Set this to '/' to make docs the root
           sidebarPath: './sidebars.ts',
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          // editUrl:
-          //   'https://github.com/facebook/docusaurus/tree/main/packages/create-docusaurus/templates/shared/',
+          sidebarCollapsible: true,
+          sidebarCollapsed: true,
         },
         // blog: {
         //   showReadingTime: true,
@@ -69,7 +67,7 @@ const config: Config = {
     // Replace with your project's social card
     // image: '/docusaurus-social-card.jpg',
     navbar: {
-      title: '0xArc Analytics SDK',
+      title: '0xArc SDK',
       logo: {
         alt: 'My Site Logo',
         src: '/logo.svg',
@@ -126,6 +124,10 @@ const config: Config = {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
+    sidebar: {
+      autoCollapseCategories: true,
+      hideable: true,
+    }
   } satisfies Preset.ThemeConfig,
 }
 
