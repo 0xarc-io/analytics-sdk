@@ -22,7 +22,7 @@ import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
 
 To initialize the Analytics SDK one should invoke the `.init()` method on the class. This configures the SDK with your API key and, optionally, configuration options.
 
-**Note**: you do not need to call this function if using the React provider. But the configuration options below are instead passed into the `config` prop of the `ArcxAnalyticsProvider` component. See [here](/react/sdk-configuration-react#configuration-options) for React usage.
+**Note**: you do not need to call this function if using the React provider. But the configuration options below are instead passed into the `config` prop of the `ArcxAnalyticsProvider` component. See [here](/tracking/automatic#configuration-options).
 
 Initialize the SDK and keep an instance of it ready to reference in other parts of your app. To do this, add the following code on your app’s load:
 
@@ -43,7 +43,7 @@ const sdk = await ArcxAnalyticsSdk.init(
 ### `.init()` Parameters
 
 - `apiKey` **(string)** - the 0xArc-provided API key. See [here](/retrieve-api-key) for instructions on how to retrieve your API key.
-- `config` **(object)** - overrides of the default [SDK configuration](/manual/sdk-configuration-manual).
+- `config` **(object)** - overrides of the default [SDK configuration](/tracking/automatic#configuration-options).
 
 ---
 
@@ -61,5 +61,5 @@ Note that the api key is required. The key is a string that uniquely identifies 
 
 You are now ready to go! You now have two options for tracking events:
 
-1. You can utilise the [default configuration options](/react/sdk-configuration-react) for automatic tracking, or
-2. [Begin tracking events manually](/react/usage-react) for more fine-grained control
+1. You can utilise the [default configuration options](/tracking/automatic) for automatic tracking, or
+2. [Begin tracking events manually](/category/manual-tracking) for more fine-grained control
