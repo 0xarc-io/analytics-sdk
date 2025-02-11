@@ -6,6 +6,10 @@ sidebar_position: 1
 
 React is the recommended way to use the SDK.
 
+This method utilises a React Provider to initialize the SDK.
+
+This method supports both automatic and manual tracking of events.
+
 ---
 
 ## 1. Import the React Provider

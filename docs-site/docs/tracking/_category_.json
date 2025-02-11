@@ -3,6 +3,6 @@
   "position": 5,
   "link": {
     "type": "generated-index",
-    "description": "This is the recommended way to install the SDK if you are using React. Available through NPM."
+    "description": "This section contains information on how to track events using the SDK. Events can be tracked automatically or manually. Manual tracking is recommended for more fine-grained control."
   }
 }

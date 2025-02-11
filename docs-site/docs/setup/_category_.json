@@ -3,6 +3,6 @@
   "position": 4,
   "link": {
     "type": "generated-index",
-    "description": "This option is allows installing the SDK via a script tag from a CDN. Only supports Metamask."
+    "description": "Before we can utilise the SDK, we must first instantiate it either via the React Provider or the `.init` method on the SDK instance."
   }
 }
