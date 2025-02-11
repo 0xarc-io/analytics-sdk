@@ -2,11 +2,15 @@
 sidebar_position: 7
 ---
 
-# `.signature()`
+# Signature Events
 
 Logs a signing event when a message is signed.
 
 ---
+
+## Basic Usage
+
+To manually track signature events, use the `.signature()` method on the SDK instance.
 
 ### Parameters
 

@@ -1,0 +1,8 @@
+{
+  "label": "5. Tracking Events",
+  "position": 5,
+  "link": {
+    "type": "generated-index",
+    "description": "This is the recommended way to install the SDK if you are using React. Available through NPM."
+  }
+}

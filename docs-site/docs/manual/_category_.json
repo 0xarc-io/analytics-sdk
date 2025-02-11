@@ -1,8 +1,0 @@
-{
-  "label": "2. Manual",
-  "position": 4,
-  "link": {
-    "type": "generated-index",
-    "description": "This is the recommended way to install the SDK if you are not using React. Installation is available through NPM and API usage is via JS."
-  }
-}

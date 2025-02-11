@@ -1,31 +1,27 @@
-# Examples
+---
+sidebar_position: 6
+---
 
-### Track wallet connections
+# Transaction Events
 
-Below is a basic example of how to track a wallet connection event.
-
-```tsx
-const WalletConnectionTracker = () => {
-  const { account, chainId } = useWeb3React()
-  const sdk = useArcxAnalytics()
-
-  useEffect(() => {
-    if (account && chainId) {
-      // Track the wallet connection with the SDK
-      sdk.wallet({
-        chainId,
-        account,
-      })
-    }
-  }, [account, chainId, sdk]) // Re-run this effect if account or chainId changes
-
-  return <div>Tracking wallet connections with useWeb3React.</div>
-}
-```
+Transaction Events are logged when a transaction is submitted by a user.
 
 ---
 
-### Track transactions
+## Basic Usage
+
+To manually track transaction submitted events, use the `.transaction()` method on the SDK instance.
+
+### Parameters
+
+- `attributes` **(object)**
+  - `chainId` **(string | number)** - the chain ID where the transaction took place.
+  - `transactionHash` **(string)** - the transaction hash of the transaction.
+  - `metadata` **(object)** - an optional collection of transaction metadata that you wish to capture.
+
+---
+
+### React Example
 
 ```tsx
 const TransactionButton = () => {
@@ -56,4 +52,15 @@ const TransactionButton = () => {
 
   return <button onClick={handleTransactionSubmit}>Submit Transaction</button>
 }
+```
+
+---
+
+### JS Example
+
+```ts
+await sdk.transaction({
+  chainId: 1,
+  transactionHash: '0xABCabc123',
+})
 ```

@@ -1,6 +1,6 @@
 {
-  "label": "3. Script",
-  "position": 5,
+  "label": "4. Setup",
+  "position": 4,
   "link": {
     "type": "generated-index",
     "description": "This option is allows installing the SDK via a script tag from a CDN. Only supports Metamask."

@@ -2,12 +2,16 @@
 sidebar_position: 8
 ---
 
-# `.event()`
+# Custom Events
 
 A generic, catch-all `event` log. Use this method when no existing methods
 satisfy your requirements. This method can be used to track any event that you want.
 
 ---
+
+## Basic Usage
+
+To manually track custom events, use the `.event()` method on the SDK instance.
 
 ### Parameters
 

@@ -2,11 +2,15 @@
 sidebar_position: 4
 ---
 
-# `.disconnection()`
+# Disconnection Events
 
 Logs a wallet disconnection event. This function will clear the cached known chain ID and account.
 
 ---
+
+## Basic Usage
+
+To manually track wallet disconnection events, use the `.disconnection()` method on the SDK instance.
 
 ### Parameters
 
