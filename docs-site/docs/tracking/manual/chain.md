@@ -4,7 +4,9 @@ sidebar_position: 5
 
 # Chain Change Events
 
-Logs when there is a change in the blockchain the user’s wallet is connected to. This function is instrumental in tracking user behaviour associated with different chains, facilitating a richer analysis in your 0xArc analytics setup.
+Chain Change Events are logged whenever there is a change in the blockchain the user’s wallet is connected to.
+
+This function is instrumental in tracking user behaviour associated with different chains, facilitating a richer analysis in the [0xArc Analytics App](https://app.0xarc.io).
 
 ---
 
