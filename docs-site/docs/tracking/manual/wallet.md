@@ -4,7 +4,7 @@ sidebar_position: 3
 
 # Wallet Connection Events
 
-Wallet Connection events are emitted whenever a user connects their wallet to the dApp.
+Wallet Connection Events are logged whenever a user connects their wallet to the dApp.
 
 These must be manually tracked when using the NPM package.
 

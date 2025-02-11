@@ -4,7 +4,9 @@ sidebar_position: 7
 
 # Signature Events
 
-Logs a signing event when a message is signed.
+Signature Events are logged whenever a message is signed.
+
+These events are automatically tracked, and can be disabled by setting the `trackSigning` config option to false.
 
 ---
 

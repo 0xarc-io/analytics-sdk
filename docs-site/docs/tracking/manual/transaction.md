@@ -4,7 +4,7 @@ sidebar_position: 6
 
 # Transaction Events
 
-Transaction Events are logged when a transaction is submitted by a user.
+Transaction Events are logged when a transaction is **submitted** by a user.
 
 ---
 
@@ -57,8 +57,6 @@ const TransactionButton = () => {
 ```
 
 Note: the `useWeb3React` hook is not required to track wallet connections. You can use any library you want to get the `account` and `chainId` values. This library is for demonstration purposes, from the [Uniswap web3-react library](https://github.com/Uniswap/web3-react).
-
----
 
 ### JS Example
 

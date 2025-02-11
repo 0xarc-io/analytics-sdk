@@ -2,9 +2,11 @@
 sidebar_position: 4
 ---
 
-# Disconnection Events
+# Wallet Disconnection Events
 
-Logs a wallet disconnection event. This function will clear the cached known chain ID and account.
+Wallet Disconnection Events are logged whenever a user disconnects their wallet from the dApp.
+
+This function will clear the cached known chain ID and account.
 
 ---
 
