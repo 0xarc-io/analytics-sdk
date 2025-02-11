@@ -22,7 +22,7 @@ options.
 ### Example
 
 ```ts
-await sdk = await ArcxAnalyticsSdk.init(
+const sdk = await ArcxAnalyticsSdk.init(
   'YOUR_API_KEY', // The 0xArc-provided API key
   {
     cacheIdentity: true,
@@ -30,7 +30,7 @@ await sdk = await ArcxAnalyticsSdk.init(
     trackPages: true,
     trackUTM: true,
     trackTransactions: true,
-  }
+  },
 )
 ```
 
