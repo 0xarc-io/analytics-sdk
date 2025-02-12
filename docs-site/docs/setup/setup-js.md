@@ -42,22 +42,14 @@ const sdk = await ArcxAnalyticsSdk.init(
 
 ### `.init()` Parameters
 
-- `apiKey` **(string)** - the 0xArc-provided API key. See [here](/retrieve-api-key) for instructions on how to retrieve your API key.
+- `apiKey` **(string)** (required) - the 0xArc-provided API key. See [here](/retrieve-api-key) for instructions on how to retrieve your API key.
 - `config` **(object)** - overrides of the default [SDK configuration](/tracking/automatic#configuration-options).
 
----
-
-### 4. Configure the API key
-
-If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/retrieve-api-key) docs.
-
-Once you have your API key, pass the value of the `API_KEY` argument in the code snippet above to your API key.
-
-Note that the api key is required. The key is a string that uniquely identifies your project. Since it is a public key, you can safely expose it to the client.
+Note that the api key is required. The key is a string that uniquely identifies your project.
 
 ---
 
-### 5. Start tracking
+### 4. Start tracking
 
 You are now ready to go! You now have two options for tracking events:
 

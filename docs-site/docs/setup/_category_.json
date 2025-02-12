@@ -3,6 +3,6 @@
   "position": 4,
   "link": {
     "type": "generated-index",
-    "description": "Before we can utilise the SDK, we must first instantiate it either via the React Provider or the `.init` method on the SDK instance."
+    "description": "No further setup is required if you're using the Script Tag and this section can be skipped. Otherwise if you're using the NPM package, follow the steps below to initialise the SDK."
   }
 }

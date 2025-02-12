@@ -4,14 +4,19 @@ sidebar_position: 1
 
 # Automatic Tracking
 
-Whether you initialize the SDK via the React Provider, Script Tag, or manually with JavaScript, the SDK will automatically track certain events:
+Note that automatic tracking is limited for the React and JavaScript SDKs, with only support for:
 
 - Page Events
 - Click Events
+
+If you're using the Script tag, the SDK will in addition also track the following events - but only for MetaMask:
+
 - Wallet Connection Events
 - Chain Change Events
 - Transaction Events
 - Signing Events
+
+See the [configuration options](/tracking/automatic#configuration-options) below for more information on what events are supported.
 
 ---
 
@@ -54,16 +59,47 @@ const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY', {
 })
 ```
 
+### Script Tag
+
+If you're using the Script Tag, you can disable any automatic tracking feature you want by passing an optional `config` parameter to the `init` function during the [Script Tag Setup](/installation/installation-script).
+
+```html
+<script>
+  const script = document.createElement('script')
+  const apiKey = 'YOUR_API_KEY'
+
+  // Add any configuration parameters you'd like here
+  const config = {
+    cacheIdentity: true,
+    trackPages: true,
+    trackWalletConnections: true,
+    trackChainChanges: true,
+    trackTransactions: true,
+    trackSigning: true,
+    trackClicks: true,
+  }
+
+  script.src = '<https://unpkg.com/@0xarc-io/analytics>'
+  script.onload = function () {
+    ArcxAnalyticsSdk.init(apiKey, config, 'script-tag').then(function (sdk) {
+      window.arcx = sdk
+    })
+  }
+
+  document.head.appendChild(script)
+</script>
+```
+
 ---
 
 ### Configuration Options
 
-| Config key               | Type    | Description                                                                                     | Default | React | JS  |
-| ------------------------ | ------- | ----------------------------------------------------------------------------------------------- | ------- | ----- | --- |
-| `cacheIdentity`          | boolean | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`  | ✅    | ✅  |
-| `trackPages`             | boolean | Tracks whenever there is a URL change during the session and logs it automatically.             | `true`  | ✅    | ✅  |
-| `trackWalletConnections` | boolean | Automatically track wallet connections (Metamask only)                                          | `true`  | ❌    | ✅  |
-| `trackChainChanges`      | boolean | Automatically track chain ID changes (Metamask only)                                            | `true`  | ❌    | ✅  |
-| `trackTransactions`      | boolean | Automatically track transaction requests (Metamask only)                                        | `true`  | ❌    | ✅  |
-| `trackSigning`           | boolean | Automatically track signing requests (Metamask only)                                            | `true`  | ❌    | ✅  |
-| `trackClicks`            | boolean | Automatically track click events                                                                | `true`  | ✅    | ✅  |
+| Config key               | Type    | Description                                                                                     | Default | React | JS & Script Tag |
+| ------------------------ | ------- | ----------------------------------------------------------------------------------------------- | ------- | ----- | --------------- |
+| `cacheIdentity`          | boolean | Caches the identity of users in the browser's local storage to capture cross-session behaviours | `true`  | ✅    | ✅              |
+| `trackPages`             | boolean | Tracks whenever there is a URL change during the session and logs it automatically.             | `true`  | ✅    | ✅              |
+| `trackWalletConnections` | boolean | Automatically track wallet connections (Metamask only)                                          | `true`  | ❌    | ✅              |
+| `trackChainChanges`      | boolean | Automatically track chain ID changes (Metamask only)                                            | `true`  | ❌    | ✅              |
+| `trackTransactions`      | boolean | Automatically track transaction requests (Metamask only)                                        | `true`  | ❌    | ✅              |
+| `trackSigning`           | boolean | Automatically track signing requests (Metamask only)                                            | `true`  | ❌    | ✅              |
+| `trackClicks`            | boolean | Automatically track click events                                                                | `true`  | ✅    | ✅              |
