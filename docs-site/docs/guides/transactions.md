@@ -76,7 +76,7 @@ _Note that tracking the submitted transaction manually via the `.transaction()` 
 
 Now we have a complete picture of the transaction process from the point of **trigger** to **submission**. This allows us to capture how many users are starting a transaction vs completing it, and figuring out potential drop off points.
 
-We can add additional events between the trigger and submission to capture more information as desired. See the [Custom Events Guide](/guides/custom-event-best-practices) for more info.
+We can add additional events between the trigger and submission to capture more information as desired. See the [Custom Events Guide](/guides/custom-events) for more info.
 
 For example, we can track when a user pops up the MetaMask modal before initiating a transaction:
 
