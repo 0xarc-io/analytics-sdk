@@ -41,10 +41,6 @@ const RootComponent = () => (
 ReactDOM.render(<RootComponent />, document.getElementById('root'))
 ```
 
----
-
-## 3. Pass your API Key to the provider
-
 If you haven't already, you can retrieve your API key by following the instructions in the [Retrieve your API Key](/retrieve-api-key) docs.
 
 Once you have your API key, pass it to the provider as a prop, as demonstrated in the example above.
@@ -53,7 +49,7 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 
 ---
 
-## 4. Start tracking
+## 3. Start tracking
 
 You are now ready to go! You now have two options for tracking events:
 
@@ -74,7 +70,11 @@ import { useArcxAnalytics } from '@0xarc-io/analytics'
 const WalletConnectionTracker = () => {
   const sdk = useArcxAnalytics()
 
-  return <div>Tracking wallet connections with useWeb3React.</div>
+  const handleClick = () => {
+    sdk.event('CLICK')
+  }
+
+  return <div onClick={handleClick}>Tracking wallet connections with useWeb3React.</div>
 }
 ```
 
