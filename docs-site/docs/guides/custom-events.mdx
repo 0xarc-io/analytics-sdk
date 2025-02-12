@@ -51,6 +51,29 @@ You can see that we used the `sdk.event()` method to log the custom event. The f
 
 ---
 
+## When to use custom events vs the provided SDK events
+
+As seen on the [Manual Tracking](/category/manual-tracking) pages, we have provided a handful of convenience methods for logging common events:
+
+- [Page Events](/tracking/manual/page)
+- [Wallet Connection Events](/tracking/manual/wallet)
+- [Wallet Disconnection Events](/tracking/manual/disconnection)
+- [Chain Change Events](/tracking/manual/chain)
+- [Transaction Submitted Events](/tracking/manual/transaction)
+- [Signature Events](/tracking/manual/signature)
+
+As the name implies, these events are provided for convenience, but may not necessarily exhaust all the events that you want to track.
+
+If you want more granular control over the events you track, you can use custom events which are extremely flexible.
+
+For example:
+
+- If you want to disable automatic click tracking and add custom click events, [you can do so with custom events](/guides/click)
+
+- If you want to have more granular coverage of the transaction process beyond just transaction submission, [you can do so with custom events](/guides/transactions)
+
+---
+
 ## Naming events
 
 There are no strict rules on how to name custom events, but here are some best practices:
