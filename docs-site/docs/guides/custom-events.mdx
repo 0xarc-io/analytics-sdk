@@ -21,8 +21,6 @@ Custom events are a way to track specific actions or interactions that occur in 
 
 There are two parts to custom events, the event name itself, and the custom event attributes.
 
-There are two parts to custom events, the event name itself, and the custom event attributes.
-
 For example, let's say we we want to log a custom event when a user opens the MetaMask modal. Let's call it something like "deposit attempted".
 
 ##### React Example
@@ -111,7 +109,7 @@ As you can see, noun-verb structure makes it easier to group and analyze related
 
 A powerful benefit of custom events is that they can be used to create funnels.
 
-Funnel are a way to track the user journey through your application. They are a powerful way to understand the user journey and the drop-off rate at each step.
+Funnel are a way to track the user journey through your application, and see the drop-off rate at each step.
 
 ### Step 1. Create a funnel
 
@@ -123,11 +121,11 @@ To create a funnel in the [0xArc app](https://app.0xarc.io/), visit the funnels 
 
 You can use the custom events you've emitted as the steps in the funnel.
 
-For example, in the image below, we click "Select condition" -> "Events" -> "Custom" -> and then in the list, we see the custom events we've emitted. Note that this liste is limited to 10, and the input allows you to search our database for all events, by custom event name.
+For example, in the image below, we click "Select condition" -> "Events" -> "Custom" -> and then in the list, we see the custom events we've emitted. Note that this list is limited to 10, and the input allows you to search our database for all custom events, by custom event name.
 
 <img src={Funnel2} width="800" />
 
-We see here that our 2 events are `METAMASK_OPENED`, and `TRANSACTION_TRIGGERED`.
+We see here that our 2 events are `WALLET_OPENED`, and `Chart Tab Selected`.
 
 ### Step 3. Apply the event
 
@@ -137,15 +135,15 @@ On the right, you will see a count of how many users have taken the action in yo
 
 <img src={Funnel3} width="800" />
 
-In our case, we can see that 9 transactions were triggered.
+In our case, we can see that 486 wallet open events were captured.
 
 ### Step 4. Filter the custom event by attribute
 
 Now that we have our custom event in the funnel, we can filter that event by key-value pairs of the custom event attributes.
 
-For example below, we filter the event by the `apiVersion` attribute, and check that the apiVersion is equal to '2'. Our results on the right change to 1 event matches this filter.
+For example below, we filter the event by the `apiVersion` attribute, and check that the apiVersion is equal to `2`.
 
-<img src={Funnel4} width="800" />
+<img src={Funnel4} width="400" />
 
 Note that if you want to filter by a custom event attribute, you can either:
 
