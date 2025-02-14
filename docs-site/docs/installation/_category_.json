@@ -1,8 +1,8 @@
 {
-  "label": "3. Installation",
+  "label": "3. Install the SDK",
   "position": 3,
   "link": {
     "type": "generated-index",
-    "description": "The SDK can either be installed through NPM or a CDN. NPM is the recommended approach and supports React usage."
+    "description": "The SDK can either be installed through NPM, or a CDN (via a HTML Script Tag). NPM is the recommended approach and supports React usage - whereas the CDN does not."
   }
 }
