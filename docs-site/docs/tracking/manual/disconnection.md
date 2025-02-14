@@ -8,6 +8,8 @@ Wallet Disconnection Events are logged whenever a user disconnects their wallet 
 
 This function will clear the cached known chain ID and account.
 
+These must be manually tracked when using the NPM package.
+
 ---
 
 ## Basic Usage

@@ -6,7 +6,9 @@ sidebar_position: 7
 
 Signature Events are logged whenever a message is signed.
 
-These events are automatically tracked, and can be disabled by setting the `trackSigning` config option to false.
+These must be manually tracked when using the NPM package.
+
+Signing Events are automatically tracked for MetaMask only, when using the [Script Tag method](/installation/installation-script). To disable automatic tracking in the Script Tag, set the [`trackSigning`](/tracking/automatic#configuration-options) config option to `false`.
 
 ---
 
