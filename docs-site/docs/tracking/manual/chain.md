@@ -34,7 +34,7 @@ const Component = () => {
     sdk.chain({ chainId: '1', account: '0x1234' })
   }
 
-  return <button onClick={handleClick}>Send Event</button>
+  return <button onClick={handleClick}>Change Chain</button>
 }
 ```
 

@@ -28,11 +28,12 @@ import { useArcxAnalytics } from '@0xarc-io/analytics'
 const Component = () => {
   const sdk = useArcxAnalytics()
 
-  const handleClick = async () => {
+  // Send page event when component mounts
+  useEffect(() => {
     await sdk.page()
-  }
+  }, [])
 
-  return <button onClick={handleClick}>Send Event</button>
+  return <button>Empty Button</button>
 }
 ```
 

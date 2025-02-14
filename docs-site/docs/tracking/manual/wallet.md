@@ -29,13 +29,18 @@ To manually track wallet connection events, use the `.wallet()` method on the SD
 Below is a basic example of how to track a wallet connection event.
 
 ```tsx
+import { useWeb3React } from '@web3-react/core'
+import { useArcxAnalytics } from '@0xarc-io/analytics'
+
 const WalletConnectionTracker = () => {
   const { account, chainId } = useWeb3React()
   const sdk = useArcxAnalytics()
 
+  // Effect runs when `account` or `chainId` changes
+  // Once the chainId and account values are available, track the wallet connection with the SDK
+  // As the wallet is now connected
   useEffect(() => {
     if (account && chainId) {
-      // Track the wallet connection with the SDK
       sdk.wallet({
         chainId,
         account,

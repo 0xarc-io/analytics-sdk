@@ -25,6 +25,7 @@ To manually track transaction submitted events, use the `.transaction()` method 
 
 ```tsx
 import { useArcxAnalytics } from '@0xarc-io/analytics'
+import { useWeb3React } from '@web3-react/core'
 
 const TransactionButton = () => {
   const { account, chainId } = useWeb3React()

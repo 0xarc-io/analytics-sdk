@@ -20,17 +20,17 @@ If you are using the React Provider, **you are required need to manually track t
 
 Event with the non-react `.init()` method, manual tracking allows for more fine-grained control over the tracking process.
 
-## Why manual tracking is recommended
+---
+
+## How to track the transaction process
+
+<!-- ## Why manual tracking is recommended
 
 A common goal is track when a user has deposited funds into their wallet. ie the transaction is **submitted**.
 
 But you may also want to track when a user **triggers** a transaction, but leaves the app before the transaction is **submitted**.
 
-Therefore if we only log confirmed transactions, we don't know why users abandon transactions, or where they drop off. To solve this, we can use custom events (`.event()`) to track every step of the transaction process.
-
----
-
-## How to track the transaction process
+Therefore if we only log confirmed transactions, we don't know why users abandon transactions, or where they drop off. To solve this, we can use custom events (`.event()`) to track every step of the transaction process. -->
 
 Instead, to capture every step of the transaction process, you can use custom events `.event()` combined with the `.transaction()` method.
 
