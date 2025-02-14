@@ -1,6 +1,7 @@
 {
   "label": "Guides",
   "position": 6,
+  "collapsed": false,
   "link": {
     "type": "generated-index",
     "description": "Here are some helpful guides for using the SDK."

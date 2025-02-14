@@ -17,13 +17,13 @@ For the API usage of custom events, please refer to the [Custom Events](/trackin
 
 ## What is a Custom Event?
 
-Custom events are a way to track specific actions or interactions that occur in your application. They are extremely flexible, and can be used to track any off-chain or on-chain event in your application.
+Custom events are a way to track specific actions or interactions that occur in your application. They are extremely flexible, and can be used to track any event in your application.
 
 There are two parts to custom events, the event name itself, and the custom event attributes.
 
-For example, let's say we we want to log a custom event when a user opens the MetaMask modal. Let's call it something like "deposit attempted".
+For example, let's say we we want to log a custom event when a user opens their wallet. Let's call it something like "wallet opened". The way we could track that custom event is by using the `sdk.event()` method.
 
-##### React Example
+### React Example
 
 ```tsx
 import { useArcxAnalytics } from '@0xarc-io/analytics'
@@ -32,39 +32,40 @@ const Component = () => {
   const sdk = useArcxAnalytics()
 
   const handleClick = async () => {
-    await sdk.event('DEPOSIT_ATTEMPED', {
-      transactionHash: '0x1234567890abcdef',
-      chainId: 1,
+    await sdk.event('WALLET_OPENED', {
       metadata: {
         apiVersion: 'v1',
       },
     })
   }
 
-  return <button onClick={handleClick}>User opens MetaMask modal</button>
+  return <button onClick={handleClick}>Open Wallet</button>
 }
 ```
 
-You can see that we used the `sdk.event()` method to log the custom event. The first string argument `'DEPOSITED_ATTEMPTED'` is the custom event name, and we can name it anything we want. The second argument is an optional object of custom event attributes, which are arbitrary key-value pairs that you can use to add any additional information about the events.
+You can see that we used the `sdk.event()` method to log the custom event.
+
+- The first string argument `'WALLET_OPENED'` is the custom event name, and we can name it anything we want.
+
+- The second argument is an optional object of custom event attributes, which are arbitrary key-value pairs that you can use to add any additional information about the events. In this example we attached the `apiVersion` attribute to the event, but it could be anything we want.
+
+### JS Example
+
+- See [here](/tracking/manual/event#js-example) for the JS example.
 
 ---
 
-## When to use custom events vs the provided SDK events
+## When to use custom events vs the SDK event methods
 
-As seen on the [Manual Tracking](/category/manual-tracking) pages, we have provided a handful of convenience methods for logging common events:
+As seen on the [Manual Tracking](/category/manual-tracking) pages, we have provided a handful of convenience methods for logging common events: [Page](/tracking/manual/page), [Wallet Connection](/tracking/manual/wallet), [Chain Change](/tracking/manual/chain), [Transaction](/tracking/manual/transaction), and [Signature](/tracking/manual/signature) Events.
 
-- [Page Events](/tracking/manual/page)
-- [Wallet Connection Events](/tracking/manual/wallet)
-- [Wallet Disconnection Events](/tracking/manual/disconnection)
-- [Chain Change Events](/tracking/manual/chain)
-- [Transaction Submitted Events](/tracking/manual/transaction)
-- [Signature Events](/tracking/manual/signature)
-
-As the name implies, these events are provided for convenience, but may not necessarily exhaust all the events that you want to track.
+These events may not necessarily exhaust all the events that you want to track.
 
 If you want more granular control over the events you track, you can use custom events which are extremely flexible.
 
-For example, if you want to have more granular coverage of the transaction process beyond just transaction submission, [you can do so with custom events](/guides/transactions)
+For an example of how to use custom events for more granular coverage, see the [Transactions](/guides/transactions) guide.
+
+For best practices on naming events and creating funnels, see below.
 
 ---
 

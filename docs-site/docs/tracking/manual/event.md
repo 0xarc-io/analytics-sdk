@@ -7,6 +7,8 @@ sidebar_position: 8
 A generic, catch-all `event` log. Use this method when no existing methods
 satisfy your requirements. This method can be used to track any event that you want, and supports more fine-grained control.
 
+See the [Custom Events Guide](/guides/custom-events) for more information on how to use custom events in practice.
+
 ---
 
 ## Basic Usage
