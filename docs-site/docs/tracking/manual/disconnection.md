@@ -18,7 +18,7 @@ To manually track wallet disconnection events, use the `.disconnection()` method
 
 - `attributes` **(object, optional)**
   - `account` **(string, optional)** - The disconnected account address. If not provided, the function will use the previously recorded account address.
-  - `chainId` **(string | number, optional)** - The chain ID from which the wallet was disconnected. If not passed, the function will use the previously recorded chain ID.
+  - `chainId` **(number | string, optional)** - The chain ID from which the wallet was disconnected. If not passed, the function will use the previously recorded chain ID.
 
 ---
 
