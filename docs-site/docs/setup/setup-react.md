@@ -8,7 +8,7 @@ React is the recommended way to use the SDK.
 
 This method utilises a React Provider to initialize the SDK.
 
-This method supports both automatic and manual tracking of events.
+This method supports the [automatic tracking](/tracking/automatic) of Click & Page Events, and the [manual tracking](/category/manual-tracking) of all other events.
 
 ---
 
@@ -53,29 +53,7 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 
 You are now ready to go! You now have two options for tracking events:
 
-1. You can utilise the [default configuration options](/tracking/automatic) for automatic tracking, or
-2. [Begin tracking events manually](/category/manual-tracking) for more fine-grained control
+1. You can utilise the [default configuration options](/tracking/automatic) for automatic tracking, and
+2. [Begin tracking events manually](/category/manual-tracking) for more fine-grained control.
 
-### Manual Tracking
-
-To track events manually, you can use the `useArcxAnalytics` hook.
-
-All of the SDK methods are available on the object returned by the useArcxAnalytics hook.
-
-Import the hook from the NPM package. Then inside your React component, initialize the hook by calling `useArcxAnalytics()` and storing the result in a constant.
-
-```tsx
-import { useArcxAnalytics } from '@0xarc-io/analytics'
-
-const WalletConnectionTracker = () => {
-  const sdk = useArcxAnalytics()
-
-  const handleClick = () => {
-    sdk.event('CLICK')
-  }
-
-  return <div onClick={handleClick}>Tracking wallet connections with useWeb3React.</div>
-}
-```
-
-For a full list of events, see the [Manual Tracking](/category/manual-tracking) section for how events are called in practice.
+**Note that these 2 methods are not mutually exclusive** - as you can utilise automatic tracking for Click & Page Events, and manual tracking for all other events.
