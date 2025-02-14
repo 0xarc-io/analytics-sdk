@@ -11,4 +11,4 @@ The 0xArc Analytics SDK is a simple SDK that helps provide higher fidelity analy
 
 We do not support automatic wallet activity tracking with wallets other than Metamask.
 
-Unless your dApp uses _only_ Metamask, you need to use the [NPM](/installation/installation-npm)
+Unless your dApp uses _only_ Metamask, you need to use the [NPM installation method](/installation/installation-npm).
