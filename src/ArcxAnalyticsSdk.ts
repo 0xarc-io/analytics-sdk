@@ -513,7 +513,7 @@ export class ArcxAnalyticsSdk {
   /** PUBLIC METHODS **/
   /********************/
 
-  /** Initialises the Analytics SDK with desired configuration. */
+  /** Initializes the Analytics SDK with desired configuration. */
   static async init(apiKey: string, config?: Partial<SdkConfig>): Promise<ArcxAnalyticsSdk> {
     const sdkConfig = { ...DEFAULT_SDK_CONFIG, ...config }
 
