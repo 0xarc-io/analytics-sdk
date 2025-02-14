@@ -4,6 +4,8 @@ sidebar_position: 2
 
 # Tracking Transactions
 
+<!-- For example, via the [ethers library](https://docs.ethers.org/v5/api/utils/transactions/) or whichever library you're using. -->
+
 Tracking transactions is a common goal, but is not always straightforward.
 
 This guide explains to how to track transactions, and when it can be insufficient to use automatic tracking (via the Script Tag) versus using manual tracking - via the `.transaction()` method to track submitted transactions, combined with the `.event()` custom event method to track every step of the transaction process.
@@ -103,16 +105,6 @@ const Component = () => {
 ```
 
 We call the custom event `DEPOSIT_ATTEMPED` to indicate that the user attempted to deposit funds. Again, we can name the custom event whatever we want, and add any metadata we want. The values above are for demonstration purposes.
-
----
-
-## Crafting the Transaction Hash
-
-If you want to track the transaction hash before the user has actually submitted the transaction, as we've done above, we can utilise the transaction hash via your frontend code by crafting an unsigned transaction.
-
-For example, via the [ethers library](https://docs.ethers.org/v5/api/utils/transactions/) or whichever library you're using.
-
-This is possible since the transaction hash is deterministic based on the input parameters (and not the signature), meaning it can be generated before signing.
 
 ---
 
