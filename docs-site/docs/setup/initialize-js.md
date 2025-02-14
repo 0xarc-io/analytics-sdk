@@ -2,11 +2,9 @@
 sidebar_position: 2
 ---
 
-# JavaScript
+# NPM + JS
 
-This method utilises the JS in non-react projects to initialize the SDK.
-
-This is the recommended way to install the SDK if you are not using React. Installation is available through NPM and API usage is via JS.
+This method utilises JavaScript in non-React projects to initialize the SDK. Installation is available through NPM, and SDK initialization is via the `.init()` method.
 
 ---
 

@@ -2,7 +2,7 @@
 sidebar_position: 1
 ---
 
-# React
+# NPM + React
 
 React is the recommended way to use the SDK.
 

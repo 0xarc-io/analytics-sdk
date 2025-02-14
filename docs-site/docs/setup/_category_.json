@@ -1,8 +1,8 @@
 {
-  "label": "4. Initialise the SDK",
+  "label": "4. Initialize the SDK",
   "position": 4,
   "link": {
     "type": "generated-index",
-    "description": "No further setup is required if you're using the Script Tag and this section can be skipped. Otherwise if you're using the NPM package, follow the steps below to initialise the SDK."
+    "description": "No further setup is required if you're using the Script Tag and this section can be skipped. Otherwise if you're using the NPM package, follow the steps below to initialize the SDK."
   }
 }
