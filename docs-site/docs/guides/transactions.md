@@ -4,17 +4,21 @@ sidebar_position: 2
 
 # Tracking Transactions
 
+This guide explains to how to track transactions, and when it can be insufficient to use automatic tracking vs using manual tracking.
+
+### The importance of tracking transactions
+
+Tracking transactions via the SDK is required for the 0xArc App to fully benefit from the SDK. Without transaction events, we have no transaction hashes to match against the blockchain data we index, and the 0xArc App will not be able to show transaction data.
+
+### Automatic vs Manual tracking of transactions
+
 <!-- For example, via the [ethers library](https://docs.ethers.org/v5/api/utils/transactions/) or whichever library you're using. -->
 
-Tracking transactions is a common goal, but is not always straightforward.
+If you are automatically tracking transactions with the non-react `.init()` method, the SDK automatically tracks the `TRANSACTION_TRIGGERED` event and `TRANSACTION_SUBMITTED` events for you, but **only for MetaMask**.
 
-This guide explains to how to track transactions, and when it can be insufficient to use automatic tracking (via the Script Tag) versus using manual tracking - via the `.transaction()` method to track submitted transactions, combined with the `.event()` custom event method to track every step of the transaction process.
+If you are using the React Provider, **you are required need to manually track transactions**.
 
-## Limitations of automatic tracking via the Script Tag
-
-A reminder that the automatic tracking of transactions is only possible via the Script tag for MetaMask.
-
-With the `trackTransactions` configuration option for the Script tag, and the `.transaction()` event, you can only track the transaction after it's **submitted**. So you'd miss the opportunity to track the transaction at the point of **trigger**.
+Event with the non-react `.init()` method, manual tracking allows for more fine-grained control over the tracking process.
 
 ## Why manual tracking is recommended
 
@@ -41,16 +45,14 @@ const Component = () => {
   const sdk = useArcxAnalytics()
 
   const handleClick = async () => {
-    await sdk.event('TRANSACTION_TRIGGERED', {
-      transactionHash: '0x1234567890abcdef',
-      chainId: 1,
+    await sdk.event('WALLET_OPENED', {
       metadata: {
         apiVersion: 'v1',
       },
     })
   }
 
-  return <button onClick={handleClick}>The user triggers a transaction</button>
+  return <button onClick={handleClick}>Open web3 wallet</button>
 }
 ```
 
@@ -62,13 +64,13 @@ import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
 const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY')
 
 await sdk.event('TRANSACTION_TRIGGERED', {
-  transactionHash: '0x1234567890abcdef',
-  chainId: 1,
   metadata: {
     apiVersion: 'v1',
   },
 })
 ```
+
+We call the custom event `WALLET_OPENED` to indicate that the user opened their wallet. Again, we can name the custom event whatever we want, and add any metadata we want. The values above are for demonstration purposes.
 
 Note that the `.event()` method is more flexible than the `.transaction()` event and allows us to name the event whatever we want, and add any metadata we want. See the [`.event()` docs](/tracking/manual/event) for more info.
 
@@ -80,31 +82,7 @@ Now we have a complete picture of the transaction process from the point of **tr
 
 We can add additional events between the trigger and submission to capture more information as desired. See the [Custom Events Guide](/guides/custom-events) for more info.
 
-For example, we can track when a user pops up the MetaMask modal before initiating a transaction:
-
-### React Example
-
-```tsx
-import { useArcxAnalytics } from '@0xarc-io/analytics'
-
-const Component = () => {
-  const sdk = useArcxAnalytics()
-
-  const handleClick = async () => {
-    await sdk.event('DEPOSIT_ATTEMPED', {
-      transactionHash: '0x1234567890abcdef',
-      chainId: 1,
-      metadata: {
-        apiVersion: 'v1',
-      },
-    })
-  }
-
-  return <button onClick={handleClick}>User opens MetaMask modal</button>
-}
-```
-
-We call the custom event `DEPOSIT_ATTEMPED` to indicate that the user attempted to deposit funds. Again, we can name the custom event whatever we want, and add any metadata we want. The values above are for demonstration purposes.
+For example, we can track when a user pops up their web3 wallet before initiating a transaction:
 
 ---
 
