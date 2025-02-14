@@ -9,6 +9,8 @@ satisfy your requirements. This method can be used to track any event that you w
 
 See the [Custom Events Guide](/guides/custom-events) for more information on how to use custom events in practice.
 
+These must be manually tracked.
+
 ---
 
 ## Basic Usage

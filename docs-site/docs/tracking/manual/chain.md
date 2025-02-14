@@ -8,6 +8,8 @@ Chain Change Events are logged whenever there is a change in the blockchain the 
 
 This function is instrumental in tracking user behaviour associated with different chains, facilitating a richer analysis in the [0xArc Analytics App](https://app.0xarc.io).
 
+These must be manually tracked when using the NPM package.
+
 ---
 
 ## Basic Usage

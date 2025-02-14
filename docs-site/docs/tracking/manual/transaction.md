@@ -6,6 +6,8 @@ sidebar_position: 6
 
 Transaction Events are logged when a transaction is **submitted** by a user.
 
+These must be manually tracked when using the NPM package.
+
 ---
 
 ## Basic Usage
