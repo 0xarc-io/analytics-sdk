@@ -15,7 +15,7 @@ To manually track transaction submitted events, use the `.transaction()` method 
 ### Parameters
 
 - `attributes` **(object)**
-  - `chainId` **(string | number)** - the chain ID where the transaction took place.
+  - `chainId` **(number | string)** - the chain ID where the transaction took place.
   - `transactionHash` **(string)** - the transaction hash of the transaction.
   - `metadata` **(object)** - an optional collection of transaction metadata that you wish to capture.
 

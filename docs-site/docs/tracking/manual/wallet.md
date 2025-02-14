@@ -19,7 +19,7 @@ To manually track wallet connection events, use the `.wallet()` method on the SD
 ### Parameters
 
 - `attributes` **(object)**
-  - `chainId` **(number)** - the chain ID to which this address is connected on.
+  - `chainId` **(number | string)** - the chain ID to which this address is connected on.
   - `account` **(string)** - the address of the connected wallet on the supplied chain.
 
 ---
