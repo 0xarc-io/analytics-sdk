@@ -93,13 +93,14 @@ By using capitalized snake_case for the event name, it appears more readable, in
 
 When naming events, use a noun-verb structure rather than a verb-noun structure. This makes it easier to group the actions by event or noun type.
 
-| Event                 | ✅ Good naming (noun-verb) | ❌ Bad naming (verb-noun) |
-| --------------------- | -------------------------- | ------------------------- |
-| Wallet connected      | `WALLET_CONNECTED`         | `CONNECT_WALLET`          |
-| Wallet disconnected   | `WALLET_DISCONNECTED`      | `DISCONNECTED_WALLET`     |
-| Transaction submitted | `TRANSACTION_SUBMITTED`    | `SUBMITTED_TRANSACTION`   |
-| Transaction confirmed | `TRANSACTION_CONFIRMED`    | `CONFIRMED_TRANSACTION`   |
-| Token approved        | `TOKEN_APPROVED`           | `APPROVED_TOKEN`          |
+| Event            | ✅ Good naming (noun-verb) | ❌ Bad naming (verb-noun) |
+| ---------------- | -------------------------- | ------------------------- |
+| Wallet opened    | `WALLET_OPENED`            | `OPENED_WALLET`           |
+| Stake submitted  | `STAKE_SUBMITTED`          | `SUBMITTED_STAKE`         |
+| Swap clicked     | `SWAP_CLICKED`             | `CLICKED_SWAP`            |
+| Buy clicked      | `BUY_CLICKED`              | `CLICKED_BUY`             |
+| Sell clicked     | `SELL_CLICKED`             | `CLICKED_SELL`            |
+| Withdraw clicked | `WITHDRAW_CLICKED`         | `CLICKED_WITHDRAW`        |
 
 As you can see, noun-verb structure makes it easier to group and analyze related events together.
 
