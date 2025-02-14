@@ -22,72 +22,126 @@ Event with the non-react `.init()` method, manual tracking allows for more fine-
 
 ---
 
-## How to track the transaction process
+## How to manually track the transaction process
 
-<!-- ## Why manual tracking is recommended
+### Required events
 
-A common goal is track when a user has deposited funds into their wallet. ie the transaction is **submitted**.
+When manually tracking the transaction process, **you are required to at a minimum track the following events with the SDK**, so 0xArc has the necessary information to match your SDK events to the blockchain:
 
-But you may also want to track when a user **triggers** a transaction, but leaves the app before the transaction is **submitted**.
+1. [Wallet Connection](/tracking/manual/wallet)
+2. [Chain Changed](/tracking/manual/chain) - Required for us to know which chain the transaction took place on
+3. [Transaction](/tracking/manual/transaction) - Required for us to have the `transactionHash` to match the transaction against the blockchain
+4. Although not strictly required, we strongly encourage you to also track [Signing Events](/tracking/manual/signature) for a complete picture.
 
-Therefore if we only log confirmed transactions, we don't know why users abandon transactions, or where they drop off. To solve this, we can use custom events (`.event()`) to track every step of the transaction process. -->
-
-Instead, to capture every step of the transaction process, you can use custom events `.event()` combined with the `.transaction()` method.
-
-For example, when a user initiates/**triggers** a transaction, you can log this using the `.event()` method:
+Note that if you do not track the first 3 events, the SDK will not be able to match the transaction to the blockchain, and the transaction will not be shown in the 0xArc App.
 
 ### React Example
 
 ```tsx
 import { useArcxAnalytics } from '@0xarc-io/analytics'
+import { useWeb3React } from '@web3-react/core'
+import { MetaMask } from '@web3-react/metamask'
 
 const Component = () => {
   const sdk = useArcxAnalytics()
+  const { account, chainId, activate, deactivate } = useWeb3React()
+  const metamaskConnector = new MetaMask()
 
-  const handleClick = async () => {
+  // 1. We will automatically track the page event to capture the page the user is on
+
+  // Store the previous chainId value in state
+  const [previousChainId, setPreviousChainId] = useState(chainId)
+
+  useEffect(() => {
+    setPreviousChainId(chainId)
+  }, [chainId])
+
+  const handleWalletOpen = async () => {
+    // 2. This is where you emit the wallet opened event, which is a custom SDK event
+    // We attach these extra attributes as metadata to the custom event,
+    // which we can use to filter events in the 0xArc App
     await sdk.event('WALLET_OPENED', {
-      metadata: {
-        apiVersion: 'v1',
-      },
+      apiVersion: 'v1',
+      walletType: 'METAMASK
+    })
+
+    // This function call opens the MetaMask wallet,
+    // triggering the useEffect below once the user connects
+    await activate(metamaskConnector)
+  }
+
+  const handleDisconnect = async () => {
+    // 6. This is where you emit the wallet disconnection event
+    await sdk.disconnection({ account, chainId })
+    // This function call closes the metamask wallet
+    await deactivate()
+  }
+
+  // 3. This is where you emit the wallet connection once the user has connected their web3 wallet
+  useEffect(() => {
+    if (account && chainId) {
+      sdk.wallet({ account, chainId })
+    }
+  }, [account, chainId, sdk])
+
+  // 4. Track when the chain changes
+  useEffect(() => {
+    if (chainId && chainId !== previousChainId) {
+      // If the chain ID is changed, we emit the chain changed event
+      sdk.chain({ chainId, account })
+    }
+  }, [chainId, sdk])
+
+
+// 5. The user has triggered a transaction. We send this to the SDK with the transaction hash
+const sendTransaction = async () => {
+  // Example: Simulating a transaction call
+  // In a real scenario, you would replace this with your transaction logic,
+  // for example, using ethers.js or web3.js to interact with a smart contract
+
+  const transactionHash = '0x023c0e7...' // Placeholder for the actual transaction hash
+
+    // Assuming the transaction was successful and you have the hash
+    // Now, track the transaction using the analytics SDK
+    sdk.transaction({
+      transactionHash,
+      account,
+      chainId,
     })
   }
 
-  return <button onClick={handleClick}>Open web3 wallet</button>
+  return (
+    <>
+      <button onClick={handleWalletOpen}>Open Wallet</button>
+      <button onClick={sendTransaction}>Trigger Transaction</button>
+      <button onClick={handleDisconnect}>Disconnect Wallet</button>
+    </>
+  )
 }
 ```
 
-### JS Example
+---
 
-```ts
-import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
+## Adding additional custom events
 
-const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY')
+Let's say you wanted to figure out: how many users are opening their wallet vs completing a transaction.
 
-await sdk.event('TRANSACTION_TRIGGERED', {
-  metadata: {
-    apiVersion: 'v1',
-  },
-})
-```
+By only emitting the transaction event, we don't know the answer to this.
 
-We call the custom event `WALLET_OPENED` to indicate that the user opened their wallet. Again, we can name the custom event whatever we want, and add any metadata we want. The values above are for demonstration purposes.
+By using custom events, we can track every step of the transaction process, and figure out the answer to this question - or any other question related to drop off rates.
 
-Note that the `.event()` method is more flexible than the `.transaction()` event and allows us to name the event whatever we want, and add any metadata we want. See the [`.event()` docs](/tracking/manual/event) for more info.
+We solve this in the example above by emitting a custom event called `WALLET_OPENED` to indicate that the user opened their wallet. Again, we can name the custom event whatever we want, and add any metadata we want. The values above are for demonstration purposes.
 
-After the user triggers a transaction, you can log the transaction being **submitted** using the `.transaction()` method as usual as outlined in the [`.transaction()` docs](/tracking/manual/transaction). The `.transaction()` method is used to log only submitted transactions, and not other steps in the transaction process.
-
-_Note that tracking the submitted transaction manually via the `.transaction()` method will be more reliable than us automatically tracking the events emitted by MetaMask via the Script Tag, as you have more fine-grained control over when events take place._
-
-Now we have a complete picture of the transaction process from the point of **trigger** to **submission**. This allows us to capture how many users are starting a transaction vs completing it, and figuring out potential drop off points.
+Now we have a complete picture of the transaction process from the point of **opening a wallet** to **submitting a transaction**. This allows us to [create a Funnel in 0xArc App](/guides/custom-events#custom-events-and-funnels) to answer our question above.
 
 We can add additional events between the trigger and submission to capture more information as desired. See the [Custom Events Guide](/guides/custom-events) for more info.
-
-For example, we can track when a user pops up their web3 wallet before initiating a transaction:
 
 ---
 
 ## Confirming a Submitted Transaction
 
-Although you can track the transaction hash manually for a **submitted transaction**, this is not necessarily required, since 0xArc pre-indexes all transaction data from the blockchain to match transaction hashes and confirm if a transaction was completed or not.
+Assuming you've sent the required `.transaction()` event as earlier outlined, 0xArc will automatically match the transaction hash of the transaction event to the submitted transaction on the blockchain, and confirm if a transaction was completed or not.
 
-But for us to match the transaction hash from the submitted transactions to your custom events emitted from your frontend, we need to ensure that the matching transaction hash is logged via your frontend code.
+This is possible since 0xArc pre-indexes all transaction data from the blockchain and matches the transaction hashes of the transaction events to the blockchain data.
+
+Therefore, you do not need to manually track the transaction hash of a submitted transaction, as 0xArc will automatically do this for you.
