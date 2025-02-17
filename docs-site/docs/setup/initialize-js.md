@@ -58,24 +58,22 @@ As mentioned earlier, you **must** manually track Wallet Connection and Transact
 The below is an example which shows how you would track the minimum required events to track a transaction, with the `@web3-react/core` library.
 
 ```tsx
+import { ArcxAnalyticsSdk } from '@0xarc-io/analytics'
+
+const sdk = await ArcxAnalyticsSdk.init('YOUR_API_KEY')
+
 // Get references to DOM elements
 const openWalletButton = document.querySelector('#open-wallet-btn')
 const sendTxButton = document.querySelector('#send-tx-btn')
 
-// Initialize web3-react connector
-const connector = new MetaMask()
 const context = Web3ReactProvider.getContext()
 
-// 1. This function call opens the MetaMask wallet,
-// triggering the account change handler below once the user connects
-const handleWalletOpen = async () => {
-  await context.activate(connector)
-}
+// 1. Implement your own logic here to actually open the web3 wallet
 
 // 2. This is where you emit the wallet connection once the user has connected their web3 wallet
 connector.on('Web3ReactUpdate', ({ account, chainId }) => {
   if (account && chainId) {
-    window.arcx.wallet({ account, chainId })
+    sdk.wallet({ account, chainId })
   }
 })
 
@@ -90,7 +88,7 @@ const sendTransaction = async () => {
 
   // Assuming the transaction was successful and you have the hash
   // Now, track the transaction using the analytics SDK
-  window.arcx.transaction({
+  sdk.transaction({
     transactionHash,
     account,
     chainId,
@@ -98,7 +96,7 @@ const sendTransaction = async () => {
 }
 
 // Attach click handlers
-openWalletButton.addEventListener('click', handleWalletOpen)
+openWalletButton.addEventListener('click', connectWallet)
 sendTxButton.addEventListener('click', sendTransaction)
 ```
 

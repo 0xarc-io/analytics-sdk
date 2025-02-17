@@ -60,18 +60,10 @@ The below is an example which shows how you would track the minimum required eve
 ```tsx
 import { useArcxAnalytics } from '@0xarc-io/analytics'
 import { useWeb3React } from '@web3-react/core'
-import { MetaMask } from '@web3-react/metamask'
 
 const Component = () => {
   const sdk = useArcxAnalytics()
   const { account, chainId } = useWeb3React()
-  const metamaskConnector = new MetaMask()
-
-  // 1. This function call opens the MetaMask wallet,
-  // triggering the useEffect below once the user connects
-  const handleWalletOpen = async () => {
-    await activate(metamaskConnector)
-  }
 
   // 2. This is where you emit the wallet connection once the user has connected their web3 wallet
   useEffect(() => {
@@ -99,7 +91,7 @@ const Component = () => {
 
   return (
     <>
-      <button onClick={handleWalletOpen}>Open Wallet</button>
+      <button>Open Wallet</button>
       <button onClick={sendTransaction}>Trigger Transaction</button>
     </>
   )
