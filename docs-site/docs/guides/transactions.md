@@ -52,7 +52,7 @@ const Component = () => {
 
   // 1. This is where you emit the wallet connection once the user has connected their web3 wallet
   useEffect(() => {
-    if (account && chainId) {
+    if (account && chainId && sdk) {
       sdk.wallet({ account, chainId })
     }
   }, [account, chainId, sdk])
@@ -76,7 +76,6 @@ const Component = () => {
 
   return (
     <>
-      <button>Open Wallet</button>
       <button onClick={sendTransaction}>Trigger Transaction</button>
     </>
   )
@@ -113,7 +112,7 @@ const Component = () => {
 
   // 1. Track wallet connections
   useEffect(() => {
-    if (account && chainId) {
+    if (account && chainId && sdk) {
       sdk.wallet({ account, chainId })
     }
   }, [account, chainId, sdk])
@@ -174,5 +173,3 @@ As you can see in the example above, we also show how triggering the `chain chan
 Assuming you've sent the required `.transaction()` event as earlier outlined, 0xArc will automatically match the transaction hash of the transaction event to the submitted transaction on the blockchain, and confirm if a transaction was completed or not.
 
 This is possible since 0xArc pre-indexes all transaction data from the blockchain and matches the transaction hashes of the transaction events to the blockchain data.
-
-Therefore, you do not need to manually track the transaction hash of a submitted transaction, as 0xArc will automatically do this for you.

@@ -67,7 +67,7 @@ const Component = () => {
 
   // 2. This is where you emit the wallet connection once the user has connected their web3 wallet
   useEffect(() => {
-    if (account && chainId) {
+    if (account && chainId && sdk) {
       sdk.wallet({ account, chainId })
     }
   }, [account, chainId, sdk])
@@ -91,7 +91,6 @@ const Component = () => {
 
   return (
     <>
-      <button>Open Wallet</button>
       <button onClick={sendTransaction}>Trigger Transaction</button>
     </>
   )
