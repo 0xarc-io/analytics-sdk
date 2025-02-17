@@ -45,27 +45,19 @@ The below is an example which shows how you would track the minimum required eve
 ```tsx
 import { useArcxAnalytics } from '@0xarc-io/analytics'
 import { useWeb3React } from '@web3-react/core'
-import { MetaMask } from '@web3-react/metamask'
 
 const Component = () => {
   const sdk = useArcxAnalytics()
   const { account, chainId } = useWeb3React()
-  const metamaskConnector = new MetaMask()
 
-  // 1. This function call opens the MetaMask wallet,
-  // triggering the useEffect below once the user connects
-  const handleWalletOpen = async () => {
-    await activate(metamaskConnector)
-  }
-
-  // 2. This is where you emit the wallet connection once the user has connected their web3 wallet
+  // 1. This is where you emit the wallet connection once the user has connected their web3 wallet
   useEffect(() => {
     if (account && chainId) {
       sdk.wallet({ account, chainId })
     }
   }, [account, chainId, sdk])
 
-  // 3. The user has triggered a transaction. We send this to the SDK with the transaction hash
+  // 2. The user has triggered a transaction. We send this to the SDK with the transaction hash
   const sendTransaction = async () => {
     // Example: Simulating a transaction call
     // In a real scenario, you would replace this with your transaction logic,
@@ -84,7 +76,7 @@ const Component = () => {
 
   return (
     <>
-      <button onClick={handleWalletOpen}>Open Wallet</button>
+      <button>Open Wallet</button>
       <button onClick={sendTransaction}>Trigger Transaction</button>
     </>
   )
@@ -110,89 +102,70 @@ We can add additional events between the trigger and submission to capture more 
 ### React Example
 
 ```tsx
+import { useEffect } from 'react'
 import { useArcxAnalytics } from '@0xarc-io/analytics'
 import { useWeb3React } from '@web3-react/core'
-import { MetaMask } from '@web3-react/metamask'
+import { injected } from './web3Provider'
 
 const Component = () => {
   const sdk = useArcxAnalytics()
-  const { account, chainId, activate, deactivate } = useWeb3React()
-  const metamaskConnector = new MetaMask()
+  const { account, chainId, activate, library } = useWeb3React()
 
-  // 1. We will automatically track the page event to capture the page the user is on
-
-  // Store the previous chainId value in state
-  const [previousChainId, setPreviousChainId] = useState(chainId)
-
-  useEffect(() => {
-    setPreviousChainId(chainId)
-  }, [chainId])
-
-  const handleWalletOpen = async () => {
-    // 2. This is where you emit the wallet opened event, which is a custom SDK event
-    // We attach these extra attributes as metadata to the custom event,
-    // which we can use to filter events in the 0xArc App
-    await sdk.event('WALLET_OPENED', {
-      apiVersion: 'v1',
-      walletType: 'METAMASK
-    })
-
-    // This function call opens the MetaMask wallet,
-    // triggering the useEffect below once the user connects
-    await activate(metamaskConnector)
-  }
-
-  const handleDisconnect = async () => {
-    // 6. This is where you emit the wallet disconnection event
-    await sdk.disconnection({ account, chainId })
-    // This function call closes the metamask wallet
-    await deactivate()
-  }
-
-  // 3. This is where you emit the wallet connection once the user has connected their web3 wallet
+  // 1. Track wallet connections
   useEffect(() => {
     if (account && chainId) {
       sdk.wallet({ account, chainId })
     }
   }, [account, chainId, sdk])
 
-  // 4. Track when the chain changes
+  // 2. Track when the chain changes
   useEffect(() => {
-    if (chainId && chainId !== previousChainId) {
+    if (sdk && chainId) {
       // If the chain ID is changed, we emit the chain changed event
-      sdk.chain({ chainId, account })
+      sdk.chain({ chainId })
     }
   }, [chainId, sdk])
 
+  const connectWallet = async () => {
+    // This function call opens the MetaMask wallet,
+    // triggering the useEffect below once the user connects
+    await activate(injected)
+  }
 
-// 5. The user has triggered a transaction. We send this to the SDK with the transaction hash
-const sendTransaction = async () => {
-  // Example: Simulating a transaction call
-  // In a real scenario, you would replace this with your transaction logic,
-  // for example, using ethers.js or web3.js to interact with a smart contract
+  // Example: Simulating a transaction call and tracking when the transaction was triggered and signed
+  const onSwapClicked = async () => {
+    const signer = library.getSigner(account)
 
-  const transactionHash = '0x023c0e7...' // Placeholder for the actual transaction hash
+    // 3. Track a custom event when the swap starts
+    sdk.event('SWAP_STARTED', {
+      from: account,
+      to: '0x...',
+      amount: 42,
+    })
 
-    // Assuming the transaction was successful and you have the hash
-    // Now, track the transaction using the analytics SDK
+    const tx = await signer.sendTransaction({ to: '0x...', value: 42 })
+
+    // 4. Track the signed transaction
     sdk.transaction({
-      transactionHash,
+      transactionHash: tx.hash,
       account,
       chainId,
+      metadata: {
+        action: 'SWAP',
+      },
     })
   }
 
   return (
-    <>
-      <button onClick={handleWalletOpen}>Open Wallet</button>
-      <button onClick={sendTransaction}>Trigger Transaction</button>
-      <button onClick={handleDisconnect}>Disconnect Wallet</button>
-    </>
+    <div>
+      <button onClick={connectWallet}>Connect Wallet</button>
+      <button onClick={onSwapClicked}>Swap</button>
+    </div>
   )
 }
 ```
 
-As you can see in the example above, we also show how triggering the `chain change` event, and `disconnection` event look in practice.
+As you can see in the example above, we also show how triggering the `chain change` event look in practice.
 
 ---
 

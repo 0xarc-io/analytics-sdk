@@ -57,6 +57,8 @@ You can see that we used the `sdk.event()` method to log the custom event.
 
 ## When to use custom events vs the SDK event methods
 
+Note that regardless of whether you decide to use Custom Events or not, you **must** implement both the [Wallet Connection](/tracking/wallet) and [Transaction](/tracking/transaction) events for the SDK tracking to properly work. See the [React](/setup/initialize-react) and [JS](/setup/initialize-js) guides for more information.
+
 As seen on the [Manual Tracking](/category/5-tracking-events) pages, we have provided a handful of convenience methods for logging common events: [Page](/tracking/page), [Wallet Connection](/tracking/wallet), [Chain Change](/tracking/chain), [Transaction](/tracking/transaction), and [Signature](/tracking/signature) Events.
 
 These events may not necessarily exhaust all the events that you want to track.
