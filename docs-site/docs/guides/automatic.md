@@ -14,7 +14,7 @@ Note that not all automatically tracked events can be disabled. See the React co
 <ArcxAnalyticsProvider
   apiKey="API_KEY"
   config={{
-    trackPages: true,
+    trackPages: false,
   }}
 >
   <App />

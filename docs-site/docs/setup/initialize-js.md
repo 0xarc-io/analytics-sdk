@@ -72,7 +72,7 @@ const context = Web3ReactProvider.getContext()
 
 // 2. This is where you emit the wallet connection once the user has connected their web3 wallet
 connector.on('Web3ReactUpdate', ({ account, chainId }) => {
-  if (account && chainId) {
+  if (account && chainId && sdk) {
     sdk.wallet({ account, chainId })
   }
 })

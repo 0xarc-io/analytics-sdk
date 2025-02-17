@@ -40,7 +40,7 @@ const WalletConnectionTracker = () => {
   // Once the chainId and account values are available, track the wallet connection with the SDK
   // As the wallet is now connected
   useEffect(() => {
-    if (account && chainId) {
+    if (account && chainId && sdk) {
       sdk.wallet({
         chainId,
         account,
