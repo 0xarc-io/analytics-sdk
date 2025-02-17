@@ -49,7 +49,7 @@ Note that the api key is required. The key is a string that uniquely identifies 
 
 ### 4. Start tracking
 
-You are now ready to go! You now have two options for tracking events:
+You now have two options for tracking events:
 
 1. You can utilise the [default configuration options](/tracking/automatic) for automatic tracking, or
 2. [Begin tracking events manually](/category/manual-tracking) for more fine-grained control
