@@ -6,4 +6,4 @@ sidebar_position: 3
 
 If you utilised the [Script Tag installation method](/installation/installation-script), the SDK has already been initialized and this section can be skipped.
 
-If you would like to disable some automatic tracking features, [see the guide](/tracking/automatic).
+If you would like to disable some automatic tracking features, [see the guide](/guides/automatic).

@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 3
 ---
 
 # Disable Automatic Tracking
@@ -29,7 +29,7 @@ You can disable any automatic tracking feature you want by passing an optional `
 
 The configuration options are passed into the `config` argument of the `ArcxAnalyticsSdk` function.
 
-All of the configuration options are described in the [Configuration](/tracking/automatic#configuration-options) section below.
+All of the configuration options are described in the [Configuration](/guides/automatic#configuration-options) section below.
 
 ### NPM Package
 
