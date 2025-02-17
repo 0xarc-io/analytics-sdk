@@ -6,6 +6,8 @@ sidebar_position: 2
 
 This method utilises JavaScript in non-React projects to initialize the SDK. Installation is available through NPM, and SDK initialization is via the `.init()` method.
 
+Click Events and Page Events are automatically tracked. For the SDK to properly work, you must manually track Wallet Connection and Transaction Events. Follow this guide for instructions.
+
 ---
 
 ### 1. Import the SDK class
@@ -49,7 +51,61 @@ Note that the api key is required. The key is a string that uniquely identifies 
 
 ### 4. Start tracking
 
-You now have two options for tracking events:
+To disable the automatic tracking of Click & Page Events, see [here](/guides/automatic).
 
-1. You can utilise the [default configuration options](/guides/automatic) for automatic tracking, or
-2. [Begin tracking events manually](/category/5-tracking-events) for more fine-grained control
+As mentioned earlier, you **must** manually track Wallet Connection and Transaction Events for the SDK to work properly.
+
+The below is an example which shows how you would track the minimum required events to track a transaction, with the `@web3-react/core` library.
+
+```tsx
+// Get references to DOM elements
+const openWalletButton = document.querySelector('#open-wallet-btn')
+const sendTxButton = document.querySelector('#send-tx-btn')
+
+// Initialize web3-react connector
+const connector = new MetaMask()
+const context = Web3ReactProvider.getContext()
+
+// 1. This function call opens the MetaMask wallet,
+// triggering the account change handler below once the user connects
+const handleWalletOpen = async () => {
+  await context.activate(connector)
+}
+
+// 2. This is where you emit the wallet connection once the user has connected their web3 wallet
+connector.on('Web3ReactUpdate', ({ account, chainId }) => {
+  if (account && chainId) {
+    window.arcx.wallet({ account, chainId })
+  }
+})
+
+// 3. The user has triggered a transaction. We send this to the SDK with the transaction hash
+const sendTransaction = async () => {
+  // Example: Simulating a transaction call
+  // In a real scenario, you would replace this with your transaction logic,
+  // for example, using ethers.js or web3.js to interact with a smart contract
+
+  const transactionHash = '0x023c0e7...' // Placeholder for the actual transaction hash
+  const { account, chainId } = context.getState()
+
+  // Assuming the transaction was successful and you have the hash
+  // Now, track the transaction using the analytics SDK
+  window.arcx.transaction({
+    transactionHash,
+    account,
+    chainId,
+  })
+}
+
+// Attach click handlers
+openWalletButton.addEventListener('click', handleWalletOpen)
+sendTxButton.addEventListener('click', sendTransaction)
+```
+
+### Tracking Other SDK Events
+
+If you would like to track other events like [Signing Events](/tracking/signature), [Chain Change Events](/tracking/chain), or [Wallet Disconnection Events](/tracking/disconnection), you can do so by following the instructions in the respective guides linked.
+
+### Tracking Custom Events
+
+If you would like to track custom events, you can do so by following the instructions in the [Custom Events](/guides/custom-events) guide.
