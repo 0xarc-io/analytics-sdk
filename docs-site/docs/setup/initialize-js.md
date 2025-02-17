@@ -52,4 +52,4 @@ Note that the api key is required. The key is a string that uniquely identifies 
 You now have two options for tracking events:
 
 1. You can utilise the [default configuration options](/guides/automatic) for automatic tracking, or
-2. [Begin tracking events manually](/category/manual-tracking) for more fine-grained control
+2. [Begin tracking events manually](/category/5-tracking-events) for more fine-grained control

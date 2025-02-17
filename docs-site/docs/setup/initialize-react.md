@@ -2,13 +2,13 @@
 sidebar_position: 1
 ---
 
-# NPM + React
+# NPM + React (Recommended)
 
 React is the recommended way to use the SDK.
 
 This method utilises a React Provider to initialize the SDK.
 
-This method supports the [automatic tracking](/guides/automatic) of Click & Page Events, and the [manual tracking](/category/manual-tracking) of all other events.
+This method supports the [automatic tracking](/guides/automatic) of Click & Page Events, and the [manual tracking](/category/5-tracking-events) of all other events.
 
 ---
 
@@ -54,6 +54,6 @@ Note that the `apiKey` prop is required. The key is a string that uniquely ident
 You now have two options for tracking events:
 
 1. You can utilise the [default configuration options](/guides/automatic) for automatic tracking, and
-2. [Begin tracking events manually](/category/manual-tracking) for more fine-grained control.
+2. [Begin tracking events manually](/category/5-tracking-events) for more fine-grained control.
 
 **Note that these 2 methods are not mutually exclusive** - as you can utilise automatic tracking for Click & Page Events, and manual tracking for all other events.

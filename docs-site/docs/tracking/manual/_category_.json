@@ -1,8 +1,0 @@
-{
-  "label": "Manual Tracking",
-  "position": 7,
-  "link": {
-    "type": "generated-index",
-    "description": "See the below examples of how to manually track events using the SDK."
-  }
-}
