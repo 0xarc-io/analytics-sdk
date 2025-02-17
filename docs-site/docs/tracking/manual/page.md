@@ -6,7 +6,7 @@ sidebar_position: 2
 
 Page Events are logged whenever there is a URL change during the user's session.
 
-These events are automatically tracked, and can be disabled by setting the [`trackPages`](/tracking/automatic#configuration-options) config option to `false`.
+These events are automatically tracked, and can be disabled by setting the [`trackPages`](/guides/automatic#configuration-options) config option to `false`.
 
 ---
 

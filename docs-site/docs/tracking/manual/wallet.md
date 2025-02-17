@@ -8,7 +8,7 @@ Wallet Connection Events are logged whenever a user connects their wallet to the
 
 These must be manually tracked when using the NPM package.
 
-Wallet connections are automatically tracked for MetaMask only, when using the [Script Tag method](/installation/installation-script). To disable automatic tracking in the Script Tag, set the [`trackWalletConnections`](/tracking/automatic#configuration-options) config option to `false`.
+Wallet connections are automatically tracked for MetaMask only, when using the [Script Tag method](/installation/installation-script). To disable automatic tracking in the Script Tag, set the [`trackWalletConnections`](/guides/automatic#configuration-options) config option to `false`.
 
 ---
 
