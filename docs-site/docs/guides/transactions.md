@@ -28,15 +28,15 @@ Event with the non-react `.init()` method, manual tracking allows for more fine-
 
 When manually tracking the transaction process, **you are required to at a minimum track the following events with the SDK**, so 0xArc has the necessary information to match your SDK events to the blockchain:
 
-1. [Wallet Connection](/tracking/manual/wallet)
-2. [Transaction](/tracking/manual/transaction) - Required for us to have the `transactionHash` to match the transaction against the blockchain
+1. [Wallet Connection](/tracking/wallet)
+2. [Transaction](/tracking/transaction) - Required for us to have the `transactionHash` to match the transaction against the blockchain
 
 **Note that if you do not track these 2 events, the SDK will not be able to match the transaction to the blockchain, and the transaction will not be shown in the 0xArc App.**
 
 Although not strictly required, we strongly encourage you to also track the following events:
 
-3. [Chain Changed](/tracking/manual/chain) - Required for us to know which chain the transaction took place on
-4. [Signing Events](/tracking/manual/signature) - for a complete picture
+3. [Chain Changed](/tracking/chain) - Required for us to know which chain the transaction took place on
+4. [Signing Events](/tracking/signature) - for a complete picture
 
 ### React Example of Required Events
 

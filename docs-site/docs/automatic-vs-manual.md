@@ -8,12 +8,12 @@ sidebar_position: 1
 
 In theory, the SDK supports automatic tracking of the following event types:
 
-- [Page Events](/tracking/manual/page)
+- [Page Events](/tracking/page)
 - Click Events
-- [Transaction Events](/tracking/manual/transaction)
-- [Signing Events](/tracking/manual/signature)
-- [Chain Change Events](/tracking/manual/chain)
-- [Wallet Connection Events](/tracking/manual/wallet)
+- [Transaction Events](/tracking/transaction)
+- [Signing Events](/tracking/signature)
+- [Chain Change Events](/tracking/chain)
+- [Wallet Connection Events](/tracking/wallet)
 
 ### Limitations of Automatic Tracking
 
@@ -24,7 +24,7 @@ In practice, automatic tracking is very limited:
 
 ## When to use Manual Tracking
 
-Use [manual tracking](/category/manual-tracking) if either of the following conditions are true:
+Use [manual tracking](/category/5-tracking-events) if either of the following conditions are true:
 
 1. You are using the React Provider and want to track any events that are not Click or Page Events
 2. You want to track any wallets that are not MetaMask - regardless of which SDK method you are using
