@@ -68,8 +68,6 @@
   },
   "scripts": {
     "prebuild": "yarn clean",
-    "publish-patch": "npm version patch && npm publish",
-    "publish-minor": "npm version minor && npm publish",
     "build": "yarn build-cjs && yarn build-esm && yarn webpack --mode=production",
     "build-cjs": "yarn tsc --build",
     "build-esm": "yarn tsc -m es6 --outdir dist/esm",
