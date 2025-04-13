@@ -8,6 +8,8 @@
 
 # Development notes
 
+- Ensure NPM releases are made via the ci/cd workflow, rather than through the command line, otherwise the sdk version won't be set correctly.
+
 To run a local version of the script:
 
 1. Run `yarn build` at the root level to build the script.
@@ -15,3 +17,5 @@ To run a local version of the script:
 3. Make a copy of `.env.example` and rename it to `.env` in the `example/cra-script-tag` folder.
 4. Make sure to add your 0xArc API + Alchemy keys to the `.env` file (find `YOUR_KEY_HERE`).
 5. Run `cd example/cra-script-tag && yarn && yarn start` to start the example app.
+
+
